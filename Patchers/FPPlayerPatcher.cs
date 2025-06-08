@@ -82,14 +82,29 @@ namespace FP2_Sonic_Mod.Patchers
             // Reset the Wisp flag.
             HasWisp = false;
 
+            // Set up Sonic's special assets.
+            if (player.characterID == Plugin.sonicCharacterID)
+                SonicAssetSetup();
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void SonicAssetSetupFailsafe()
+        {
+            // If the Homing Attack cursor hasn't been created for whatever reason, then go and redo most of Sonic's setup.
+            if (HomingAttackCursor == null && player.characterID == Plugin.sonicCharacterID)
+                SonicAssetSetup();
+        }
+
+        private static void SonicAssetSetup()
+        {
             // If the player is Sonic, then handle some other things.
             if (player.characterID == Plugin.sonicCharacterID)
             {
                 // Set the clear and results jingles.
-
                 if (SceneManager.GetActiveScene().name != "GreenHill")
                     UnityEngine.Object.FindObjectOfType<FPAudio>().jingleStageComplete = Plugin.sonicClearJingle;
-                
+
                 player.bgmResults = Plugin.sonicResultsMusic;
 
                 // Get references to the Chaos Emerald objects.
@@ -1081,11 +1096,11 @@ namespace FP2_Sonic_Mod.Patchers
             }
 
             // Reduce the player's energy bar.
-            player.energy -= 0.8f;
+            player.energy -= (0.8f * FPStage.deltaTime);
 
             // If the player is colliding with a roof, then double the drain rate.
             if (player.colliderRoof != null)
-                player.energy -= 0.8f;
+                player.energy -= (0.8f * FPStage.deltaTime);
         }
 
         /// <summary>
@@ -1592,6 +1607,7 @@ namespace FP2_Sonic_Mod.Patchers
                 foreach (AnimationClip animation in player.animator.runtimeAnimatorController.animationClips)
                 {
                     // Check if this animation is the Swimming one or that the player is a base game character.
+                    // This causes problems for characters that are meant to swim, but lack a Swimming animation for whatever reason.
                     if (animation.name == "Swimming" || player.characterID <= (FPCharacterID)4)
                     {
                         // Check if the player is not on the ground, in the Spring animation, is in water and has at most -2 on their Y velocity.
