@@ -6,6 +6,10 @@
         [HarmonyPatch(typeof(MenuCredits), "Start")]
         static void EditCredits(ref AudioClip[] ___castVoice, ref float ___normalSpeed)
         {
+            // If we're not Sonic, then don't make the edits.
+            if (FPSaveManager.character != Plugin.sonicCharacterID)
+                return;
+
             // Move the portrait down a bit. 
             var portraitPosition = GameObject.Find("Credits").transform.GetChild(19);
             portraitPosition.localPosition = new(portraitPosition.localPosition.x, 0, portraitPosition.localPosition.z);

@@ -14,7 +14,7 @@ namespace FP2_Sonic_Mod
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter.
     TODO: Give Sonic a guide in the pause menu and readd the line to the last tutorial sign.
     */
-    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.0.0")]
+    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.0.1")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
     public class Plugin : BaseUnityPlugin
     {
