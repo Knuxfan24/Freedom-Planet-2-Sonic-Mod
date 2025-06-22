@@ -13,6 +13,7 @@ namespace FP2_Sonic_Mod
     TODO: Custom event activator so that Sonic can appear in the few Classic Mode cutscenes that exist. I cannot be bothered to make that a priority so mreh.
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter.
     TODO: Give Sonic a guide in the pause menu and readd the line to the last tutorial sign.
+    TODO: Auto-Guard apparently makes Sonic basically invincible?
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.0.1")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
