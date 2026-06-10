@@ -104,7 +104,6 @@ namespace FP2_Sonic_Mod.Patchers
                 // Set the clear and results jingles.
                 if (SceneManager.GetActiveScene().name != "GreenHill")
                     UnityEngine.Object.FindObjectOfType<FPAudio>().jingleStageComplete = Plugin.sonicClearJingle;
-
                 player.bgmResults = Plugin.sonicResultsMusic;
 
                 // Get references to the Chaos Emerald objects.
@@ -150,7 +149,7 @@ namespace FP2_Sonic_Mod.Patchers
                         player.vaSpecialB = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_super_ryan")];
                         player.vaHit = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit4_ryan")];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover5_ryan")];
-                        player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item3_ryan")];
+                        player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item4_ryan")];
                         player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_ryan")];
                         player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
                         player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
@@ -1603,22 +1602,18 @@ namespace FP2_Sonic_Mod.Patchers
             // Only do this if the player isn't Sonic.
             if (player.characterID != Plugin.sonicCharacterID)
             {
-                // Loop through each animation in this player's animation controller.
-                foreach (AnimationClip animation in player.animator.runtimeAnimatorController.animationClips)
+                // Check if the player has a swimming animation (this will cause problems if a character doesn't have one but is meant to swim) or is a base game character.
+                // This causes problems for characters that are meant to swim, but lack a Swimming animation for whatever reason.
+                if (player.animator.HasState(0, Animator.StringToHash("Swimming")) || player.characterID <= (FPCharacterID)4)
                 {
-                    // Check if this animation is the Swimming one or that the player is a base game character.
-                    // This causes problems for characters that are meant to swim, but lack a Swimming animation for whatever reason.
-                    if (animation.name == "Swimming" || player.characterID <= (FPCharacterID)4)
+                    // Check if the player is not on the ground, in the Spring animation, is in water and has at most -2 on their Y velocity.
+                    if (!player.onGround && player.currentAnimation != "Spring" && player.targetWaterSurface != null && player.velocity.y < -2f)
                     {
-                        // Check if the player is not on the ground, in the Spring animation, is in water and has at most -2 on their Y velocity.
-                        if (!player.onGround && player.currentAnimation != "Spring" && player.targetWaterSurface != null && player.velocity.y < -2f)
-                        {
-                            // Set the player to their Swimming state.
-                            player.state = player.State_Swimming;
+                        // Set the player to their Swimming state.
+                        player.state = player.State_Swimming;
 
-                            // Stop the rest of the InAir state function from running.
-                            return false;
-                        }
+                        // Stop the rest of the InAir state function from running.
+                        return false;
                     }
                 }
             }
@@ -1637,21 +1632,18 @@ namespace FP2_Sonic_Mod.Patchers
             // Only do this if the player isn't Sonic.
             if (player.characterID != Plugin.sonicCharacterID)
             {
-                // Loop through each animation in this player's animation controller.
-                foreach (AnimationClip animation in player.animator.runtimeAnimatorController.animationClips)
+                // Check if the player has a swimming animation (this will cause problems if a character doesn't have one but is meant to swim) or is a base game character.
+                // This causes problems for characters that are meant to swim, but lack a Swimming animation for whatever reason.
+                if (player.animator.HasState(0, Animator.StringToHash("Swimming")) || player.characterID <= (FPCharacterID)4)
                 {
-                    // Check if this animation is the Swimming one or that the player is a base game character.
-                    if (animation.name == "Swimming" || player.characterID <= (FPCharacterID)4)
+                    // Check the original values and that we're in water.
+                    if ((overrideOnGroundStatus || !player.onGround) && (!overrideOnGroundStatus || !onGroundValue) && player.targetWaterSurface != null)
                     {
-                        // Check the original values and that we're in water.
-                        if ((overrideOnGroundStatus || !player.onGround) && (!overrideOnGroundStatus || !onGroundValue) && player.targetWaterSurface != null)
-                        {
-                            // Set the player to their Swimming state.
-                            player.state = player.State_Swimming;
+                        // Set the player to their Swimming state.
+                        player.state = player.State_Swimming;
 
-                            // Stop the rest of the ReturnToGeneralState state function from running.
-                            return false;
-                        }
+                        // Stop the rest of the ReturnToGeneralState state function from running.
+                        return false;
                     }
                 }
             }
