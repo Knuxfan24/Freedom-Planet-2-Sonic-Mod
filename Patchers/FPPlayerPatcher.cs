@@ -563,7 +563,7 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
             
             #region Guard
-            else if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && !isSuper && (!player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) || player.totalCrystals < 50))
+            else if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && !isSuper && (!player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) || player.totalCrystals < 50))
             {
                 if (Mathf.Abs(player.velocity.x) > 12f)
                 {
@@ -1034,7 +1034,7 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
 
             #region Guard
-            if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_Roll) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_Roll) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
                 player.SetPlayerAnimation("Guard");
                 player.idleTimer = Mathf.Min(player.idleTimer, 0f);

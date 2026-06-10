@@ -41,7 +41,7 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.state == new FPObjectState(player.State_InAir))
                 text3 = "Stomp";
 
-            if (player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash))
+            if (player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash) || FPPlayerPatcher.isSuper)
                 text4 = "-";
 
             if (!FPPlayerPatcher.HasWisp && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && !FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
