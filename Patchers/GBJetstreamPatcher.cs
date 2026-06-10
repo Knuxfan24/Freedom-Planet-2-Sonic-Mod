@@ -8,11 +8,14 @@
         {
             if (___targetPlayer != null)
             {
-                // Stop the Rocket Wisp jingle if it's still playing.
-                FPAudio.StopJingle();
+                if (___targetPlayer.characterID == Plugin.sonicCharacterID)
+                {
+                    // Stop the Rocket Wisp jingle if it's still playing.
+                    FPAudio.StopJingle();
 
-                // Hide the Rocket Wisp effect.
-                FPPlayerPatcher.RocketWispEffect.gameObject.SetActive(false);
+                    // Hide the Rocket Wisp effect.
+                    FPPlayerPatcher.RocketWispEffect.gameObject.SetActive(false);
+                }
             }
         }
     }

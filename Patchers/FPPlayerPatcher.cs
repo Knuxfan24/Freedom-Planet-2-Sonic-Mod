@@ -561,6 +561,27 @@ namespace FP2_Sonic_Mod.Patchers
                 player.genericTimer = 0f;
             }
             #endregion
+            
+            #region Guard
+            else if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && !isSuper)
+            {
+                if (Mathf.Abs(player.velocity.x) > 12f)
+                {
+                    player.SetPlayerAnimation("GuardAirFast", 0f, 0f);
+                }
+                else
+                {
+                    player.SetPlayerAnimation("GuardAir", 0f, 0f);
+                }
+                player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
+                player.Action_Guard();
+                player.Action_ShadowGuard();
+                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
+                guardFlash.parentObject = player;
+                player.Action_StopSound();
+                FPAudio.PlaySfx(15);
+            }
+            #endregion
         }
 
         /// <summary>
@@ -1009,6 +1030,21 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset our generic timer.
                 player.genericTimer = 0f;
+            }
+            #endregion
+
+            #region Guard
+            if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_Roll) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            {
+                player.SetPlayerAnimation("Guard");
+                player.idleTimer = Mathf.Min(player.idleTimer, 0f);
+                player.groundVel = 0f;
+                player.Action_Guard();
+                player.Action_ShadowGuard();
+                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
+                guardFlash.parentObject = player;
+                player.Action_StopSound();
+                FPAudio.PlaySfx(15);
             }
             #endregion
         }

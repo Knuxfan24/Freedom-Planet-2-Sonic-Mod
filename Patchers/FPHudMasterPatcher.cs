@@ -24,7 +24,7 @@ namespace FP2_Sonic_Mod.Patchers
             string text1 = "Jump";
             string text2 = "-";
             string text3 = "-";
-            string text4 = "-";
+            string text4 = "Guard";
 
             if (player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling" && player.state == new FPObjectState(player.State_InAir))
                 text1 = "Double Jump";
@@ -40,6 +40,9 @@ namespace FP2_Sonic_Mod.Patchers
 
             if (player.state == new FPObjectState(player.State_InAir))
                 text3 = "Stomp";
+
+            if (player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash))
+                text4 = "-";
 
             if (!FPPlayerPatcher.HasWisp && player.powerups.Contains(FPPowerup.STORY_MODE) && player.totalCrystals >= 50 && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && !FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
                 text4 = "<w><c=energy>Super Sonic</c></w>";

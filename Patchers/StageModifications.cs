@@ -1,5 +1,4 @@
-﻿using System;
-using FP2_Sonic_Mod.CustomObjectScripts;
+﻿using FP2_Sonic_Mod.CustomObjectScripts;
 using UnityEngine.SceneManagement;
 
 namespace FP2_Sonic_Mod.Patchers
@@ -25,11 +24,6 @@ namespace FP2_Sonic_Mod.Patchers
                 case "Tutorial1Sonic":
                     CreateWispCapsule(new(6768, -2562, 0));
                     CreateWispCapsule(new(19488, -2466, 0));
-                    break;
-
-                // Remove a Metal Shield from Shade Armoury that Sonic can't get.
-                case "ShadeArmory":
-                    GameObject.Find("BoxMetalShield").gameObject.SetActive(false);
                     break;
 
                 // Add a single Spring to Globe Opera 1.
