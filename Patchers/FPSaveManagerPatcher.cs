@@ -1,45 +1,10 @@
-﻿using System;
+﻿using FP2Lib.Item;
+using System;
 
 namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPSaveManagerPatcher
     {
-        /// <summary>
-        /// Gives Power Up Start a proper description for Sonic.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPSaveManager), nameof(FPSaveManager.GetItemDescription))]
-        private static void PowerUpStartDescription(ref FPPowerup item, ref FPCharacterID ___character, ref string __result)
-        {
-            // Check if the item being called for is Power Up Start and that the player is Sonic. If so, replace the description that gets returned.
-            if (item == FPPowerup.POWERUP_START && ___character == Plugin.sonicCharacterID)
-                __result = "You begin the stage with Power Sneakers.";
-        }
-
-        /// <summary>
-        /// Gives the Story Mode item the Chaos Emeralds name.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPSaveManager), nameof(FPSaveManager.GetItemName))]
-        private static void ChaosEmeraldName(ref FPPowerup item, ref string __result)
-        {
-            // Check if the item being called for is Story Mode. If so, replace the name that gets returned.
-            if (item == FPPowerup.STORY_MODE)
-                __result = "Chaos Emeralds";
-        }
-
-        /// <summary>
-        /// Gives the Story Mode item the Chaos Emeralds description.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPSaveManager), nameof(FPSaveManager.GetItemDescription))]
-        private static void ChaosEmeraldDescription(ref FPPowerup item, ref string __result)
-        {
-            // Check if the item being called for is Story Mode. If so, replace the description that gets returned.
-            if (item == FPPowerup.STORY_MODE)
-                __result = "Mysterious gems that grant the user limitless power.";
-        }
-
         /// <summary>
         /// Unlocks Sonic's game clear badge.
         /// </summary>
@@ -78,8 +43,8 @@ namespace FP2_Sonic_Mod.Patchers
                 // Unlock the Weapon's Core as Sonic badge.
                 FP2Lib.Badge.BadgeHandler.UnlockBadge("k24.badge_sonic_emeralds");
 
-                // Unlock item 31 (the Story Mode item) in the save's inventory.
-                FPSaveManager.inventory[31] = 1;
+                // Unlock the Chaos Emeralds in the save's inventory.
+                FPSaveManager.inventory[Plugin.chaosEmeraldID] = 1;
             }
         }
 

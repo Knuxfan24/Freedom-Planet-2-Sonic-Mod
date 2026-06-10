@@ -466,7 +466,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Super Sonic
             // Check that the player has the Story Mode item equipped, has at least 50 crystal shards, has pressed the special button, isn't rolling but is in the rolling animation and isn't already super.
-            if (!HasWisp && player.powerups.Contains(FPPowerup.STORY_MODE) && player.totalCrystals >= 50 && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
+            if (!HasWisp && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
             {
                 // Set the player to the Super Transformation state.
                 player.state = State_Sonic_SuperTransform;
@@ -563,7 +563,7 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
             
             #region Guard
-            else if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && !isSuper)
+            else if ((player.guardTime <= 0f || player.cancellableGuard) && (player.input.guardPress) && !isSuper && (!player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) || player.totalCrystals < 50))
             {
                 if (Mathf.Abs(player.velocity.x) > 12f)
                 {

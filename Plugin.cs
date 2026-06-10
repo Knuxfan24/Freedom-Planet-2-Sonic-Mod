@@ -4,6 +4,7 @@ global using UnityEngine;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using FP2_Sonic_Mod.Patchers;
+using FP2Lib.Item;
 using System.IO;
 
 namespace FP2_Sonic_Mod
@@ -38,9 +39,6 @@ namespace FP2_Sonic_Mod
         // The last audio that FPAudio played in its PlayMusic function.
         public static AudioClip lastUsedAudio;
 
-        // The sprite of the Chaos Emeralds to replace the Story Mode icon with.
-        public static Sprite sonicChaosEmeralds;
-
         // The playable character created through FP2Lib.
         public static FP2Lib.Player.PlayableChara playerSonic;
         internal static FPCharacterID sonicCharacterID;
@@ -60,6 +58,9 @@ namespace FP2_Sonic_Mod
         // Photo Mode Poses.
         public static MenuPhotoPose sonicPhotoPoses;
         public static MenuPhotoPose superPhotoPoses;
+
+        // Chaos Emerald Item ID.
+        public static int chaosEmeraldID;
 
         // Logger.
         public static ManualLogSource consoleLog;
@@ -102,9 +103,6 @@ namespace FP2_Sonic_Mod
             sonicGHZMapMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz_map");
             sonicGHZMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz");
             sonicGHZClearJingle = sonicAssetBundle.LoadAsset<AudioClip>("clear_ghz");
-
-            // Load the Chaos Emeralds icon.
-            sonicChaosEmeralds = sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds");
             
             // Load the misc. sprites.
             sonicPieNormal = sonicAssetBundle.LoadAsset<Sprite>("pie_normal");
@@ -204,9 +202,12 @@ namespace FP2_Sonic_Mod
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_nowisp", "Oversaturated", "Beat Gravity Bubble without using the Rocket Wisp.", sonicAssetBundle.LoadAsset<Sprite>("badge_nowisp"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_greenhill", "Home Sweet Home", "Unlock and complete Green Hill Zone.", sonicAssetBundle.LoadAsset<Sprite>("badge_greenhill"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
 
+            // Create and register the Chaos Emeralds item.
+            FP2Lib.Item.ItemHandler.RegisterItem("k24.sonic.chaosemeralds", "Chaos Emeralds", sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds"), "Mysterious gems that grant the user limitless power", IAddToShop.None);
+            chaosEmeraldID = FP2Lib.Item.ItemHandler.GetItemDataByUid("k24.sonic.chaosemeralds").itemID;
+
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));
-            Harmony.CreateAndPatchAll(typeof(ChaosEmeraldIcons));
             Harmony.CreateAndPatchAll(typeof(FPAudioPatcher));
             Harmony.CreateAndPatchAll(typeof(FPHudMasterPatcher));
             Harmony.CreateAndPatchAll(typeof(FPPlayerPatcher));
