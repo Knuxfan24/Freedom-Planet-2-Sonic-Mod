@@ -203,7 +203,7 @@ namespace FP2_Sonic_Mod
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_greenhill", "Home Sweet Home", "Unlock and complete Green Hill Zone.", sonicAssetBundle.LoadAsset<Sprite>("badge_greenhill"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
 
             // Create and register the Chaos Emeralds item.
-            FP2Lib.Item.ItemHandler.RegisterItem("k24.sonic.chaosemeralds", "Chaos Emeralds", sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds"), "Mysterious gems that grant the user limitless power", IAddToShop.None);
+            FP2Lib.Item.ItemHandler.RegisterItem("k24.sonic.chaosemeralds", "Chaos Emeralds", sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds"), "Mysterious gems that grant the user limitless power.", IAddToShop.None);
             chaosEmeraldID = FP2Lib.Item.ItemHandler.GetItemDataByUid("k24.sonic.chaosemeralds").itemID;
 
             // Patch our classes.

@@ -4,6 +4,18 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPAudioPatcher
     {
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPAudio), nameof(FPAudio.PlayJingle), new Type[] { typeof(AudioClip) })]
+        static void SpeedGateMusic(ref AudioClip bgmMusic)
+        {
+            // Check that the Speed Gate Jingle is trying to play and that we're Sonic, if so, swap it out.
+            if (bgmMusic != null)
+                if (bgmMusic.name == "M_SpeedGate")
+                    if (FPPlayerPatcher.player != null)
+                        if (FPPlayerPatcher.player.characterID == Plugin.sonicCharacterID)
+                            bgmMusic = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("M_SpeedGate_Sonic");
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPAudio), nameof(FPAudio.PlayMusic), new Type[] { typeof(AudioClip), typeof(float) })]
         private static void GetLastTrack(ref AudioClip bgmMusic)
