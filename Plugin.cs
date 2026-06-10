@@ -114,11 +114,9 @@ namespace FP2_Sonic_Mod
             sonicZLBall = sonicAssetBundle.LoadAsset<Sprite>("zl_ball");
             superZLBall = sonicAssetBundle.LoadAsset<Sprite>("zl_ball_super");
 
-            // If we're in Debug Mode, then print all the asset names from the asset bundle.
-            #if DEBUG
+            // Print all the asset names from the asset bundle as debug writes.
             foreach (string assetName in sonicAssetBundle.GetAllAssetNames())
-                consoleLog.LogInfo(assetName);
-            #endif
+                consoleLog.LogDebug(assetName);
 
             // Set up Sonic's photo mode poses.
             sonicPhotoPoses = new()
@@ -142,10 +140,12 @@ namespace FP2_Sonic_Mod
                 skill1 = "Homing Attack",
                 skill3 = "Stomp",
                 skill4 = "Rocket Wisp",
+                powerupStartDescription = "Begin the stage with a set of Power Sneakers.",
                 AirMoves = FPPlayerPatcher.Action_Sonic_AirMoves,
                 GroundMoves = FPPlayerPatcher.Action_Sonic_GroundMoves,
                 ItemFuelPickup = FPPlayerPatcher.Action_Sonic_Fuel,
                 Gender = FP2Lib.Player.CharacterGender.MALE,
+                element = FP2Lib.Player.CharacterElement.EARTH,
                 profilePic = sonicAssetBundle.LoadAsset<Sprite>("file_icon"),
                 keyArtSprite = sonicAssetBundle.LoadAsset<Sprite>("character_select"),
                 endingKeyArtSprite = sonicAssetBundle.LoadAsset<Sprite>("character_select"),
@@ -172,7 +172,8 @@ namespace FP2_Sonic_Mod
                 worldMapIdle = [sonicAssetBundle.LoadAsset<Sprite>("worldmap_idle")],
                 worldMapPauseSprite = sonicAssetBundle.LoadAsset<Sprite>("item"),
                 worldMapWalk = [sonicAssetBundle.LoadAsset<Sprite>("worldmap_move1"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move2"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move3"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move4"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move5"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move6"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move7"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move8")],
-                zaoBaseballSprite = sonicZLBall
+                zaoBaseballSprite = sonicZLBall,
+                menuInstructionPrefab = sonicAssetBundle.LoadAsset<GameObject>("guide sonic"),
             };
 
             // Register Sonic's player object with FP2Lib's player handler.
