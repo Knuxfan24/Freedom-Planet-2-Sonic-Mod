@@ -97,28 +97,6 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPStage), "Start")]
-        private static void OverrideSyntaxImpale()
-        {
-            // If we're not Sonic, then don't make the edits.
-            if (FPSaveManager.character != Plugin.sonicCharacterID)
-                return;
-
-            if (SceneManager.GetActiveScene().name == "Bakunawa5")
-            {
-                foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType<GameObject>())
-                {
-                    SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-
-                    if (spriteRenderer != null)
-                        if (spriteRenderer.sprite != null)
-                            if (spriteRenderer.sprite.name == "lilac_ko_0" || spriteRenderer.sprite.name == "lilac_hit2_0")
-                                spriteRenderer.sprite = Plugin.sonicAssetBundle.LoadAssetWithSubAssets<Sprite>("hit1")[4];
-                }
-            }
-        }
-
         /// <summary>
         /// Changes the water level at a certain point in Sonic's tutorial.
         /// </summary>

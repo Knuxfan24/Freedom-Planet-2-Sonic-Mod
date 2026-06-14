@@ -10,13 +10,13 @@ using System.IO;
 namespace FP2_Sonic_Mod
 {
     /* TODOs for potential updates:
-    TODO: Replace the Syntax impale sprite? My attempts seem to keep failing.
     TODO: Custom event activator so that Sonic can appear in the few Classic Mode cutscenes that exist. I cannot be bothered to make that a priority so mreh.
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter.
-    TODO: Give Sonic a guide in the pause menu and readd the line to the last tutorial sign.
-    TODO: Auto-Guard apparently makes Sonic basically invincible?
+    TODO: Maybe try and rewrite the Homing Attack in such a way that it can lock on to item boxes as well.
+    TODO: Finish Sonic's guide.
+    TODO: Update the tutorial to reflect tweaks to Sonic's playstyle.
     */
-    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.0.1")]
+    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
     public class Plugin : BaseUnityPlugin
     {
@@ -172,6 +172,7 @@ namespace FP2_Sonic_Mod
                 worldMapWalk = [sonicAssetBundle.LoadAsset<Sprite>("worldmap_move1"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move2"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move3"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move4"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move5"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move6"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move7"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move8")],
                 zaoBaseballSprite = sonicZLBall,
                 menuInstructionPrefab = sonicAssetBundle.LoadAsset<GameObject>("guide sonic"),
+                bfImpaleSprite = sonicAssetBundle.LoadAsset<Sprite>("impale")
             };
 
             // Register Sonic's player object with FP2Lib's player handler.
