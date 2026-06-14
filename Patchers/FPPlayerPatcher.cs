@@ -563,7 +563,7 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
             
             #region Guard
-            else if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && !isSuper && (!player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) || player.totalCrystals < 50))
+            else if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
             {
                 if (Mathf.Abs(player.velocity.x) > 12f)
                 {
@@ -619,8 +619,8 @@ namespace FP2_Sonic_Mod.Patchers
                 // Set the player to the InAir state.
                 player.state = player.State_InAir;
 
-                // Give the player some upward's velocity.
-                player.velocity = new(0, 9f);
+                // Give the player some upwards velocity.
+                player.velocity = new(0, 12f);
 
                 // Set the player to their Guard Air animation to act as a Homing flip.
                 player.SetPlayerAnimation("GuardAir");
