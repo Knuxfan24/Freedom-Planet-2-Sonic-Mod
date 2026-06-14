@@ -1,5 +1,4 @@
-﻿using FP2Lib.Item;
-using System;
+﻿using System;
 
 namespace FP2_Sonic_Mod.Patchers
 {
