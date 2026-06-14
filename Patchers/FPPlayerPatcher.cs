@@ -1574,7 +1574,7 @@ namespace FP2_Sonic_Mod.Patchers
         private static void ModShip(PlayerShip __instance)
         {
             // If the player isn't Sonic, then don't do any of this.
-            if (player.characterID != Plugin.sonicCharacterID)
+            if (FPSaveManager.character != Plugin.sonicCharacterID)
                 return;
 
             // Change the Airship's animator to the Tornado's.
