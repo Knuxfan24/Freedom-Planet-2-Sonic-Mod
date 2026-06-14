@@ -50,6 +50,7 @@ namespace FP2_Sonic_Mod.Patchers
 
         // The Stomp's visual effect.
         private static Transform StompEffect;
+        private static int StompCount;
 
         // Values for the Rocket Wisp.
         public static bool HasWisp;
@@ -516,7 +517,15 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Stomp
             // Check if the player has pressed the special button.
+            if (player.input.specialHold && player.velocity.y <= 0)
+                Stomp();
             if (player.input.specialPress)
+            {
+                StompCount = 0;
+                Stomp();
+            }
+
+            void Stomp()
             {
                 // Give the player a set downwards velocity.
                 player.velocity = new(0, -12);
@@ -644,9 +653,6 @@ namespace FP2_Sonic_Mod.Patchers
             // Check if the player is on the ground at this point.
             if (player.onGround)
             {
-                // Set the player to the Ground state.
-                player.state = player.State_Ground;
-
                 // Stop the stomp sound if its still playing.
                 player.Action_StopSound();
 
@@ -663,6 +669,51 @@ namespace FP2_Sonic_Mod.Patchers
                 dust2.yOffset = -32f;
                 dust2.velocity = new Vector2(1f, 0f);
 
+                // Check if we're still holding the special button and the timer is at least 5.
+                if (player.input.specialHold && player.genericTimer >= 5f)
+                {
+                    // Check if our stomp count is less than 2.
+                    if (StompCount < 2)
+                    {
+                        // Reset the jump ability flag so we can double jump out of the stomp.
+                        player.jumpAbilityFlag = false;
+
+                        // Return to the InAir state.
+                        player.state = player.State_InAir;
+                        player.onGround = false;
+
+                        // Set our velocity to our jump strength, with 2 extra points added to it.
+                        player.velocity.y = player.jumpStrength + 2f;
+
+                        // Set the player to the rolling animation.
+                        player.SetPlayerAnimation("Rolling");
+
+                        // Increment the stomp count.
+                        StompCount++;
+                    }
+                    else
+                    {
+                        // Reset the generic timer.
+                        player.genericTimer = 0;
+
+                        // Set the player to the crouch loop animation.
+                        player.SetPlayerAnimation("Crouching_Loop");
+
+                        // Set our state to the stomp wave pause one.
+                        player.state = State_Sonic_StompWavePause;
+
+                        // Reset the stomp counter.
+                        StompCount = 0;
+                    }
+                }
+
+                // Set the player to the Ground state and reset the counter.
+                else
+                {
+                    player.state = player.State_Ground;
+                    StompCount = 0;
+                }
+
                 // Return so we don't bother with the failsafe check.
                 return;
             }
@@ -678,6 +729,19 @@ namespace FP2_Sonic_Mod.Patchers
                 // Set the player to the Spring animation.
                 player.SetPlayerAnimation("Spring");
             }
+        }
+
+        private static void State_Sonic_StompWavePause()
+        {
+            // Increment the generic timer by the delta time.
+            player.genericTimer += FPStage.deltaTime;
+
+            // Kill the animator's speed.
+            player.animator.SetSpeed(0);
+
+            // Return us to the normal ground state after 15 ticks of the timer.
+            if (player.genericTimer >= 15f)
+                player.state = player.State_Ground;
         }
 
         /// <summary>
