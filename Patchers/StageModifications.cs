@@ -135,16 +135,14 @@ namespace FP2_Sonic_Mod.Patchers
             if (activators != null)
                 wispScript.activators = activators;
 
-            // If this is a debug build, then print some information about the capsule we just spawned.
-            #if DEBUG
-            Plugin.consoleLog.LogInfo($"Created Rocket Wisp Capsule at {position}");
+            // Print some debug information about the capsule we just spawned.
+            Plugin.consoleLog.LogDebug($"Created Rocket Wisp Capsule at {position}");
             if (activators != null)
             {
-                Plugin.consoleLog.LogInfo($"\tActivators:");
+                Plugin.consoleLog.LogDebug($"\tActivators:");
                 foreach (var activator in activators)
-                    Plugin.consoleLog.LogInfo($"\t{activator.name}");
+                    Plugin.consoleLog.LogDebug($"\t{activator.name}");
             }
-            #endif
         }
     }
 }
