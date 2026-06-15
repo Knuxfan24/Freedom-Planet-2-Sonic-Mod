@@ -25,7 +25,7 @@ namespace FP2_Sonic_Mod.Patchers
                 return;
 
             // Check that the audio being made to play doesn't match what we've previously saved and isn't the super theme then lastUsedAudio to the audio being made to play.
-            if (bgmMusic != Plugin.lastUsedAudio && bgmMusic != Plugin.sonicSuperMusic)
+            if (bgmMusic != Plugin.lastUsedAudio && bgmMusic != Plugin.sonicSuperMusic && bgmMusic != Plugin.genericSuperMusic)
                 Plugin.lastUsedAudio = bgmMusic;
         }
 
@@ -58,6 +58,14 @@ namespace FP2_Sonic_Mod.Patchers
                     // Set the loop points for the results theme.
                     ___loopStart = 1.739f;
                     ___loopEnd = 19.130f;
+                }
+
+                // Check that the assigned bgm is the generic super theme.
+                if (bgmMusic == Plugin.genericSuperMusic)
+                {
+                    // Set the loop points for the super theme.
+                    ___loopStart = 2.905f;
+                    ___loopEnd = 36.893f;
                 }
             }
         }

@@ -24,8 +24,8 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPSaveManager), "BadgeCheck", new Type[] { typeof(int), typeof(int) })]
         private static void UnlockChaosEmeralds()
         {
-            // If no time is recorded for Weapon's Core or we're not Sonic, then don't bother with the rest of this code.
-            if (FPSaveManager.timeRecord[30] <= 0 || FPSaveManager.character != Plugin.sonicCharacterID)
+            // If no time is recorded for Weapon's Core then don't bother with the rest of this code.
+            if (FPSaveManager.timeRecord[30] <= 0)
                 return;
 
             // Set up a value to track the time capsules that have been obtained.
@@ -39,7 +39,7 @@ namespace FP2_Sonic_Mod.Patchers
             // Check that we have at least 13 time capsules.
             if (timeCapsuleCount >= 13)
             {
-                // Unlock the Weapon's Core as Sonic badge.
+                // Unlock the Chaos Emeralds badge.
                 FP2Lib.Badge.BadgeHandler.UnlockBadge("k24.badge_sonic_emeralds");
 
                 // Unlock the Chaos Emeralds in the save's inventory.

@@ -35,7 +35,8 @@ namespace FP2_Sonic_Mod
         public static AudioClip sonicGHZMapMusic;
         public static AudioClip sonicGHZMusic;
         public static AudioClip sonicGHZClearJingle;
-        
+        public static AudioClip genericSuperMusic;
+
         // The last audio that FPAudio played in its PlayMusic function.
         public static AudioClip lastUsedAudio;
 
@@ -103,7 +104,8 @@ namespace FP2_Sonic_Mod
             sonicGHZMapMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz_map");
             sonicGHZMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz");
             sonicGHZClearJingle = sonicAssetBundle.LoadAsset<AudioClip>("clear_ghz");
-            
+            genericSuperMusic = sonicAssetBundle.LoadAsset<AudioClip>("super_generic");
+
             // Load the misc. sprites.
             sonicPieNormal = sonicAssetBundle.LoadAsset<Sprite>("pie_normal");
             sonicPieStruggle = sonicAssetBundle.LoadAsset<Sprite>("pie_hit");
@@ -192,13 +194,14 @@ namespace FP2_Sonic_Mod
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_ghzmap", "Map - Green Hill", sonicGHZMapMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_greenhill", "Green Hill Zone", sonicGHZMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_greenhillclear", "Stage Clear - Green Hill", sonicGHZClearJingle, FP2Lib.Vinyl.VAddToShop.All, 32);
+            FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_supergeneric", "Super Form", genericSuperMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
 
             // Register the Badges for clearing things as Sonic.
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_clear", "Blue Blur", "Clear the game as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_clear"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_partime", "Greased Lightning", "Beat any stage's par time as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_partime"), FP2Lib.Badge.FPBadgeType.SILVER, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_halfpartime", "Sonic Boom", "Beat any stage as Sonic in less than half of the par time.", sonicAssetBundle.LoadAsset<Sprite>("badge_halfpartime"), FP2Lib.Badge.FPBadgeType.SILVER, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_allpartime", "Fastest Thing Alive", "Beat the par times in all stages as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_allpartime"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
-            FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_emeralds", "The Servers Are...", "Clear Weapon's Core as Sonic and obtain the Chaos Emeralds.", sonicAssetBundle.LoadAsset<Sprite>("badge_emeralds"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
+            FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_emeralds", "The Servers Are...", "Clear Weapon's Core and obtain the Chaos Emeralds.", sonicAssetBundle.LoadAsset<Sprite>("badge_emeralds"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_palacemerga", "Problem Solved, Story Over", "Defeat Merga in Palace Courtyard as Super Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_palacemerga"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_nowisp", "Oversaturated", "Beat Gravity Bubble without using the Rocket Wisp.", sonicAssetBundle.LoadAsset<Sprite>("badge_nowisp"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_greenhill", "Home Sweet Home", "Unlock and complete Green Hill Zone.", sonicAssetBundle.LoadAsset<Sprite>("badge_greenhill"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
@@ -224,6 +227,7 @@ namespace FP2_Sonic_Mod
             Harmony.CreateAndPatchAll(typeof(StageModifications));
             Harmony.CreateAndPatchAll(typeof(TutorialTVPatcher));
             Harmony.CreateAndPatchAll(typeof(ZLBaseballFlyerPatcher));
+            Harmony.CreateAndPatchAll(typeof(GenericSuper));
         }
     }
 }
