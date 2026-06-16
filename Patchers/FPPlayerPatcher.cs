@@ -1079,6 +1079,62 @@ namespace FP2_Sonic_Mod.Patchers
                 FPAudio.PlaySfx(15);
             }
             #endregion
+        
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+
+                player.idleTimer = 0f - player.fightStanceTime;
+
+                player.SetPlayerAnimation("SweepKick");
+
+                player.state = State_Sonic_SweepKick;
+            }
+        
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f && player.input.specialPress)
+            {
+                player.Action_PlaySound(player.sfxBoostRebound);
+
+                player.state = State_Sonic_Slide;
+            }
+        }
+
+        private static void State_Sonic_SweepKick()
+        {
+            if (player.onGround)
+            {
+                if (player.input.jumpPress)
+                {
+                    player.Action_SoftJump();
+                }
+                else
+                {
+                    //applyGround.Invoke(player, new object[] { false });
+                    player.angle = player.groundAngle;
+                }
+            }
+            else
+            {
+                player.state = player.State_InAir;
+
+                player.SetPlayerAnimation("GuardAir");
+            }
+
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                if (player.onGround)
+                {
+                    if (player.input.down && Mathf.Abs(player.groundVel) <= 3f)
+                    {
+                        player.state = player.State_Crouching;
+                        player.SetPlayerAnimation("Crouching", 0f, 0f, true);
+                    }
+                    else
+                    {
+                        player.state = player.State_Ground;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1285,6 +1341,38 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset the Spin Dash's multiplier.
                 SpinDashMultiplier = 1f;
+            }
+        }
+
+        // TODO: Add ways to exit this...
+        public static void State_Sonic_Slide()
+        {
+            player.SetPlayerAnimation("Slide");
+            if (player.onGround)
+            {
+                //applyGround.Invoke(player, new object[] { false });
+                if (player.direction == FPDirection.FACING_RIGHT)
+                    player.groundVel = 8;
+                else
+                    player.groundVel = -8;
+                player.angle = player.groundAngle;
+
+                if (player.input.left) player.direction = FPDirection.FACING_LEFT;
+                if (player.input.right) player.direction = FPDirection.FACING_RIGHT;
+
+                if (player.colliderWall != null)
+                {
+                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
+                    player.state = player.State_KO_Recover;
+                }
+
+            }
+
+            // If the player isn't on the ground, then set them to the in air state.
+            else
+            {
+                player.state = player.State_InAir;
+                player.SetPlayerAnimation("Jumping");
             }
         }
 
