@@ -1095,6 +1095,8 @@ namespace FP2_Sonic_Mod.Patchers
             {
                 player.Action_PlaySound(player.sfxBoostRebound);
 
+                player.genericTimer = 0f;
+
                 player.state = State_Sonic_Slide;
             }
         }
@@ -1347,10 +1349,11 @@ namespace FP2_Sonic_Mod.Patchers
         // TODO: Add ways to exit this...
         public static void State_Sonic_Slide()
         {
+            player.genericTimer += FPStage.deltaTime;
+
             player.SetPlayerAnimation("Slide");
             if (player.onGround)
             {
-                //applyGround.Invoke(player, new object[] { false });
                 if (player.direction == FPDirection.FACING_RIGHT)
                     player.groundVel = 8;
                 else
@@ -1366,6 +1369,13 @@ namespace FP2_Sonic_Mod.Patchers
                     player.state = player.State_KO_Recover;
                 }
 
+                // Check if the player presses jump.
+                if (player.input.jumpPress)
+                {
+                    // Perform the soft jump action.
+                    player.Action_Jump();
+                    player.SetPlayerAnimation("Rolling");
+                }
             }
 
             // If the player isn't on the ground, then set them to the in air state.
@@ -1373,6 +1383,32 @@ namespace FP2_Sonic_Mod.Patchers
             {
                 player.state = player.State_InAir;
                 player.SetPlayerAnimation("Jumping");
+            }
+
+            if (player.genericTimer > 180f)
+            {
+                if (player.input.left || player.input.right)
+                {
+                    player.state = player.State_Ground;
+                }
+                else
+                {
+                    player.groundVel = 0;
+                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
+                    player.state = player.State_KO_Recover;
+                }
+            }
+
+            if (player.input.attackPress || player.input.specialPress)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+
+                player.idleTimer = 0f - player.fightStanceTime;
+
+                player.SetPlayerAnimation("SweepKick");
+                player.animator.SetSpeed(2);
+
+                player.state = State_Sonic_SweepKick;
             }
         }
 
