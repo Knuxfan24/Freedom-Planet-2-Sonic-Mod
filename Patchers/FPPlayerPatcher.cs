@@ -129,14 +129,18 @@ namespace FP2_Sonic_Mod.Patchers
                 RocketWispEffect.gameObject.SetActive(false);
 
                 // Set the voice bank depending on the config option.
+                // TODO: Homing Attack, Sweep Kick and Slide lines for Ryan and Roger.
                 switch (Plugin.sonicVAOption.Value)
                 {
                     case 0:
                         player.vaKO = null;
+                        player.vaAttack = new AudioClip[1];
+                        player.vaHardAttack = new AudioClip[1];
                         player.vaSpecialA = new AudioClip[1];
                         player.vaSpecialB = new AudioClip[1];
                         player.vaHit = new AudioClip[1];
                         player.vaRevive = new AudioClip[1];
+                        player.vaStart = new AudioClip[1];
                         player.vaItemGet = new AudioClip[1];
                         player.vaClear = new AudioClip[1];
                         player.vaJackpotClear = new AudioClip[1];
@@ -145,10 +149,13 @@ namespace FP2_Sonic_Mod.Patchers
 
                     case 1:
                         player.vaKO = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_ryan");
+                        player.vaAttack = new AudioClip[1];
+                        player.vaHardAttack = new AudioClip[1];
                         player.vaSpecialA = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop2_ryan")];
                         player.vaSpecialB = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_super_ryan")];
                         player.vaHit = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit4_ryan")];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover5_ryan")];
+                        player.vaStart = new AudioClip[1]; 
                         player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item4_ryan")];
                         player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_ryan")];
                         player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
@@ -163,9 +170,12 @@ namespace FP2_Sonic_Mod.Patchers
 
                     case 3:
                         player.vaKO = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_roger");
+                        player.vaAttack = new AudioClip[1];
+                        player.vaHardAttack = new AudioClip[1];
                         player.vaSpecialA = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop1_roger")];
                         player.vaSpecialB = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_super_roger")];
                         player.vaHit = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit6_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit7_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit8_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit9_roger")];
+                        player.vaStart = new AudioClip[1];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_roger")];
                         player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_roger")];
                         player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger")];
@@ -511,6 +521,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.state = State_Sonic_HomingAttack;
                 player.SetPlayerAnimation("Rolling");
                 player.Action_PlaySoundUninterruptable(player.sfxBigBoostLaunch);
+                player.audioChannel[0].PlayOneShot(player.vaAttack[UnityEngine.Random.Range(0, player.vaAttack.Length)]);
             }
             #endregion
 
@@ -1089,6 +1100,8 @@ namespace FP2_Sonic_Mod.Patchers
                 player.SetPlayerAnimation("SweepKick");
 
                 player.state = State_Sonic_SweepKick;
+
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
             }
         
             if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f && player.input.specialPress)
@@ -1098,6 +1111,8 @@ namespace FP2_Sonic_Mod.Patchers
                 player.genericTimer = 0f;
 
                 player.state = State_Sonic_Slide;
+
+                player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
             }
         }
 
@@ -1409,6 +1424,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.animator.SetSpeed(2);
 
                 player.state = State_Sonic_SweepKick;
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
             }
         }
 
