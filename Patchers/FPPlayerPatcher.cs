@@ -682,8 +682,7 @@ namespace FP2_Sonic_Mod.Patchers
                     player.onGround = false;
 
                     // Set our velocity to our jump strength, with 2 extra points added to it.
-                    // TODO: Add the multiplier to this, the value's private so accessing it is a pain.
-                    player.velocity.y = player.jumpStrength + 2f;
+                    player.velocity.y = (player.jumpStrength * (float)typeof(FPPlayer).GetField("jumpMultiplier", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(player)) + 2f;
 
                     // Set the player to the rolling animation.
                     player.SetPlayerAnimation("Rolling");
