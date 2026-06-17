@@ -18,7 +18,11 @@ namespace FP2_Sonic_Mod
         /// <param name="__instance"></param>
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPPlayer), "Start")]
-        private static void Setup(FPPlayer __instance) => player = __instance;
+        private static void Setup(FPPlayer __instance)
+        {
+            isSuper = false;
+            player = __instance;
+        }
 
         /// <summary>
         /// Activates the Super Form when in the guard action.

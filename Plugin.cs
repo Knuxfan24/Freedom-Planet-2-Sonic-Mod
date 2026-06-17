@@ -222,6 +222,7 @@ namespace FP2_Sonic_Mod
             Harmony.CreateAndPatchAll(typeof(ItemStarCardPatcher));
             Harmony.CreateAndPatchAll(typeof(MenuClassicPatcher));
             Harmony.CreateAndPatchAll(typeof(MenuCreditsPatcher));
+            Harmony.CreateAndPatchAll(typeof(MenuGlobalPausePatcher));
             Harmony.CreateAndPatchAll(typeof(MenuPhotoPatcher));
             Harmony.CreateAndPatchAll(typeof(SagaPatcher));
             Harmony.CreateAndPatchAll(typeof(StageModifications));
