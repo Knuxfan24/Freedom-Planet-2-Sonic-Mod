@@ -841,6 +841,9 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         private static void State_Sonic_SuperDetransform()
         {
+            // Disable the Super flag.
+            isSuper = false;
+
             // Check if the start timer is 0.
             if (SuperStartTimer == 0)
             {
@@ -909,7 +912,6 @@ namespace FP2_Sonic_Mod.Patchers
             if (SuperStartTimer >= 60)
             {
                 // Reset the super start flags.
-                isSuper = false;
                 createdSparks = false;
 
                 // Remove the player's invincibility.
@@ -956,6 +958,24 @@ namespace FP2_Sonic_Mod.Patchers
             // If the player isn't Sonic, then don't do any of this.
             if (player.characterID != Plugin.sonicCharacterID)
                 return;
+
+            // Handle swapping the life icons from and to Super Sonic's.
+            FPHudDigit hudLifeIcons = UnityEngine.Object.FindObjectOfType<FPHudMaster>().hudLifeIcon[0];
+            for (int spriteIndex = 0; spriteIndex < hudLifeIcons.digitFrames.Length; spriteIndex++)
+            {
+                if (isSuper || (player.state == new FPObjectState(State_Sonic_SuperTransform) && SuperStartTimer >= 17))
+                {
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[0]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[3];
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[1]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[4];
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[2]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[5];
+                }
+                else
+                {
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[3]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[0];
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[4]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[1];
+                    if (hudLifeIcons.digitFrames[spriteIndex] == Plugin.lifeIcons[5]) hudLifeIcons.digitFrames[spriteIndex] = Plugin.lifeIcons[2];
+                }
+            }
 
             // Don't proceed if the player isn't Super or is in the victory animation.
             if (!isSuper || player.state == player.State_Victory || player.state == State_Sonic_SuperDetransform || player.state == State_Sonic_RocketWisp || player.state == State_Sonic_RocketWispStart)
@@ -1251,8 +1271,8 @@ namespace FP2_Sonic_Mod.Patchers
             FPAudio.StopJingle();
             FPAudio.PlayJingle(Plugin.sonicSpeedUpJingle);
 
-            // Set our power up timer to 900 (roughly 15 seconds).
-            player.powerupTimer = 900f;
+            // Set our power up timer to 1080 (roughly 18 seconds).
+            player.powerupTimer = 1080f;
         }
 
         /// <summary>
@@ -1399,7 +1419,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.SetPlayerAnimation("Jumping");
             }
 
-            if (player.genericTimer > 180f)
+            if (player.genericTimer > 180f || player.input.specialPress)
             {
                 if (player.input.left || player.input.right)
                 {
@@ -1413,7 +1433,7 @@ namespace FP2_Sonic_Mod.Patchers
                 }
             }
 
-            if (player.input.attackPress || player.input.specialPress)
+            if (player.input.attackPress)
             {
                 player.Action_PlaySound(player.sfxUppercut);
 

@@ -104,6 +104,8 @@ Bakunawa Chase Tornado Sprites - Sonic Advance, ripped by [Daniel Sidney](https:
 
 Custom Super Sonic Sprites - Ripped by Kevin Huff, edited by [Moe](https://www.spriters-resource.com/custom_edited/sonicthehedgehogcustoms/sheet/113731/).
 
+Custom Super Sonic Sprites - [Joe T.E.](https://www.spriters-resource.com/custom_edited/sonicthehedgehogcustoms/asset/18231/). 
+
 Character Select Portrait - Sonic Advance 3, ripped by [HXC](https://www.spriters-resource.com/game_boy_advance/sonicadv3/sheet/7151/).
 
 File Icon - Sonic Advance 3, ripped by [EternalLight](https://www.spriters-resource.com/game_boy_advance/sonicadv3/sheet/7156/).

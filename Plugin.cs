@@ -55,6 +55,7 @@ namespace FP2_Sonic_Mod
         public static Sprite superPieStruggle;
         public static Sprite sonicZLBall;
         public static Sprite superZLBall;
+        public static Sprite[] lifeIcons;
 
         // Photo Mode Poses.
         public static MenuPhotoPose sonicPhotoPoses;
@@ -130,6 +131,9 @@ namespace FP2_Sonic_Mod
                 airSprites = [sonicAssetBundle.LoadAsset<Sprite>("idle_fight_super"), sonicAssetBundle.LoadAssetWithSubAssets<Sprite>("wisp_super")[9]]
             };
 
+            // Load the various life icons.
+            lifeIcons = [sonicAssetBundle.LoadAsset<Sprite>("life_icon_0"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_2"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_1"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_super_0"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_super_2"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_super_1")];
+
             // Construct Sonic's player object.
             playerSonic = new()
             {
@@ -154,7 +158,7 @@ namespace FP2_Sonic_Mod
                 characterSelectPrefab = sonicAssetBundle.LoadAsset<GameObject>("select sonic"),
                 dataBundle = sonicAssetBundle,
                 itemFuel = sonicAssetBundle.LoadAsset<Sprite>("power_sneakers"),
-                livesIconAnim = [sonicAssetBundle.LoadAsset<Sprite>("life_icon_0"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_2"), sonicAssetBundle.LoadAsset<Sprite>("life_icon_1")],
+                livesIconAnim = [lifeIcons[0], lifeIcons[2], lifeIcons[1]],
                 resultsTrack = sonicResultsMusic,
                 menuPhotoPose = sonicPhotoPoses,
                 endingTrack = sonicCreditsMusic,
