@@ -82,7 +82,7 @@ namespace FP2_Sonic_Mod.Patchers
                 // Add a single Dash Ring to Inversion Dynamo.
                 case "Bakunawa3":
                     templateObject = GameObject.Find("BoostRing (16)");
-                    _ = GameObject.Instantiate(templateObject, new Vector3(31264, -2616, 0), Quaternion.identity);
+                    _ = GameObject.Instantiate(templateObject, new Vector3(31264, -2616, 0), templateObject.transform.rotation);
                     break;
 
                 // Add an exit zone to the Merga fight as a failsafe for if the Homing Attack drags the player underneath the floor.
