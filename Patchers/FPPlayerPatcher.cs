@@ -798,6 +798,14 @@ namespace FP2_Sonic_Mod.Patchers
                     boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
                     boostExplosion.parentObject = player;
                     boostExplosion.faction = player.faction;
+
+                    // Create the Invincibility stars and set the flash timer.
+                    InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                    invincibilityStar.parentObject = player;
+                    InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                    invincibilityStar2.parentObject = player;
+                    invincibilityStar2.rotation = 180f;
+                    player.flashTime = 1200f;
                 }
             }
 
@@ -924,6 +932,7 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Remove the player's invincibility.
                 player.invincibilityTime = 0f;
+                player.flashTime = 0f;
 
                 // Set the player to the InAir state.
                 player.state = player.State_InAir;
@@ -998,6 +1007,10 @@ namespace FP2_Sonic_Mod.Patchers
 
             // Reset the player's invincibility time to 200 so it can never expire.
             player.invincibilityTime = 200f;
+
+            // Set the flash timer to 1200 if its reached 0 so the character flashes.
+            if (player.flashTime <= 0)
+                player.flashTime = 1200f;
 
             // Reset the player's heat and oxygen levels.
             player.heatLevel = 0f;

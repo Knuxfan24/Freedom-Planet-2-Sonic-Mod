@@ -64,6 +64,13 @@ namespace FP2_Sonic_Mod
                 boostExplosion.parentObject = player;
                 boostExplosion.faction = player.faction;
 
+                // Create the Invincibility stars.
+                InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                invincibilityStar.parentObject = player;
+                InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                invincibilityStar2.parentObject = player;
+                invincibilityStar2.rotation = 180f;
+
                 // Play the Superstars super music.
                 if (FPAudio.GetCurrentMusic() != Plugin.genericSuperMusic)
                     FPAudio.PlayMusic(Plugin.genericSuperMusic);
