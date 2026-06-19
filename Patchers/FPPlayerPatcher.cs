@@ -581,7 +581,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
             #endregion
             
-            if (player.input.up && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart")
+            if (player.input.up && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
             {
                 player.Action_PlaySound(player.sfxUppercut);
                 player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
@@ -991,6 +991,7 @@ namespace FP2_Sonic_Mod.Patchers
                 {
                     player.Action_SoftJump();
                     player.state = player.State_InAir;
+                    player.SetPlayerAnimation("Rolling");
                 }
                 else
                 {
@@ -1013,7 +1014,7 @@ namespace FP2_Sonic_Mod.Patchers
                 }
             }
 
-            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
                 if (player.onGround)
                 {
@@ -1182,7 +1183,7 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
 
             #region Guard
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_Roll) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
                 if (Mathf.Abs(player.groundVel) < 3f)
                 {
