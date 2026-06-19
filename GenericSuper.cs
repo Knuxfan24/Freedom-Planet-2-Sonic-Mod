@@ -12,16 +12,19 @@ namespace FP2_Sonic_Mod
         private static bool isSuper;
         private static float superTimeCounter;
 
-        /// <summary>
-        /// Gets the reference to the player's object.
-        /// </summary>
-        /// <param name="__instance"></param>
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPPlayer), "Start")]
         private static void Setup(FPPlayer __instance)
         {
+            // Reset the Super flag.
             isSuper = false;
+
+            // Get a reference to the player object.
             player = __instance;
+
+            // If we have the Chaos Emeralds equipped, then strip us of any crystals so we can't turn Super immediately after reloading a checkpoint.
+            if (player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID))
+                player.totalCrystals = 0;
         }
 
         /// <summary>

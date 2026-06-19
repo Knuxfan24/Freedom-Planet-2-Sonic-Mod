@@ -75,6 +75,10 @@ namespace FP2_Sonic_Mod.Patchers
             SuperStartTimer = 0f;
             createdSparks = false;
 
+            // If we have the Chaos Emeralds equipped, then strip us of any crystals so we can't turn Super immediately after reloading a checkpoint.
+            if (player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID))
+                player.totalCrystals = 0;
+
             // Reset the Homing Attack flags.
             HomingAttackFailsafeTimer = 0f;
             HomingAttackTarget = null;
