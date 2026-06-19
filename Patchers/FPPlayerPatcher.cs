@@ -1149,7 +1149,7 @@ namespace FP2_Sonic_Mod.Patchers
                 }
                 else
                 {
-                    //applyGround.Invoke(player, new object[] { false });
+                    applyGround.Invoke(player, new object[] { false });
                     player.angle = player.groundAngle;
                 }
             }
