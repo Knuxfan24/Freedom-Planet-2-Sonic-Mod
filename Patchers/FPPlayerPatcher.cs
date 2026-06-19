@@ -204,10 +204,13 @@ namespace FP2_Sonic_Mod.Patchers
                     player.sfxSkid = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("classic_skid");
 
                     player.vaKO = null;
+                    player.vaAttack = new AudioClip[1];
+                    player.vaHardAttack = new AudioClip[1];
                     player.vaSpecialA = new AudioClip[1];
                     player.vaSpecialB = new AudioClip[1];
                     player.vaHit = new AudioClip[1];
                     player.vaRevive = new AudioClip[1];
+                    player.vaStart = new AudioClip[1];
                     player.vaItemGet = new AudioClip[1];
                     player.vaClear = new AudioClip[1];
                     player.vaJackpotClear = new AudioClip[1];
