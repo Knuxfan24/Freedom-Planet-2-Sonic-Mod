@@ -521,7 +521,7 @@ namespace FP2_Sonic_Mod.Patchers
             #region Homing Attack
             UpdateHomingAttackTargetedEnemies();
 
-            if (HomingAttackTarget != null && player.input.attackPress && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
+            if (HomingAttackTarget != null && player.input.attackPress && !player.input.up && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
             {
                 HomingAttackFailsafeTimer = 0f;
                 player.velocity = Vector2.zero;
@@ -581,6 +581,25 @@ namespace FP2_Sonic_Mod.Patchers
             }
             #endregion
             
+            if (player.input.up && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart")
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+
+                if (!player.jumpAbilityFlag)
+                {
+                    if (player.velocity.y > 0)
+                        player.velocity.y += 6f;
+                    else
+                        player.velocity.y = 6f;
+
+                    player.jumpAbilityFlag = true;
+                }
+
+                player.SetPlayerAnimation("UpKick_Air");
+                player.state = State_Sonic_UpKick;
+            }
+
             #region Guard
             else if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
             {
@@ -964,6 +983,52 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
+        private static void State_Sonic_UpKick()
+        {
+            if (player.onGround)
+            {
+                if (player.input.jumpPress)
+                {
+                    player.Action_SoftJump();
+                    player.state = player.State_InAir;
+                }
+                else
+                {
+                    applyGround.Invoke(player, new object[] { false });
+                    player.angle = player.groundAngle;
+                }
+                player.jumpAbilityFlag = false;
+            }
+            else
+            {
+                applyAir.Invoke(player, new object[] { false });
+                applyGravity.Invoke(player, new object[] { });
+                if (!player.input.jumpHold && player.jumpReleaseFlag)
+                {
+                    player.jumpReleaseFlag = false;
+                    if (player.velocity.y > player.jumpRelease)
+                    {
+                        player.velocity.y = player.jumpRelease;
+                    }
+                }
+            }
+
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                if (player.onGround)
+                {
+                    player.idleTimer = 0f - player.fightStanceTime;
+                    //player.SetPlayerAnimation("FightStance");
+                    player.state = player.State_Ground;
+                }
+                else
+                {
+                    player.SetPlayerAnimation("Jumping_Loop");
+                    player.state = player.State_InAir;
+                }
+            }
+        }
+
         /// <summary>
         /// Logic for when the player is Super Sonic.
         /// Most of the stat resetting for when Sonic detransforms is handled in LateUpdate by the PowerSneakers function instead.
@@ -1139,7 +1204,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
             #endregion
         
-            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress)
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress && !player.input.up)
             {
                 player.Action_PlaySound(player.sfxUppercut);
 
@@ -1161,6 +1226,25 @@ namespace FP2_Sonic_Mod.Patchers
                 player.state = State_Sonic_Slide;
 
                 player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
+            }
+
+            if (player.input.up && player.input.attackPress)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+
+                if (!player.jumpAbilityFlag)
+                {
+                    if (player.velocity.y > 0)
+                        player.velocity.y += 6f;
+                    else
+                        player.velocity.y = 6f;
+
+                    player.jumpAbilityFlag = true;
+                }
+
+                player.SetPlayerAnimation("UpKick");
+                player.state = State_Sonic_UpKick;
             }
         }
 

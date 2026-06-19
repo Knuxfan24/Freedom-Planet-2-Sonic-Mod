@@ -5,6 +5,7 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPHudMasterPatcher
     {
+        // TODO: Add information for the Sweep Kick, Sonic Updraft and Slide to this.
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPHudMaster), "GuideUpdate")]
         private static void SonicGuide(ref FPPlayer player, ref SuperTextMesh ___hudGuide)
