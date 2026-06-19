@@ -153,13 +153,13 @@ namespace FP2_Sonic_Mod.Patchers
 
                     case 1:
                         player.vaKO = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_ryan");
-                        player.vaAttack = new AudioClip[1];
-                        player.vaHardAttack = new AudioClip[1];
+                        player.vaAttack = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack2_ryan")];
+                        player.vaHardAttack = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("slide2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack2_ryan")];
                         player.vaSpecialA = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop2_ryan")];
                         player.vaSpecialB = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_super_ryan")];
                         player.vaHit = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit4_ryan")];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover5_ryan")];
-                        player.vaStart = new AudioClip[1]; 
+                        player.vaStart = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("slide1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("slide2_ryan")];
                         player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item4_ryan")];
                         player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_ryan")];
                         player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
@@ -174,12 +174,12 @@ namespace FP2_Sonic_Mod.Patchers
 
                     case 3:
                         player.vaKO = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_roger");
-                        player.vaAttack = new AudioClip[1];
-                        player.vaHardAttack = new AudioClip[1];
+                        player.vaAttack = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack4_roger")];
+                        player.vaHardAttack = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("sweepkick1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("sweepkick2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("sweepkick3_roger")];
                         player.vaSpecialA = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hummingtop1_roger")];
                         player.vaSpecialB = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_super_roger")];
                         player.vaHit = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit6_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit7_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit8_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("hit9_roger")];
-                        player.vaStart = new AudioClip[1];
+                        player.vaStart = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack2_roger")];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_roger")];
                         player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_roger")];
                         player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger")];
