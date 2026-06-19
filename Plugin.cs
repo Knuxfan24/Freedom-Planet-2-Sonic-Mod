@@ -64,6 +64,9 @@ namespace FP2_Sonic_Mod
         // Chaos Emerald Item ID.
         public static int chaosEmeraldID;
 
+        // A copy of Lilac's prefab for the Super sound.
+        public static GameObject lilacPrefab;
+
         // Logger.
         public static ManualLogSource consoleLog;
 
@@ -213,6 +216,9 @@ namespace FP2_Sonic_Mod
             // Create and register the Chaos Emeralds item.
             FP2Lib.Item.ItemHandler.RegisterItem("k24.sonic.chaosemeralds", "Chaos Emeralds", sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds"), "Mysterious gems that grant the user limitless power.", IAddToShop.None);
             chaosEmeraldID = FP2Lib.Item.ItemHandler.GetItemDataByUid("k24.sonic.chaosemeralds").itemID;
+
+            foreach (GameObject obj in UnityEngine.Resources.FindObjectsOfTypeAll<GameObject>())
+                if (obj.name is "Player Lilac") lilacPrefab = obj;
 
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));

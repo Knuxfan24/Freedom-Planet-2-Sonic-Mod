@@ -53,8 +53,8 @@ namespace FP2_Sonic_Mod
                     spark.SetAngle();
                 }
 
-                // Play the Boost Breaker sound.
-                player.Action_PlaySoundUninterruptable(player.sfxBoostExplosion);
+                // Play the Boost Breaker sound from Lilac's prefab.
+                player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
 
                 // Create the Boost Breaker explosion.
                 BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
@@ -163,8 +163,8 @@ namespace FP2_Sonic_Mod
                     spark.SetAngle();
                 }
 
-                // Play the Boost Breaker sound.
-                player.Action_PlaySoundUninterruptable(player.sfxBoostExplosion);
+                // Play the Boost Breaker sound from Lilac's prefab.
+                player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
 
                 // Create the Boost Breaker explosion.
                 BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
