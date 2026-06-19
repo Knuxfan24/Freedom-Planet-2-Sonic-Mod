@@ -535,6 +535,7 @@ namespace FP2_Sonic_Mod.Patchers
             {
                 // Give the player a set downwards velocity.
                 player.velocity = new(0, -12);
+                player.groundVel = 0;
 
                 // Set the player to the stomp state.
                 player.state = State_Sonic_Stomp;
@@ -1384,7 +1385,6 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        // TODO: Add ways to exit this...
         public static void State_Sonic_Slide()
         {
             player.genericTimer += FPStage.deltaTime;
