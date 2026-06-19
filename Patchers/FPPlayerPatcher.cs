@@ -1103,9 +1103,17 @@ namespace FP2_Sonic_Mod.Patchers
             #region Guard
             if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_Roll) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
-                player.SetPlayerAnimation("Guard");
-                player.idleTimer = Mathf.Min(player.idleTimer, 0f);
-                player.groundVel = 0f;
+                if (Mathf.Abs(player.groundVel) < 3f)
+                {
+                    player.SetPlayerAnimation("Guard");
+                    player.idleTimer = Mathf.Min(player.idleTimer, 0f);
+                    player.groundVel = 0f;
+                }
+                else
+                {
+                    player.SetPlayerAnimation("GuardRun");
+                    player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
+                }
                 player.Action_Guard();
                 player.Action_ShadowGuard();
                 GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
