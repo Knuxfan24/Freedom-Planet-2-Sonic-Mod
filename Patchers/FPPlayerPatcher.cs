@@ -133,7 +133,6 @@ namespace FP2_Sonic_Mod.Patchers
                 RocketWispEffect.gameObject.SetActive(false);
 
                 // Set the voice bank depending on the config option.
-                // TODO: Homing Attack, Sweep Kick and Slide lines for Ryan and Roger.
                 switch (Plugin.sonicVAOption.Value)
                 {
                     case 0:
@@ -983,7 +982,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        private static void State_Sonic_UpKick()
+        public static void State_Sonic_UpKick()
         {
             if (player.onGround)
             {
@@ -1249,7 +1248,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        private static void State_Sonic_SweepKick()
+        public static void State_Sonic_SweepKick()
         {
             if (player.onGround)
             {

@@ -5,7 +5,6 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPHudMasterPatcher
     {
-        // TODO: Add information for the Sweep Kick, Sonic Updraft and Slide to this.
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPHudMaster), "GuideUpdate")]
         private static void SonicGuide(ref FPPlayer player, ref SuperTextMesh ___hudGuide)
@@ -27,6 +26,12 @@ namespace FP2_Sonic_Mod.Patchers
             string text3 = "-";
             string text4 = "Guard";
 
+            if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f)
+                text3 = "Anti-Gravity";
+
+            if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && !player.input.up)
+                text2 = "Sweep Kick";
+
             if (player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling" && player.state == new FPObjectState(player.State_InAir))
                 text1 = "Double Jump";
 
@@ -38,6 +43,9 @@ namespace FP2_Sonic_Mod.Patchers
 
             if (player.input.up && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Spring")
                 text2 = "Hop Jump";
+
+            if (player.input.up && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone" && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_UpKick))
+                text2 = "Sonic Updraft";
 
             if (player.state == new FPObjectState(player.State_InAir))
                 text3 = "Stomp";
