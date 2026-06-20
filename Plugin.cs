@@ -10,7 +10,7 @@ using System.IO;
 namespace FP2_Sonic_Mod
 {
     /* TODOs for potential updates:
-    TODO: Custom event activator so that Sonic can appear in the few Classic Mode cutscenes that exist. I cannot be bothered to make that a priority so mreh.
+    TODO: Custom event activator so that Sonic can appear in the few Classic Mode cutscenes that exist. I have... NO idea how that works.
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter.
     TODO: Maybe try and rewrite the Homing Attack in such a way that it can lock on to item boxes as well.
     TODO: Update the tutorial to reflect tweaks to Sonic's playstyle.

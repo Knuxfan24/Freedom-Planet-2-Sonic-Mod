@@ -11,8 +11,7 @@ namespace FP2_Sonic_Mod.Patchers
         static readonly Dictionary<string, FPObjectState> koiCannonDefault = [];
 
         /// <summary>
-        /// Handles doing the stupid tutorial collision fix for Green Hill.
-        /// An error gets thrown in this code thanks to it looping twice, but it seems to work fine despite it so OH WELL.
+        /// Stupid hack that seems to fix some wonky collision even though it shouldn't be changing shit.
         /// </summary>
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Ferr2DT_PathTerrain), "LegacyRecreateCollider2D")]
@@ -302,6 +301,9 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPStage), "Start")]
         private static void CollapsingPlatforms()
         {
+            if (SceneManager.GetActiveScene().name != "GreenHill")
+                return;
+
             GameObject[] platforms = UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("collapsing platform")).ToArray();
             
             foreach (var platform in platforms)
@@ -315,10 +317,24 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPStage), "Start")]
         private static void ZoomTubes()
         {
+            if (SceneManager.GetActiveScene().name != "GreenHill")
+                return;
+
             GameObject[] tubes = UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("zoom tube")).ToArray();
             
             foreach (var tube in tubes)
                 tube.AddComponent<ZoomTube>();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPStage), "Start")]
+        private static void SignPost()
+        {
+            if (SceneManager.GetActiveScene().name != "GreenHill")
+                return;
+
+            var sign = UnityEngine.GameObject.Find("ghz_signpost_0").AddComponent<SignPost>();
+            sign.signSound = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("classic_signpost");
         }
     }
 }
