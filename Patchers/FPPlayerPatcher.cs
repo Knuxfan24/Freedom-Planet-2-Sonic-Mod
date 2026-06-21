@@ -16,7 +16,6 @@ namespace FP2_Sonic_Mod.Patchers
         private static readonly MethodInfo applyGround = typeof(FPPlayer).GetMethod("ApplyGroundForces", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo applyAir = typeof(FPPlayer).GetMethod("ApplyAirForces", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly MethodInfo applyGravity = typeof(FPPlayer).GetMethod("ApplyGravityForce", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly MethodInfo rollAttackStats = typeof(FPPlayer).GetMethod("AttackStats_CarolRoll", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // A multiplier for how strong the Spin Dash's release should be.
         private static float SpinDashMultiplier = 1f;
@@ -518,9 +517,15 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPPlayer), "Action_Jump")]
         private static void MakeJumpRoll()
         {
-            // If we're in the jumping animation from Action_Jump and the player is Sonic, then swap to the rolling animation instead.
+            // Check if we're in the jumping animation from Action_Jump and the player is Sonic.
             if (player.currentAnimation == "Jumping" && player.characterID == Plugin.sonicCharacterID)
+            {
+                // Swap to the rolling animation.
                 player.currentAnimation = "Rolling";
+
+                // Set the player's attack stats to Sonic's roll.
+                player.attackStats = AttackStats_SonicRoll;
+            }
         }
         
         /// <summary>
@@ -540,6 +545,9 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         private static void State_Sonic_HomingAttack()
         {
+            // Set our attack stats to the Homing Attack's.
+            player.attackStats = AttackStats_SonicHomingAttack;
+
             // Get the state of the target (if it has one).
             string targetState = null;
             if (HomingAttackTarget.state != null)
@@ -589,8 +597,8 @@ namespace FP2_Sonic_Mod.Patchers
             // Apply gravity to the player.
             applyGravity.Invoke(player, new object[] { });
 
-            // Set the player's attack stats to Carol's roll.
-            player.attackStats = (FPObjectState)rollAttackStats.Invoke(player, new object[] { });
+            // Set the player's attack stats to Sonic's roll.
+            player.attackStats = AttackStats_SonicRoll;
 
             // Check if the player is on the ground at this point.
             if (player.onGround)
@@ -724,6 +732,17 @@ namespace FP2_Sonic_Mod.Patchers
                 LTap = 0;
                 RTap = 0;
             }
+        }
+        
+        /// <summary>
+        /// Forces the Rolling and Cyclone animations to use the correct attack stats.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void SetAnimationDependentStats()
+        {
+            if (player.currentAnimation == "Rolling") player.attackStats = AttackStats_SonicRoll;
+            if (player.currentAnimation == "Cyclone") player.attackStats = AttackStats_SonicHummingTop;
         }
         #endregion
 
@@ -870,6 +889,9 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         public static void State_Sonic_SpinDash()
         {
+            // Set the player's attack stats to Sonic's roll.
+            player.attackStats = AttackStats_SonicRoll;
+
             // Increment the generic timer.
             player.genericTimer += FPStage.deltaTime;
 
@@ -947,6 +969,8 @@ namespace FP2_Sonic_Mod.Patchers
 
         public static void State_Sonic_Slide()
         {
+            player.attackStats = AttackStats_SonicSlide;
+
             player.genericTimer += FPStage.deltaTime;
 
             player.SetPlayerAnimation("Slide");
@@ -1016,6 +1040,9 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         public static void State_Sonic_Roll()
         {
+            // Set the player's attack stats to Sonic's roll.
+            player.attackStats = AttackStats_SonicRoll;
+
             // Increment the generic timer.
             player.genericTimer += FPStage.deltaTime;
 
@@ -1083,6 +1110,8 @@ namespace FP2_Sonic_Mod.Patchers
 
         public static void State_Sonic_SweepKick()
         {
+            player.attackStats = AttackStats_SonicSweepKick;
+
             if (player.onGround)
             {
                 if (player.input.jumpPress)
@@ -1177,30 +1206,24 @@ namespace FP2_Sonic_Mod.Patchers
             // Set our power up timer to 1080 (roughly 18 seconds).
             player.powerupTimer = 1080f;
         }
-        
-        /// <summary>
-        /// Increases the damage of the roll, as it used to be Sonic's only real attack.
-        /// This might get removed, as I think I'll end up pivoting to giving Sonic specirfic AttackStat functions of his own.
-        /// </summary>
-        [HarmonyPostfix]
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(FPPlayer), "AttackStats_CarolRoll")]
-        private static void BuffRollDamage()
+        private static bool RedirectRollStats()
         {
-            // If the player isn't Sonic, then don't perform these edits.
+            // If the player isn't Sonic, then use the original Carol Roll stats.
             if (player.characterID != Plugin.sonicCharacterID)
-                return;
+                return true;
 
-            // If the player ISN'T in the Homing Attack state, then set the roll's attack power to 4.
-            if (player.state != State_Sonic_HomingAttack)
-                player.attackPower = 4f;
-
-            // If they are, then set it to 8.
-            else
-                player.attackPower = 8f;
+            // If not, then redirect it to Sonic's custom set.
+            player.attackStats = AttackStats_SonicRoll;
+            return false;
         }
 
         public static void State_Sonic_UpKick()
         {
+            player.attackStats = AttackStats_SonicUpKick;
+
             if (player.onGround)
             {
                 if (player.input.jumpPress)
@@ -1612,6 +1635,7 @@ namespace FP2_Sonic_Mod.Patchers
             player.airAceleration = player.GetPlayerStat_Default_AirAceleration() * 2f;
             player.jumpStrength = player.GetPlayerStat_Default_JumpStrength() * 1.2f;
             typeof(FPPlayer).GetField("speedMultiplier", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(player, 1f + (float)(int)player.potions[6] * 0.05f);
+            player.attackStats = SetConstantAttackStats;
 
             // Reset the player's invincibility time to 200 so it can never expire.
             player.invincibilityTime = 200f;
@@ -1958,6 +1982,73 @@ namespace FP2_Sonic_Mod.Patchers
                         return;
                     }
                 }
+            }
+        }
+        #endregion
+
+        #region Attack Stats
+        private static void AttackStats_SonicRoll()
+        {
+            player.attackPower = 2f;
+            player.attackHitstun = 1.5f;
+            player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+
+        private static void AttackStats_SonicHomingAttack()
+        {
+            player.attackPower = 8f;
+            player.attackHitstun = 2f;
+            player.attackEnemyInvTime = 4f;
+            SetConstantAttackStats();
+        }
+
+        private static void AttackStats_SonicHummingTop()
+        {
+            player.attackPower = 5f;
+            player.attackHitstun = 1f;
+            player.attackEnemyInvTime = 5f;
+            SetConstantAttackStats();
+        }
+
+
+        private static void AttackStats_SonicSweepKick()
+        {
+            player.attackPower = 6f;
+            player.attackHitstun = 3f;
+            player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+
+        private static void AttackStats_SonicUpKick()
+        {
+            player.attackPower = 6f;
+            player.attackHitstun = 3f;
+            player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+        
+        private static void AttackStats_SonicSlide()
+        {
+            player.attackPower = 4f;
+            player.attackHitstun = 1.5f;
+            player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+
+        private static void SetConstantAttackStats()
+        {
+            player.attackKnockback.x = Mathf.Max(Mathf.Abs(player.prevVelocity.x * 1.5f), 6f);
+            if (player.direction == FPDirection.FACING_LEFT) player.attackKnockback.x = 0f - player.attackKnockback.x;
+            player.attackKnockback.y = player.prevVelocity.y * 0.5f;
+            player.attackSfx = 7;
+            player.attackPower *= player.GetAttackModifier();
+
+            if (isSuper)
+            {
+                player.attackPower = 8f;
+                player.attackHitstun = 2f;
+                player.attackEnemyInvTime = 4f;
             }
         }
         #endregion

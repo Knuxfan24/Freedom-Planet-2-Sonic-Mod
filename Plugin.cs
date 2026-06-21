@@ -15,7 +15,6 @@ namespace FP2_Sonic_Mod
     TODO: Maybe try and rewrite the Homing Attack in such a way that it can lock on to item boxes as well.
     TODO: Update the tutorial to reflect tweaks to Sonic's playstyle.
     TODO: Document the new stuff, the code for it is a copy paste filled mess.
-    TODO: Rebalance Sonic's damage output now that he has some proper attacks?
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]

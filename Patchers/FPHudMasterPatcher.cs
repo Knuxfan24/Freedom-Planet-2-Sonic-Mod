@@ -71,6 +71,12 @@ namespace FP2_Sonic_Mod.Patchers
                 text4 = "-";
             }
 
+            // Debug read out of Sonic's attack stats.
+            //text1 = $"Power: {player.attackPower}";
+            //text2 = $"Hitstun: {player.attackHitstun}";
+            //text3 = $"EnemyInvTime: {player.attackEnemyInvTime}";
+            //text4 = "-";
+
             // Set the text on the HUD Guide.
             ___hudGuide.text = text1 + "\n" + text2 + "\n" + text3 + "\n" + text4 + "\n ";
         }
