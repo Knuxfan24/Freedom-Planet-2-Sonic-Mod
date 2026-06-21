@@ -875,6 +875,10 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         private static void State_Sonic_SuperDetransform()
         {
+            // Kill the player velocity so the detransformation stops Sonic in place.
+            player.velocity = Vector2.zero;
+            player.groundVel = 0;
+
             // Disable the Super flag.
             isSuper = false;
 
