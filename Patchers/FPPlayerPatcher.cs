@@ -735,19 +735,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        private static void State_Sonic_StompWavePause()
-        {
-            // Increment the generic timer by the delta time.
-            player.genericTimer += FPStage.deltaTime;
-
-            // Kill the animator's speed.
-            player.animator.SetSpeed(0);
-
-            // Return us to the normal ground state after 15 ticks of the timer.
-            if (player.genericTimer >= 15f)
-                player.state = player.State_Ground;
-        }
-
+        
         /// <summary>
         /// State for transforming into Super Sonic.
         /// </summary>
