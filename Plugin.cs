@@ -15,7 +15,6 @@ namespace FP2_Sonic_Mod
     TODO: Maybe try and rewrite the Homing Attack in such a way that it can lock on to item boxes as well.
     TODO: Update the tutorial to reflect tweaks to Sonic's playstyle.
     TODO: Document the new stuff, the code for it is a copy paste filled mess.
-    TODO: Organise Sonic's states better, the player patcher is getting kinda cramped.
     TODO: Rebalance Sonic's damage output now that he has some proper attacks?
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
@@ -183,7 +182,8 @@ namespace FP2_Sonic_Mod
                 worldMapWalk = [sonicAssetBundle.LoadAsset<Sprite>("worldmap_move1"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move2"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move3"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move4"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move5"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move6"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move7"), sonicAssetBundle.LoadAsset<Sprite>("worldmap_move8")],
                 zaoBaseballSprite = sonicZLBall,
                 menuInstructionPrefab = sonicAssetBundle.LoadAsset<GameObject>("guide sonic"),
-                bfImpaleSprite = sonicAssetBundle.LoadAsset<Sprite>("impale")
+                bfImpaleSprite = sonicAssetBundle.LoadAsset<Sprite>("impale"),
+                statDefaultTopSpeed = 10f
             };
 
             // Register Sonic's player object with FP2Lib's player handler.

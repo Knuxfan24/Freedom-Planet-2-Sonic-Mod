@@ -91,6 +91,9 @@ namespace FP2_Sonic_Mod.Patchers
                 SonicAssetSetup();
         }
 
+        /// <summary>
+        /// Creates the various objects used by Sonic.
+        /// </summary>
         [HarmonyPrefix]
         [HarmonyPatch(typeof(FPPlayer), "Update")]
         private static void SonicAssetSetupFailsafe()
@@ -99,7 +102,6 @@ namespace FP2_Sonic_Mod.Patchers
             if (HomingAttackCursor == null && player.characterID == Plugin.sonicCharacterID)
                 SonicAssetSetup();
         }
-
         private static void SonicAssetSetup()
         {
             // If the player is Sonic, then handle some other things.
@@ -222,120 +224,8 @@ namespace FP2_Sonic_Mod.Patchers
                 }
             }
         }
-
-        /// <summary>
-        /// Makes Sonic jump with the rolling animation instead of the normal one.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPPlayer), "Action_Jump")]
-        private static void MakeJumpRoll()
-        {
-            // If we're in the jumping animation from Action_Jump and the player is Sonic, then swap to the rolling animation instead.
-            if (player.currentAnimation == "Jumping" && player.characterID == Plugin.sonicCharacterID)
-                player.currentAnimation = "Rolling";
-        }
-
-        /// <summary>
-        /// Lets Sonic jump again if in a waterfall.
-        /// </summary>
-        private static void Action_Sonic_WaterfallJump()
-        {
-            // Check that the player has a water surface.
-            if (player.targetWaterSurface != null)
-            {
-                // Check that the type of water the player is in is specifically a Water Square.
-                // Also check that we aren't in a few specific scenes, as they have ones that aren't waterfalls, but still use WaterSquare.
-                if (player.targetWaterSurface.GetType() == typeof(FPWaterSquare)
-                    && SceneManager.GetActiveScene() is { name: not "GlobeOpera1",
-                                                          name: not "AncestralForge",
-                                                          name: not "Battlesphere_Boss",
-                                                          name: not "Battlesphere_Bossrush_Div1" })
-                {
-                    // Check if the player is pressing the jump button.
-                    if (player.input.jumpPress)
-                    {
-                        // Play the jump sound.
-                        player.Action_PlaySound(player.sfxJump);
-
-                        // Give the player upwards momentum.
-                        player.velocity = new(0, 9f);
-                        
-                        // Reset the player to the rolling animation.
-                        player.SetPlayerAnimation("Rolling");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns a custom value for Sonic from GetPlayerStat_Default_TopSpeed.
-        /// This only needs to be done for GetPlayerStat_Default_TopSpeed, as the rest of Sonic's speed stats match Lilac's, which are the default return values for those functions.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPPlayer), "GetPlayerStat_Default_TopSpeed", new Type[] { typeof(FPCharacterID) })]
-        private static void IncreasePlayerTopSpeed(ref FPCharacterID character, ref float __result)
-        {
-            // If the player is Sonic, then return 10 for this function.
-            if (character == Plugin.sonicCharacterID)
-                __result = 10f;
-        }
-
-        /// <summary>
-        /// Increases Sonic's jump height when in water.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPPlayer), "Action_SetWaterFlag", new Type[] { typeof(FPBaseObject), typeof(bool) })]
-        private static void BuffWaterJumpHeight(ref FPBaseObject surface)
-        {
-            /// If the player is Sonic and in water, then set their jump strength up to 12.
-            if (player.characterID == Plugin.sonicCharacterID && surface != null && surface.isActiveAndEnabled)
-                player.jumpStrength = 12f;
-        }
-
-        /// <summary>
-        /// Stops Sonic from jumping when crouching so he can Spin Dash.
-        /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FPPlayer), "Action_Jump")]
-        private static bool StopCrouchJump()
-        {
-            // If the player is Sonic and is crouching, then stop the original function from running.
-            if (player.state == new FPObjectState(player.State_Crouching) && player.characterID == Plugin.sonicCharacterID)
-                return false;
-
-            // Otherwise, run the original function as normal.
-            return true;
-        }
-
-        /// <summary>
-        /// Creates the smoke for the Spin Dash.
-        /// </summary>
-        /// <param name="player">The player object creating the smoke.</param>
-        /// <param name="xOffset">How far offset on the X axis this smoke should be.</param>
-        /// <param name="scaleModifier">The scale modifier for this smoke.</param>
-        private static void CreateSpinDashSmoke(float xOffset, float scaleModifier)
-        {
-            // Create a dust object and set up the static values.
-            Dust dust = (Dust)FPStage.CreateStageObject(Dust.classID, player.position.x, player.position.y);
-            dust.SetParentObject(player);
-            dust.yOffset = -32f;
-
-            // Set the scale of the dust.
-            dust.scale = new Vector3(scaleModifier, scaleModifier, scaleModifier);
-
-            // Set the velocity and x offset of the dust depending on the player's direction.
-            if (player.direction == FPDirection.FACING_RIGHT)
-            {
-                dust.velocity = new Vector2(-0.2f, 0f);
-                dust.xOffset = -xOffset;
-            }
-            else
-            {
-                dust.velocity = new Vector2(0.2f, 0f);
-                dust.xOffset = xOffset;
-            }
-        }
-
+                
+        #region Air States/Actions
         /// <summary>
         /// Sonic's moves when in the air state.
         /// </summary>
@@ -579,7 +469,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.genericTimer = 0f;
             }
             #endregion
-            
+
             if (player.input.up && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
             {
                 player.Action_PlaySound(player.sfxUppercut);
@@ -619,6 +509,30 @@ namespace FP2_Sonic_Mod.Patchers
                 FPAudio.PlaySfx(15);
             }
             #endregion
+        }
+
+        /// <summary>
+        /// Makes Sonic jump with the rolling animation instead of the normal one.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPPlayer), "Action_Jump")]
+        private static void MakeJumpRoll()
+        {
+            // If we're in the jumping animation from Action_Jump and the player is Sonic, then swap to the rolling animation instead.
+            if (player.currentAnimation == "Jumping" && player.characterID == Plugin.sonicCharacterID)
+                player.currentAnimation = "Rolling";
+        }
+        
+        /// <summary>
+        /// Increases Sonic's jump height when in water.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPPlayer), "Action_SetWaterFlag", new Type[] { typeof(FPBaseObject), typeof(bool) })]
+        private static void BuffWaterJumpHeight(ref FPBaseObject surface)
+        {
+            /// If the player is Sonic and in water, then set their jump strength up to 12.
+            if (player.characterID == Plugin.sonicCharacterID && surface != null && surface.isActiveAndEnabled)
+                player.jumpStrength = 12f;
         }
 
         /// <summary>
@@ -734,8 +648,692 @@ namespace FP2_Sonic_Mod.Patchers
                 player.SetPlayerAnimation("Spring");
             }
         }
-
         
+        /// <summary>
+        /// Lets Sonic jump again if in a waterfall.
+        /// </summary>
+        private static void Action_Sonic_WaterfallJump()
+        {
+            // Check that the player has a water surface.
+            if (player.targetWaterSurface != null)
+            {
+                // Check that the type of water the player is in is specifically a Water Square.
+                // Also check that we aren't in a few specific scenes, as they have ones that aren't waterfalls, but still use WaterSquare.
+                if (player.targetWaterSurface.GetType() == typeof(FPWaterSquare)
+                    && SceneManager.GetActiveScene() is
+                    {
+                        name: not "GlobeOpera1",
+                        name: not "AncestralForge",
+                        name: not "Battlesphere_Boss",
+                        name: not "Battlesphere_Bossrush_Div1"
+                    })
+                {
+                    // Check if the player is pressing the jump button.
+                    if (player.input.jumpPress)
+                    {
+                        // Play the jump sound.
+                        player.Action_PlaySound(player.sfxJump);
+
+                        // Give the player upwards momentum.
+                        player.velocity = new(0, 9f);
+
+                        // Reset the player to the rolling animation.
+                        player.SetPlayerAnimation("Rolling");
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles hiding Stomp's visual effect.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void HandleStompEffect()
+        {
+            // If the player isn't Sonic, then don't do any of this.
+            if (player.characterID != Plugin.sonicCharacterID)
+                return;
+
+            // If we're not in the Stomp state, then hide the effect.
+            if (player.state != State_Sonic_Stomp)
+                StompEffect.gameObject.SetActive(false);
+        }
+        
+        /// <summary>
+        /// Handles the timer to reset the Air Dash's double tap.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void AirDashTimer()
+        {
+            // If the player isn't Sonic, then don't do any of this.
+            if (player.characterID != Plugin.sonicCharacterID)
+                return;
+
+            // Increment the dash timer.
+            DashTimer += Time.deltaTime;
+
+            // Check if the dash timer goes above 0.25.
+            while (DashTimer >= 0.25f)
+            {
+                // Subtract 0.25 from the timer.
+                DashTimer -= 0.25f;
+
+                // Reset the right and left tap values.
+                LTap = 0;
+                RTap = 0;
+            }
+        }
+        #endregion
+
+        #region Ground States/Actions
+
+        /// <summary>
+        /// Sonic's moves when in the ground state.
+        /// </summary>
+        public static void Action_Sonic_GroundMoves()
+        {
+            #region Spin Dash
+            // Check that the player is holding down, has pressed jump and are in the crouching state.
+            if (player.input.down && player.input.jumpPress && player.state == new FPObjectState(player.State_Crouching))
+            {
+                // Set the player to the SpindashCharge animation.
+                player.SetPlayerAnimation("SpindashCharge");
+
+                // Reset the generic timer.
+                player.genericTimer = 0f;
+
+                // Set the player's state to Sonic's Spin Dash state.
+                player.state = State_Sonic_SpinDash;
+
+                // Play the Spin Dash charge sound.
+                player.Action_PlaySound(player.sfxBoostCharge);
+
+                // Create the smoke particles.
+                CreateSpinDashSmoke(24, 1);
+                CreateSpinDashSmoke(32, 1.25f);
+                CreateSpinDashSmoke(48, 1.5f);
+                CreateSpinDashSmoke(64, 1.75f);
+
+                // If the player is Super, then set the multiplier straight up to 2.
+                if (isSuper)
+                    SpinDashMultiplier = 2f;
+            }
+            #endregion
+
+            #region Rolling
+            // Check that the player holding down, isn't crouching or rolling and has at least 3 ground velocity.
+            if (player.input.down && player.state != new FPObjectState(player.State_Crouching) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) > 3f)
+            {
+                // Reset the generic timer.
+                player.genericTimer = 0f;
+
+                // Set the player's state to Sonic's rolling state.
+                player.state = State_Sonic_Roll;
+
+                // Play the rolling sound effect.
+                player.Action_PlaySoundUninterruptable(player.sfxRolling);
+            }
+            #endregion
+
+            #region Rocket Wisp
+            // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
+            if (HasWisp && player.input.guardPress && player.energy == 100)
+            {
+                // Set the player into the Rocket Wisp Start state.
+                player.state = State_Sonic_RocketWispStart;
+
+                // Play the announcer call for the Rocket Wisp.
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
+
+                // Reset the HasWisp flag.
+                HasWisp = false;
+
+                // Set the player animation to the UseWisp one.
+                player.SetPlayerAnimation("UseWisp");
+
+                // Reset our generic timer.
+                player.genericTimer = 0f;
+            }
+            #endregion
+
+            #region Guard
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            {
+                if (Mathf.Abs(player.groundVel) < 3f)
+                {
+                    player.SetPlayerAnimation("Guard");
+                    player.idleTimer = Mathf.Min(player.idleTimer, 0f);
+                    player.groundVel = 0f;
+                }
+                else
+                {
+                    player.SetPlayerAnimation("GuardRun");
+                    player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
+                }
+                player.Action_Guard();
+                player.Action_ShadowGuard();
+                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
+                guardFlash.parentObject = player;
+                player.Action_StopSound();
+                FPAudio.PlaySfx(15);
+            }
+            #endregion
+
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress && !player.input.up)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+
+                player.idleTimer = 0f - player.fightStanceTime;
+
+                player.SetPlayerAnimation("SweepKick");
+
+                player.state = State_Sonic_SweepKick;
+
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+            }
+
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f && player.input.specialPress)
+            {
+                player.Action_PlaySound(player.sfxBoostRebound);
+
+                player.genericTimer = 0f;
+
+                player.state = State_Sonic_Slide;
+
+                player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
+            }
+
+            if (player.input.up && player.input.attackPress)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+
+                if (!player.jumpAbilityFlag)
+                {
+                    if (player.velocity.y > 0)
+                        player.velocity.y += 6f;
+                    else
+                        player.velocity.y = 6f;
+
+                    player.jumpAbilityFlag = true;
+                }
+
+                player.SetPlayerAnimation("UpKick");
+                player.state = State_Sonic_UpKick;
+            }
+        }
+        
+        /// <summary>
+        /// Logic for Sonic's Spin Dash charging state.
+        /// </summary>
+        public static void State_Sonic_SpinDash()
+        {
+            // Increment the generic timer.
+            player.genericTimer += FPStage.deltaTime;
+
+            // If the player has any horizontal momentum, then halt it.
+            if (player.velocity.x != 0)
+                player.velocity = new(0, player.velocity.y);
+            player.groundVel = 0;
+
+            // If the player isn't on the ground, then apply gravity to them and stop the rest of the function from running.
+            if (!player.onGround)
+            {
+                applyGravity.Invoke(player, new object[] { });
+                return;
+            }
+
+            // Check that the player is pressing down and jump.
+            if (player.input.down && player.input.jumpPress)
+            {
+                // Create the smoke particles.
+                CreateSpinDashSmoke(24, 1);
+                CreateSpinDashSmoke(32, 1.25f);
+                CreateSpinDashSmoke(48, 1.5f);
+                CreateSpinDashSmoke(64, 1.75f);
+
+                // Play the Spin Dash charge sound again.
+                player.Action_PlaySound(player.sfxBoostCharge);
+
+                // Reset the Spin Dash animation.
+                player.SetPlayerAnimation("SpindashCharge", 0, 0, true);
+
+                // Increment the Spin Dash's multiplier up to a maximum of 2 (the check is 1.9, but that's so the decaying force can't push it over.
+                if (SpinDashMultiplier < 1.9f)
+                    SpinDashMultiplier += 0.2f;
+
+                // Reset the generic timer.
+                player.genericTimer = 0f;
+            }
+
+            // Check if the generic timer has reached 15.
+            if (player.genericTimer >= 15)
+            {
+                // Reset the generic timer.
+                player.genericTimer = 0f;
+
+                // Decay a bit of force from the Spin Dash.
+                if (SpinDashMultiplier > 1)
+                    SpinDashMultiplier -= 0.1f;
+            }
+
+            // Check if the player has released down.
+            if (!player.input.down)
+            {
+                // Set the player's ground velocity based on direction.
+                if (player.direction == FPDirection.FACING_LEFT)
+                    player.groundVel = Mathf.Min(Mathf.Min(player.groundVel, 0f) * 0.5f - 15f, player.groundVel) * SpinDashMultiplier;
+                else
+                    player.groundVel = Mathf.Max(Mathf.Max(player.groundVel, 0f) * 0.5f + 15f, player.groundVel) * SpinDashMultiplier;
+
+                // Reset the generic timer.
+                player.genericTimer = 0f;
+
+                // Set the player's state to Sonic's rolling state.
+                player.state = State_Sonic_Roll;
+
+                // Stop the Spin Dash charge sound.
+                player.Action_StopSound();
+
+                // Play the Spin Dash release sound.
+                player.Action_PlaySoundUninterruptable(player.sfxBoostLaunch);
+
+                // Reset the Spin Dash's multiplier.
+                SpinDashMultiplier = 1f;
+            }
+        }
+
+        public static void State_Sonic_Slide()
+        {
+            player.genericTimer += FPStage.deltaTime;
+
+            player.SetPlayerAnimation("Slide");
+            if (player.onGround)
+            {
+                if (player.direction == FPDirection.FACING_RIGHT)
+                    player.groundVel = 8;
+                else
+                    player.groundVel = -8;
+                player.angle = player.groundAngle;
+
+                if (player.input.left) player.direction = FPDirection.FACING_LEFT;
+                if (player.input.right) player.direction = FPDirection.FACING_RIGHT;
+
+                if (player.colliderWall != null)
+                {
+                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
+                    player.state = player.State_KO_Recover;
+                }
+
+                // Check if the player presses jump.
+                if (player.input.jumpPress)
+                {
+                    // Perform the soft jump action.
+                    player.Action_Jump();
+                    player.SetPlayerAnimation("Rolling");
+                }
+            }
+
+            // If the player isn't on the ground, then set them to the in air state.
+            else
+            {
+                player.state = player.State_InAir;
+                player.SetPlayerAnimation("Jumping");
+            }
+
+            if (player.genericTimer > 180f || player.input.specialPress)
+            {
+                if (player.input.left || player.input.right)
+                {
+                    player.state = player.State_Ground;
+                }
+                else
+                {
+                    player.groundVel = 0;
+                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
+                    player.state = player.State_KO_Recover;
+                }
+            }
+
+            if (player.input.attackPress)
+            {
+                player.Action_PlaySound(player.sfxUppercut);
+
+                player.idleTimer = 0f - player.fightStanceTime;
+
+                player.SetPlayerAnimation("SweepKick");
+                player.animator.SetSpeed(2);
+
+                player.state = State_Sonic_SweepKick;
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+            }
+        }
+
+        /// <summary>
+        /// Logic for Sonic's rollling state. Copied and modified from Carol's rolling state.
+        /// </summary>
+        public static void State_Sonic_Roll()
+        {
+            // Increment the generic timer.
+            player.genericTimer += FPStage.deltaTime;
+
+            // Set the player to the rolling animation.
+            player.SetPlayerAnimation("Rolling");
+
+            // Check if the player is on the ground.
+            if (player.onGround)
+            {
+                // Set the animator's speed based on the player's ground velocity.
+                player.animator.SetSpeed(Mathf.Abs(player.groundVel) * 0.15f);
+
+                // Run the Ground Moves action.
+                Action_Sonic_GroundMoves();
+
+                // Check if the player presses jump.
+                if (player.input.jumpPress)
+                {
+                    // Perform the soft jump action.
+                    player.Action_SoftJump();
+
+                    // Set the animator speed to 2.
+                    player.animator.SetSpeed(2f);
+                }
+
+                // Check if the player hasn't pressed jump.
+                else
+                {
+                    // If the generic timer has gone above 15, apply ground forces onto the player.
+                    if (player.genericTimer > 15f)
+                        applyGround.Invoke(player, new object[] { false });
+
+                    // Set the player's angle to their ground angle.
+                    player.angle = player.groundAngle;
+                }
+            }
+
+            // Check if the player is in the air.
+            else
+            {
+                // Apply the air and gravity forces onto the player.
+                applyAir.Invoke(player, new object[] { false });
+                applyGravity.Invoke(player, new object[] { });
+
+                // Check if the player isn't holding jump and has just released it.
+                if (!player.input.jumpHold && player.jumpReleaseFlag)
+                {
+                    // Reset the jump release flag.
+                    player.jumpReleaseFlag = false;
+
+                    // Cap the player's y velocity.
+                    if (player.velocity.y > player.jumpRelease)
+                        player.velocity.y = player.jumpRelease;
+                }
+            }
+
+            // If the player is on the ground below a certain speed, set them back to the normal ground state.
+            if (player.onGround && Mathf.Abs(player.groundVel) <= 1.5f)
+                player.state = player.State_Ground;
+
+            // If the player isn't on the ground, then set them to the in air state.
+            if (!player.onGround)
+                player.state = player.State_InAir;
+        }
+
+        public static void State_Sonic_SweepKick()
+        {
+            if (player.onGround)
+            {
+                if (player.input.jumpPress)
+                {
+                    player.Action_SoftJump();
+                }
+                else
+                {
+                    applyGround.Invoke(player, new object[] { false });
+                    player.angle = player.groundAngle;
+                }
+            }
+            else
+            {
+                player.state = player.State_InAir;
+
+                player.SetPlayerAnimation("GuardAir");
+            }
+
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                if (player.onGround)
+                {
+                    if (player.input.down && Mathf.Abs(player.groundVel) <= 3f)
+                    {
+                        player.state = player.State_Crouching;
+                        player.SetPlayerAnimation("Crouching", 0f, 0f, true);
+                    }
+                    else
+                    {
+                        player.state = player.State_Ground;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Stops Sonic from jumping when crouching so he can Spin Dash.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Action_Jump")]
+        private static bool StopCrouchJump()
+        {
+            // If the player is Sonic and is crouching, then stop the original function from running.
+            if (player.state == new FPObjectState(player.State_Crouching) && player.characterID == Plugin.sonicCharacterID)
+                return false;
+
+            // Otherwise, run the original function as normal.
+            return true;
+        }
+
+        /// <summary>
+        /// Creates the smoke for the Spin Dash.
+        /// </summary>
+        /// <param name="player">The player object creating the smoke.</param>
+        /// <param name="xOffset">How far offset on the X axis this smoke should be.</param>
+        /// <param name="scaleModifier">The scale modifier for this smoke.</param>
+        private static void CreateSpinDashSmoke(float xOffset, float scaleModifier)
+        {
+            // Create a dust object and set up the static values.
+            Dust dust = (Dust)FPStage.CreateStageObject(Dust.classID, player.position.x, player.position.y);
+            dust.SetParentObject(player);
+            dust.yOffset = -32f;
+
+            // Set the scale of the dust.
+            dust.scale = new Vector3(scaleModifier, scaleModifier, scaleModifier);
+
+            // Set the velocity and x offset of the dust depending on the player's direction.
+            if (player.direction == FPDirection.FACING_RIGHT)
+            {
+                dust.velocity = new Vector2(-0.2f, 0f);
+                dust.xOffset = -xOffset;
+            }
+            else
+            {
+                dust.velocity = new Vector2(0.2f, 0f);
+                dust.xOffset = xOffset;
+            }
+        }
+        #endregion
+
+        #region Misc. States/Actions
+        /// <summary>
+        /// Logic for collecting the Power Up item (AKA Power Sneakers).
+        /// </summary>
+        public static void Action_Sonic_Fuel()
+        {
+            // Stop any playing jingles then play our Power Sneakers jingle.
+            FPAudio.StopJingle();
+            FPAudio.PlayJingle(Plugin.sonicSpeedUpJingle);
+
+            // Set our power up timer to 1080 (roughly 18 seconds).
+            player.powerupTimer = 1080f;
+        }
+        
+        /// <summary>
+        /// Increases the damage of the roll, as it used to be Sonic's only real attack.
+        /// This might get removed, as I think I'll end up pivoting to giving Sonic specirfic AttackStat functions of his own.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPPlayer), "AttackStats_CarolRoll")]
+        private static void BuffRollDamage()
+        {
+            // If the player isn't Sonic, then don't perform these edits.
+            if (player.characterID != Plugin.sonicCharacterID)
+                return;
+
+            // If the player ISN'T in the Homing Attack state, then set the roll's attack power to 4.
+            if (player.state != State_Sonic_HomingAttack)
+                player.attackPower = 4f;
+
+            // If they are, then set it to 8.
+            else
+                player.attackPower = 8f;
+        }
+
+        public static void State_Sonic_UpKick()
+        {
+            if (player.onGround)
+            {
+                if (player.input.jumpPress)
+                {
+                    player.Action_SoftJump();
+                    player.state = player.State_InAir;
+                    player.SetPlayerAnimation("Rolling");
+                }
+                else
+                {
+                    applyGround.Invoke(player, new object[] { false });
+                    player.angle = player.groundAngle;
+                }
+                player.jumpAbilityFlag = false;
+            }
+            else
+            {
+                applyAir.Invoke(player, new object[] { false });
+                applyGravity.Invoke(player, new object[] { });
+                if (!player.input.jumpHold && player.jumpReleaseFlag)
+                {
+                    player.jumpReleaseFlag = false;
+                    if (player.velocity.y > player.jumpRelease)
+                    {
+                        player.velocity.y = player.jumpRelease;
+                    }
+                }
+            }
+
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
+            {
+                if (player.onGround)
+                {
+                    player.idleTimer = 0f - player.fightStanceTime;
+                    player.state = player.State_Ground;
+                }
+                else
+                {
+                    player.SetPlayerAnimation("Jumping_Loop");
+                    player.state = player.State_InAir;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logic for the beginning of the Rocket Wisp's activation.
+        /// </summary>
+        private static void State_Sonic_RocketWispStart()
+        {
+            // Set the player's invincibility timer to something absurdly high.
+            player.invincibilityTime = 9999;
+
+            // Kill the player's velocity.
+            player.velocity = Vector2.zero;
+            player.groundVel = 0;
+
+            // Reset the player's angles.
+            player.angle = 0;
+            player.groundAngle = 0;
+
+            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
+            player.oxygenLevel = 1;
+
+            // Increment our generic timer.
+            player.genericTimer += FPStage.deltaTime;
+
+            // Check if our generic timer has gone above 65.
+            if (player.genericTimer >= 65)
+            {
+                // Set the player to the Rocket Wisp animation.
+                player.SetPlayerAnimation("RocketWisp");
+
+                // Play the Rocket Wisp jingle.
+                FPAudio.PlayJingle(Plugin.sonicRocketJingle);
+
+                // Set the player to the Rocket Wisp state.
+                player.state = State_Sonic_RocketWisp;
+
+                // Make the Rocket Wisp effect visible.
+                RocketWispEffect.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Logic for the Rocket Wisp.
+        /// </summary>
+        private static void State_Sonic_RocketWisp()
+        {
+            // Set the player's invincibility timer to something absurdly high.
+            player.invincibilityTime = 9999;
+
+            // Give the player upwards velocity.
+            player.velocity = new(0, 9f);
+
+            // Unset the onGround flag.
+            player.onGround = false;
+
+            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
+            player.oxygenLevel = 1;
+
+            // Reset the Wisp flag.
+            HasWisp = false;
+
+            // Check if we've run out of energy.
+            if (player.energy <= 0)
+            {
+                // Remove the player's invincibility.
+                player.invincibilityTime = 0;
+
+                // Set the player to the InAir state.
+                player.state = player.State_InAir;
+
+                // Set the player to the GuardAir animation for the flip.
+                player.SetPlayerAnimation("GuardAir");
+
+                // Stop the Rocket Wisp jingle if it's still playing.
+                FPAudio.StopJingle();
+
+                // Hide the Rocket Wisp effect.
+                RocketWispEffect.gameObject.SetActive(false);
+
+                // Don't run the rest of this function.
+                return;
+            }
+
+            // Reduce the player's energy bar.
+            player.energy -= (0.8f * FPStage.deltaTime);
+
+            // If the player is colliding with a roof, then double the drain rate.
+            if (player.colliderRoof != null)
+                player.energy -= (0.8f * FPStage.deltaTime);
+        }
+
         /// <summary>
         /// State for transforming into Super Sonic.
         /// </summary>
@@ -974,53 +1572,6 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        public static void State_Sonic_UpKick()
-        {
-            if (player.onGround)
-            {
-                if (player.input.jumpPress)
-                {
-                    player.Action_SoftJump();
-                    player.state = player.State_InAir;
-                    player.SetPlayerAnimation("Rolling");
-                }
-                else
-                {
-                    applyGround.Invoke(player, new object[] { false });
-                    player.angle = player.groundAngle;
-                }
-                player.jumpAbilityFlag = false;
-            }
-            else
-            {
-                applyAir.Invoke(player, new object[] { false });
-                applyGravity.Invoke(player, new object[] { });
-                if (!player.input.jumpHold && player.jumpReleaseFlag)
-                {
-                    player.jumpReleaseFlag = false;
-                    if (player.velocity.y > player.jumpRelease)
-                    {
-                        player.velocity.y = player.jumpRelease;
-                    }
-                }
-            }
-
-            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
-            {
-                if (player.onGround)
-                {
-                    player.idleTimer = 0f - player.fightStanceTime;
-                    //player.SetPlayerAnimation("FightStance");
-                    player.state = player.State_Ground;
-                }
-                else
-                {
-                    player.SetPlayerAnimation("Jumping_Loop");
-                    player.state = player.State_InAir;
-                }
-            }
-        }
-
         /// <summary>
         /// Logic for when the player is Super Sonic.
         /// Most of the stat resetting for when Sonic detransforms is handled in LateUpdate by the PowerSneakers function instead.
@@ -1103,283 +1654,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.state = State_Sonic_SuperDetransform;
             }
         }
-
-        /// <summary>
-        /// Sonic's moves when in the ground state.
-        /// </summary>
-        public static void Action_Sonic_GroundMoves()
-        {
-            #region Spin Dash
-            // Check that the player is holding down, has pressed jump and are in the crouching state.
-            if (player.input.down && player.input.jumpPress && player.state == new FPObjectState(player.State_Crouching))
-            {
-                // Set the player to the SpindashCharge animation.
-                player.SetPlayerAnimation("SpindashCharge");
-
-                // Reset the generic timer.
-                player.genericTimer = 0f;
-
-                // Set the player's state to Sonic's Spin Dash state.
-                player.state = State_Sonic_SpinDash;
-
-                // Play the Spin Dash charge sound.
-                player.Action_PlaySound(player.sfxBoostCharge);
-
-                // Create the smoke particles.
-                CreateSpinDashSmoke(24, 1);
-                CreateSpinDashSmoke(32, 1.25f);
-                CreateSpinDashSmoke(48, 1.5f);
-                CreateSpinDashSmoke(64, 1.75f);
-
-                // If the player is Super, then set the multiplier straight up to 2.
-                if (isSuper)
-                    SpinDashMultiplier = 2f;
-            }
-            #endregion
-
-            #region Rolling
-            // Check that the player holding down, isn't crouching or rolling and has at least 3 ground velocity.
-            if (player.input.down && player.state != new FPObjectState(player.State_Crouching) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) > 3f)
-            {
-                // Reset the generic timer.
-                player.genericTimer = 0f;
-
-                // Set the player's state to Sonic's rolling state.
-                player.state = State_Sonic_Roll;
-
-                // Play the rolling sound effect.
-                player.Action_PlaySoundUninterruptable(player.sfxRolling);
-            }
-            #endregion
-
-            #region Rocket Wisp
-            // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp && player.input.guardPress && player.energy == 100)
-            {
-                // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_RocketWispStart;
-
-                // Play the announcer call for the Rocket Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
-
-                // Reset the HasWisp flag.
-                HasWisp = false;
-
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
-
-                // Reset our generic timer.
-                player.genericTimer = 0f;
-            }
-            #endregion
-
-            #region Guard
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
-            {
-                if (Mathf.Abs(player.groundVel) < 3f)
-                {
-                    player.SetPlayerAnimation("Guard");
-                    player.idleTimer = Mathf.Min(player.idleTimer, 0f);
-                    player.groundVel = 0f;
-                }
-                else
-                {
-                    player.SetPlayerAnimation("GuardRun");
-                    player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
-                }
-                player.Action_Guard();
-                player.Action_ShadowGuard();
-                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
-                guardFlash.parentObject = player;
-                player.Action_StopSound();
-                FPAudio.PlaySfx(15);
-            }
-            #endregion
         
-            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress && !player.input.up)
-            {
-                player.Action_PlaySound(player.sfxUppercut);
-
-                player.idleTimer = 0f - player.fightStanceTime;
-
-                player.SetPlayerAnimation("SweepKick");
-
-                player.state = State_Sonic_SweepKick;
-
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
-            }
-        
-            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f && player.input.specialPress)
-            {
-                player.Action_PlaySound(player.sfxBoostRebound);
-
-                player.genericTimer = 0f;
-
-                player.state = State_Sonic_Slide;
-
-                player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
-            }
-
-            if (player.input.up && player.input.attackPress)
-            {
-                player.Action_PlaySound(player.sfxUppercut);
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
-
-                if (!player.jumpAbilityFlag)
-                {
-                    if (player.velocity.y > 0)
-                        player.velocity.y += 6f;
-                    else
-                        player.velocity.y = 6f;
-
-                    player.jumpAbilityFlag = true;
-                }
-
-                player.SetPlayerAnimation("UpKick");
-                player.state = State_Sonic_UpKick;
-            }
-        }
-
-        public static void State_Sonic_SweepKick()
-        {
-            if (player.onGround)
-            {
-                if (player.input.jumpPress)
-                {
-                    player.Action_SoftJump();
-                }
-                else
-                {
-                    applyGround.Invoke(player, new object[] { false });
-                    player.angle = player.groundAngle;
-                }
-            }
-            else
-            {
-                player.state = player.State_InAir;
-
-                player.SetPlayerAnimation("GuardAir");
-            }
-
-            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
-            {
-                if (player.onGround)
-                {
-                    if (player.input.down && Mathf.Abs(player.groundVel) <= 3f)
-                    {
-                        player.state = player.State_Crouching;
-                        player.SetPlayerAnimation("Crouching", 0f, 0f, true);
-                    }
-                    else
-                    {
-                        player.state = player.State_Ground;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Logic for the beginning of the Rocket Wisp's activation.
-        /// </summary>
-        private static void State_Sonic_RocketWispStart()
-        {
-            // Set the player's invincibility timer to something absurdly high.
-            player.invincibilityTime = 9999;
-
-            // Kill the player's velocity.
-            player.velocity = Vector2.zero;
-            player.groundVel = 0;
-
-            // Reset the player's angles.
-            player.angle = 0;
-            player.groundAngle = 0;
-
-            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
-            player.oxygenLevel = 1;
-
-            // Increment our generic timer.
-            player.genericTimer += FPStage.deltaTime;
-
-            // Check if our generic timer has gone above 65.
-            if (player.genericTimer >= 65)
-            {
-                // Set the player to the Rocket Wisp animation.
-                player.SetPlayerAnimation("RocketWisp");
-
-                // Play the Rocket Wisp jingle.
-                FPAudio.PlayJingle(Plugin.sonicRocketJingle);
-
-                // Set the player to the Rocket Wisp state.
-                player.state = State_Sonic_RocketWisp;
-
-                // Make the Rocket Wisp effect visible.
-                RocketWispEffect.gameObject.SetActive(true);
-            }
-        }
-
-        /// <summary>
-        /// Logic for the Rocket Wisp.
-        /// </summary>
-        private static void State_Sonic_RocketWisp()
-        {
-            // Set the player's invincibility timer to something absurdly high.
-            player.invincibilityTime = 9999;
-
-            // Give the player upwards velocity.
-            player.velocity = new(0, 9f);
-
-            // Unset the onGround flag.
-            player.onGround = false;
-
-            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
-            player.oxygenLevel = 1;
-
-            // Reset the Wisp flag.
-            HasWisp = false;
-
-            // Check if we've run out of energy.
-            if (player.energy <= 0)
-            {
-                // Remove the player's invincibility.
-                player.invincibilityTime = 0;
-
-                // Set the player to the InAir state.
-                player.state = player.State_InAir;
-
-                // Set the player to the GuardAir animation for the flip.
-                player.SetPlayerAnimation("GuardAir");
-
-                // Stop the Rocket Wisp jingle if it's still playing.
-                FPAudio.StopJingle();
-
-                // Hide the Rocket Wisp effect.
-                RocketWispEffect.gameObject.SetActive(false);
-
-                // Don't run the rest of this function.
-                return;
-            }
-
-            // Reduce the player's energy bar.
-            player.energy -= (0.8f * FPStage.deltaTime);
-
-            // If the player is colliding with a roof, then double the drain rate.
-            if (player.colliderRoof != null)
-                player.energy -= (0.8f * FPStage.deltaTime);
-        }
-
-        /// <summary>
-        /// Logic for collecting the Power Up item (AKA Power Sneakers).
-        /// </summary>
-        public static void Action_Sonic_Fuel()
-        {
-            // Stop any playing jingles then play our Power Sneakers jingle.
-            FPAudio.StopJingle();
-            FPAudio.PlayJingle(Plugin.sonicSpeedUpJingle);
-
-            // Set our power up timer to 1080 (roughly 18 seconds).
-            player.powerupTimer = 1080f;
-        }
-
         /// <summary>
         /// Logic for being under the effect of the Power Sneakers.
         /// </summary>
@@ -1404,269 +1679,9 @@ namespace FP2_Sonic_Mod.Patchers
                 typeof(FPPlayer).GetField("speedMultiplier", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(player, 1f + (float)(int)player.potions[6] * 0.05f);
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Logic for Sonic's Spin Dash charging state.
-        /// </summary>
-        public static void State_Sonic_SpinDash()
-        {
-            // Increment the generic timer.
-            player.genericTimer += FPStage.deltaTime;
-
-            // If the player has any horizontal momentum, then halt it.
-            if (player.velocity.x != 0)
-                player.velocity = new(0, player.velocity.y);
-            player.groundVel = 0;
-
-            // If the player isn't on the ground, then apply gravity to them and stop the rest of the function from running.
-            if (!player.onGround)
-            {
-                applyGravity.Invoke(player, new object[] { });
-                return;
-            }
-
-            // Check that the player is pressing down and jump.
-            if (player.input.down && player.input.jumpPress)
-            {
-                // Create the smoke particles.
-                CreateSpinDashSmoke(24, 1);
-                CreateSpinDashSmoke(32, 1.25f);
-                CreateSpinDashSmoke(48, 1.5f);
-                CreateSpinDashSmoke(64, 1.75f);
-
-                // Play the Spin Dash charge sound again.
-                player.Action_PlaySound(player.sfxBoostCharge);
-
-                // Reset the Spin Dash animation.
-                player.SetPlayerAnimation("SpindashCharge", 0, 0, true);
-
-                // Increment the Spin Dash's multiplier up to a maximum of 2 (the check is 1.9, but that's so the decaying force can't push it over.
-                if (SpinDashMultiplier < 1.9f)
-                    SpinDashMultiplier += 0.2f;
-
-                // Reset the generic timer.
-                player.genericTimer = 0f;
-            }
-
-            // Check if the generic timer has reached 15.
-            if (player.genericTimer >= 15)
-            {
-                // Reset the generic timer.
-                player.genericTimer = 0f;
-
-                // Decay a bit of force from the Spin Dash.
-                if (SpinDashMultiplier > 1)
-                    SpinDashMultiplier -= 0.1f;
-            }
-
-            // Check if the player has released down.
-            if (!player.input.down)
-            {
-                // Set the player's ground velocity based on direction.
-                if (player.direction == FPDirection.FACING_LEFT)
-                    player.groundVel = Mathf.Min(Mathf.Min(player.groundVel, 0f) * 0.5f - 15f, player.groundVel) * SpinDashMultiplier;
-                else
-                    player.groundVel = Mathf.Max(Mathf.Max(player.groundVel, 0f) * 0.5f + 15f, player.groundVel) * SpinDashMultiplier;
-
-                // Reset the generic timer.
-                player.genericTimer = 0f;
-
-                // Set the player's state to Sonic's rolling state.
-                player.state = State_Sonic_Roll;
-
-                // Stop the Spin Dash charge sound.
-                player.Action_StopSound();
-
-                // Play the Spin Dash release sound.
-                player.Action_PlaySoundUninterruptable(player.sfxBoostLaunch);
-
-                // Reset the Spin Dash's multiplier.
-                SpinDashMultiplier = 1f;
-            }
-        }
-
-        public static void State_Sonic_Slide()
-        {
-            player.genericTimer += FPStage.deltaTime;
-
-            player.SetPlayerAnimation("Slide");
-            if (player.onGround)
-            {
-                if (player.direction == FPDirection.FACING_RIGHT)
-                    player.groundVel = 8;
-                else
-                    player.groundVel = -8;
-                player.angle = player.groundAngle;
-
-                if (player.input.left) player.direction = FPDirection.FACING_LEFT;
-                if (player.input.right) player.direction = FPDirection.FACING_RIGHT;
-
-                if (player.colliderWall != null)
-                {
-                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
-                    player.state = player.State_KO_Recover;
-                }
-
-                // Check if the player presses jump.
-                if (player.input.jumpPress)
-                {
-                    // Perform the soft jump action.
-                    player.Action_Jump();
-                    player.SetPlayerAnimation("Rolling");
-                }
-            }
-
-            // If the player isn't on the ground, then set them to the in air state.
-            else
-            {
-                player.state = player.State_InAir;
-                player.SetPlayerAnimation("Jumping");
-            }
-
-            if (player.genericTimer > 180f || player.input.specialPress)
-            {
-                if (player.input.left || player.input.right)
-                {
-                    player.state = player.State_Ground;
-                }
-                else
-                {
-                    player.groundVel = 0;
-                    player.SetPlayerAnimation("KO_Recover", 0f, 0f);
-                    player.state = player.State_KO_Recover;
-                }
-            }
-
-            if (player.input.attackPress)
-            {
-                player.Action_PlaySound(player.sfxUppercut);
-
-                player.idleTimer = 0f - player.fightStanceTime;
-
-                player.SetPlayerAnimation("SweepKick");
-                player.animator.SetSpeed(2);
-
-                player.state = State_Sonic_SweepKick;
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
-            }
-        }
-
-        /// <summary>
-        /// Logic for Sonic's rollling state. Copied and modified from Carol's rolling state.
-        /// </summary>
-        public static void State_Sonic_Roll()
-        {
-            // Increment the generic timer.
-            player.genericTimer += FPStage.deltaTime;
-
-            // Set the player to the rolling animation.
-            player.SetPlayerAnimation("Rolling");
-
-            // Check if the player is on the ground.
-            if (player.onGround)
-            {
-                // Set the animator's speed based on the player's ground velocity.
-                player.animator.SetSpeed(Mathf.Abs(player.groundVel) * 0.15f);
-
-                // Run the Ground Moves action.
-                Action_Sonic_GroundMoves();
-
-                // Check if the player presses jump.
-                if (player.input.jumpPress)
-                {
-                    // Perform the soft jump action.
-                    player.Action_SoftJump();
-
-                    // Set the animator speed to 2.
-                    player.animator.SetSpeed(2f);
-                }
-
-                // Check if the player hasn't pressed jump.
-                else
-                {
-                    // If the generic timer has gone above 15, apply ground forces onto the player.
-                    if (player.genericTimer > 15f)
-                        applyGround.Invoke(player, new object[] { false });
-                    
-                    // Set the player's angle to their ground angle.
-                    player.angle = player.groundAngle;
-                }
-            }
-
-            // Check if the player is in the air.
-            else
-            {
-                // Apply the air and gravity forces onto the player.
-                applyAir.Invoke(player, new object[] { false });
-                applyGravity.Invoke(player, new object[] { });
-
-                // Check if the player isn't holding jump and has just released it.
-                if (!player.input.jumpHold && player.jumpReleaseFlag)
-                {
-                    // Reset the jump release flag.
-                    player.jumpReleaseFlag = false;
-
-                    // Cap the player's y velocity.
-                    if (player.velocity.y > player.jumpRelease)
-                        player.velocity.y = player.jumpRelease;
-                }
-            }
-
-            // If the player is on the ground below a certain speed, set them back to the normal ground state.
-            if (player.onGround && Mathf.Abs(player.groundVel) <= 1.5f)
-                player.state = player.State_Ground;
-                
-            // If the player isn't on the ground, then set them to the in air state.
-            if (!player.onGround)
-                player.state = player.State_InAir;
-        }
-
-        /// <summary>
-        /// Handles the timer to reset the Air Dash's double tap.
-        /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FPPlayer), "Update")]
-        private static void AirDashTimer()
-        {
-            // If the player isn't Sonic, then don't do any of this.
-            if (player.characterID != Plugin.sonicCharacterID)
-                return;
-
-            // Increment the dash timer.
-            DashTimer += Time.deltaTime;
-
-            // Check if the dash timer goes above 0.25.
-            while (DashTimer >= 0.25f)
-            {
-                // Subtract 0.25 from the timer.
-                DashTimer -= 0.25f;
-
-                // Reset the right and left tap values.
-                LTap = 0;
-                RTap = 0;
-            }
-        }
-
-        /// <summary>
-        /// Increases the damage of the roll, as its Sonic's only real attack.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPPlayer), "AttackStats_CarolRoll")]
-        private static void BuffRollDamage()
-        {
-            // If the player isn't Sonic, then don't perform these edits.
-            if (player.characterID != Plugin.sonicCharacterID)
-                return;
-
-            // If the player ISN'T in the Homing Attack state, then set the roll's attack power to 4.
-            if (player.state != State_Sonic_HomingAttack)
-                player.attackPower = 4f;
-
-            // If they are, then set it to 8.
-            else
-                player.attackPower = 8f;
-        }
-
+        #region Homing Attack Methods
         /// <summary>
         /// Gets all the enemies in range of the Homing Attack.
         /// </summary>
@@ -1750,39 +1765,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
 
             if (enemyListInHARange[0] != null)
-                    HomingAttackTarget = enemyListInHARange[i];
-        }
-        
-        /// <summary>
-        /// Handles playing/stopping the Drowning jingle.
-        /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FPPlayer), "Update")]
-        private static void HandleDrowningJingle()
-        {
-            // If the player isn't Sonic, then don't do any of this.
-            if (player.characterID != Plugin.sonicCharacterID)
-                return;
-
-            // Check if the player has more than a quarter the oxygen gauge and that we're apparently playing the Drowning jingle.
-            if (player.oxygenLevel > 0.25 && DrowningJingle)
-            {
-                // Stop the jingle.
-                FPAudio.StopJingle();
-
-                // Reset our drowning jingle flag.
-                DrowningJingle = false;
-            }
-
-            // Check if the player has less than a quarter the oxygen gauge and that we're not playing the Drowning jingle.
-            if (player.oxygenLevel <= 0.25 && !DrowningJingle)
-            {
-                // Play the jingle.
-                FPAudio.PlayJingle(Plugin.sonicDrowningJingle);
-
-                // Set our drowning jingle flag.
-                DrowningJingle = true;
-            }
+                HomingAttackTarget = enemyListInHARange[i];
         }
 
         /// <summary>
@@ -1832,7 +1815,7 @@ namespace FP2_Sonic_Mod.Patchers
                 {
                     // Update the cursor's position.
                     HomingAttackCursor.transform.position = new(HomingAttackTarget.transform.position.x + (float)Math.Round((HomingAttackTarget.hbWeakpoint.right + HomingAttackTarget.hbWeakpoint.left) / 2), HomingAttackTarget.transform.position.y + (float)Math.Round((HomingAttackTarget.hbWeakpoint.top + HomingAttackTarget.hbWeakpoint.bottom) / 2), 0);
-                    
+
                     // If we're making the cursor visible and it isn't already, then play the sound effect for it.
                     if (HomingAttackCursor.GetComponent<SpriteRenderer>().enabled == false)
                         player.Action_PlaySoundUninterruptable(player.sfxCarolAttack1);
@@ -1844,48 +1827,9 @@ namespace FP2_Sonic_Mod.Patchers
                 HomingAttackArrows2.GetComponent<SpriteRenderer>().enabled = visible;
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Handles hiding Stomp's visual effect.
-        /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FPPlayer), "Update")]
-        private static void HandleStompEffect()
-        {
-            // If the player isn't Sonic, then don't do any of this.
-            if (player.characterID != Plugin.sonicCharacterID)
-                return;
-
-            // If we're not in the Stomp state, then hide the effect.
-            if (player.state != State_Sonic_Stomp)
-                StompEffect.gameObject.SetActive(false);
-        }
-
-        /// <summary>
-        /// Replaces the Airship in Bakunawa Chase with the Tornado.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlayerShip), "Start")]
-        private static void ModShip(PlayerShip __instance)
-        {
-            // If the player isn't Sonic, then don't do any of this.
-            if (FPSaveManager.character != Plugin.sonicCharacterID)
-                return;
-
-            // Change the Airship's animator to the Tornado's.
-            __instance.GetComponent<Animator>().runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Tornado Animator");
-
-            // Shift the origin point for the bullets a bit.
-            __instance.gameObject.transform.GetChild(0).gameObject.transform.localPosition = new(136, 16, 0);
-
-            // Scale down the sprite.
-            __instance.gameObject.transform.GetChild(2).gameObject.transform.localScale = Vector3.one;
-
-            // Hide the booster and tiny characters.
-            __instance.gameObject.transform.GetChild(3).gameObject.SetActive(false);
-            __instance.gameObject.transform.GetChild(4).gameObject.SetActive(false);
-        }
-
+        #region Water Transpiling
         // Transpiles to remove the swimming state.
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(FPPlayer), nameof(FPPlayer.State_InAir))]
@@ -1899,18 +1843,16 @@ namespace FP2_Sonic_Mod.Patchers
 
             return codes.AsEnumerable();
         }
-
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(FPPlayer), nameof(FPPlayer.ReturnToGeneralState), new Type[] { typeof(bool), typeof(bool) })]
         static IEnumerable<CodeInstruction> RemoveSwimState_ReturnToGeneralState(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
-            
+
             codes[34] = codes[28]; // Swaps out the call to the swimming state to the InAir state instead.
 
             return codes.AsEnumerable();
         }
-
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(FPPlayer), nameof(FPPlayer.Action_Jump))]
         static IEnumerable<CodeInstruction> RemoveSwimState_ActionJump(IEnumerable<CodeInstruction> instructions)
@@ -2017,6 +1959,64 @@ namespace FP2_Sonic_Mod.Patchers
                     }
                 }
             }
+        }
+        #endregion
+
+        /// <summary>
+        /// Handles playing/stopping the Drowning jingle.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void HandleDrowningJingle()
+        {
+            // If the player isn't Sonic, then don't do any of this.
+            if (player.characterID != Plugin.sonicCharacterID)
+                return;
+
+            // Check if the player has more than a quarter the oxygen gauge and that we're apparently playing the Drowning jingle.
+            if (player.oxygenLevel > 0.25 && DrowningJingle)
+            {
+                // Stop the jingle.
+                FPAudio.StopJingle();
+
+                // Reset our drowning jingle flag.
+                DrowningJingle = false;
+            }
+
+            // Check if the player has less than a quarter the oxygen gauge and that we're not playing the Drowning jingle.
+            if (player.oxygenLevel <= 0.25 && !DrowningJingle)
+            {
+                // Play the jingle.
+                FPAudio.PlayJingle(Plugin.sonicDrowningJingle);
+
+                // Set our drowning jingle flag.
+                DrowningJingle = true;
+            }
+        }
+
+        /// <summary>
+        /// Replaces the Airship in Bakunawa Chase with the Tornado.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerShip), "Start")]
+        private static void ModShip(PlayerShip __instance)
+        {
+            // If the player isn't Sonic, then don't do any of this.
+            if (FPSaveManager.character != Plugin.sonicCharacterID)
+                return;
+
+            // Change the Airship's animator to the Tornado's.
+            __instance.GetComponent<Animator>().runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Tornado Animator");
+
+            // Shift the origin point for the bullets a bit.
+            __instance.gameObject.transform.GetChild(0).gameObject.transform.localPosition = new(136, 16, 0);
+
+            // Scale down the sprite.
+            __instance.gameObject.transform.GetChild(2).gameObject.transform.localScale = Vector3.one;
+
+            // Hide the booster and tiny characters.
+            __instance.gameObject.transform.GetChild(3).gameObject.SetActive(false);
+            __instance.gameObject.transform.GetChild(4).gameObject.SetActive(false);
         }
     }
 }
