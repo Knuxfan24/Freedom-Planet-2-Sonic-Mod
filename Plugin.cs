@@ -224,6 +224,7 @@ namespace FP2_Sonic_Mod
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));
             Harmony.CreateAndPatchAll(typeof(FPAudioPatcher));
+            Harmony.CreateAndPatchAll(typeof(FPEventSequencePatcher));
             Harmony.CreateAndPatchAll(typeof(FPHudMasterPatcher));
             Harmony.CreateAndPatchAll(typeof(FPPlayerPatcher));
             Harmony.CreateAndPatchAll(typeof(FPResultsMenuPatcher));
