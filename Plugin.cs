@@ -11,9 +11,8 @@ namespace FP2_Sonic_Mod
 {
     /* TODOs for potential updates:
     TODO: Proper event activators so that Sonic can appear in the few Classic Mode cutscenes that exist rather than just hijacking Lilac's. I have... NO idea how that works.
-    TODO: Try and make the Homing Attack less likely to send Sonic through solid matter.
-    TODO: Maybe try and rewrite the Homing Attack in such a way that it can lock on to item boxes as well.
-    TODO: Update the tutorial to reflect tweaks to Sonic's playstyle.
+    TODO: Try and make the Homing Attack less likely to send Sonic through solid matter/try rewrite it in such a way that it can lock on to item boxes as well.
+    TODO: Update the tutorial to reflect tweaks to Sonic's playstyle (kinda want to just make a custom Green Hill for it and have Omochao explain things).
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked.
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
