@@ -5,6 +5,40 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPHudMasterPatcher
     {
+        private static readonly Sprite[] wispSprites = Plugin.sonicAssetBundle.LoadAssetWithSubAssets<Sprite>("hud_wisp");
+
+        /// <summary>
+        /// Handles displaying the Wisp icon if one is in the player's possession.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPHudMaster), "LateUpdate")]
+        private static void WispIcons(FPHudMaster __instance)
+        {
+            // Only do this if we're Sonic and have a Wisp.
+            if (FPPlayerPatcher.player == null)
+                return;
+            if (FPPlayerPatcher.player.characterID != Plugin.sonicCharacterID)
+                return;
+            if (FPPlayerPatcher.HasWisp != WispType.NONE)
+            {
+                // Show Carol's bike display.
+                __instance.hudBike[0].GetRenderer().enabled = true;
+
+                // Swap out its sprite depending on the held Wisp.
+                switch (FPPlayerPatcher.HasWisp)
+                {
+                    case WispType.DRILL: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[0]; break;
+                    case WispType.ROCKET: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[1]; break;
+                }
+            }
+            else
+            {
+                // Hide Carol's bike display.
+                __instance.hudBike[0].GetRenderer().enabled = false;
+            }
+        }
+
+        // TODO: All of this might have been unnecessary, as I'm probably supposed to just update the player's displayMove variables... Whoops.
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPHudMaster), "GuideUpdate")]
         private static void SonicGuide(ref FPPlayer player, ref SuperTextMesh ___hudGuide)
@@ -53,12 +87,14 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash) || FPPlayerPatcher.isSuper)
                 text4 = "-";
 
-            if (!FPPlayerPatcher.HasWisp && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && !FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
+            if (FPPlayerPatcher.HasWisp == WispType.NONE && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && !FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
                 text4 = "<w><c=energy>Super Sonic</c></w>";
-            if (!FPPlayerPatcher.HasWisp && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
+            if (FPPlayerPatcher.HasWisp == WispType.NONE && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Rolling" && FPPlayerPatcher.isSuper && player.state == new FPObjectState(player.State_InAir))
                 text4 = "<c=energy>Detransform</c>";
-            if (FPPlayerPatcher.HasWisp)
+            if (FPPlayerPatcher.HasWisp == WispType.ROCKET)
                 text4 = "<c=energy>Rocket Wisp</c>";
+            if (FPPlayerPatcher.HasWisp == WispType.DRILL)
+                text4 = "<c=energy>Drill Wisp</c>";
 
             if (player.input.down && (player.state == new FPObjectState(player.State_Crouching) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash)))
                 text1 = "Spin Dash";

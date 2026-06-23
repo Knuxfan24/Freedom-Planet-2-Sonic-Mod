@@ -51,9 +51,10 @@ namespace FP2_Sonic_Mod.Patchers
         private static Transform StompEffect;
 
         // Values for the Rocket Wisp.
-        public static bool HasWisp;
+        public static WispType HasWisp;
         public static Transform RocketWispEffect;
         public static bool UsedRocketWisp;
+        public static FPObjectState LastWispState;
 
         // Value to see if the drowning jingle is apparently playing.
         private static bool DrowningJingle;
@@ -83,7 +84,7 @@ namespace FP2_Sonic_Mod.Patchers
             HomingAttackTarget = null;
 
             // Reset the Wisp flag.
-            HasWisp = false;
+            HasWisp = WispType.NONE;
 
             // Set up Sonic's special assets.
             if (player.characterID == Plugin.sonicCharacterID)
@@ -371,7 +372,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Super Sonic
             // Check that the player has the Chaos Emeralds equipped, has at least 50 crystal shards, has pressed the special button, isn't rolling but is in the rolling animation and isn't already super.
-            if (!HasWisp && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
+            if (HasWisp == WispType.NONE && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
             {
                 // Set the player to the Super Transformation state.
                 player.state = State_Sonic_SuperTransform;
@@ -386,7 +387,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.invincibilityTime = 9999;
             }
 
-            if (!HasWisp && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && isSuper)
+            if (HasWisp == WispType.NONE && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && isSuper)
             {
                 // Reset the player's animator to normal Sonic's.
                 player.animator.runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Sonic Animator");
@@ -459,8 +460,8 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
 
             #region Rocket Wisp
-            // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp && player.input.guardPress && player.energy == 100)
+            // Check if we have a Rocket Wisp, have pressed the guard button and have a full energy gauge.
+            if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
             {
                 // Set the flag for the Gravity Bubble achievement.
                 UsedRocketWisp = true;
@@ -472,13 +473,33 @@ namespace FP2_Sonic_Mod.Patchers
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
                 // Reset the HasWisp flag.
-                HasWisp = false;
+                HasWisp = WispType.NONE;
 
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
 
                 // Reset our generic timer.
                 player.genericTimer = 0f;
+            }
+            #endregion
+
+            #region Drill Wisp
+            if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
+            {
+                // Play the announcer call for the Drill Wisp.
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
+
+                // Reset the HasWisp flag.
+                HasWisp = WispType.NONE;
+
+                // Set the player animation to the UseWisp one.
+                player.SetPlayerAnimation("UseWisp");
+
+                // Reset our generic timer.
+                player.genericTimer = 0f;
+
+                // Set the player into the Drill Wisp Start state.
+                player.state = State_Sonic_DrillWispStart;
             }
             #endregion
 
@@ -511,7 +532,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_DrillWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
             {
                 // Play the Guard animation.
                 // TODO: I think this check is useless, as I believe I set the two animations to the same thing.
@@ -828,7 +849,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Rocket Wisp
             // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp && player.input.guardPress && player.energy == 100)
+            if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
             {
                 // Set the player into the Rocket Wisp Start state.
                 player.state = State_Sonic_RocketWispStart;
@@ -837,7 +858,7 @@ namespace FP2_Sonic_Mod.Patchers
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
                 // Reset the HasWisp flag.
-                HasWisp = false;
+                HasWisp = WispType.NONE;
 
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
@@ -847,9 +868,29 @@ namespace FP2_Sonic_Mod.Patchers
             }
             #endregion
 
+            #region Drill Wisp
+            if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
+            {
+                // Play the announcer call for the Drill Wisp.
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
+
+                // Reset the HasWisp flag.
+                HasWisp = WispType.NONE;
+
+                // Set the player animation to the UseWisp one.
+                player.SetPlayerAnimation("UseWisp");
+
+                // Reset our generic timer.
+                player.genericTimer = 0f;
+
+                // Set the player into the Drill Wisp Start state.
+                player.state = State_Sonic_DrillWispStart;
+            }
+            #endregion
+
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_DrillWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
                 // Check if we're moving slow enough to use a standing guard.
                 if (Mathf.Abs(player.groundVel) < 3f)
@@ -913,8 +954,8 @@ namespace FP2_Sonic_Mod.Patchers
             // Check that we're not sweep kicking or rolling, are moving and have pressed the special key.
             if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 3f && player.input.specialPress)
             {
-                // Play the boost rebound sound (which is replaced with the slide one in the prefab).
-                player.Action_PlaySound(player.sfxBoostRebound);
+                // Play Carol's pounce sound (which is replaced with the slide one in the prefab).
+                player.Action_PlaySound(player.sfxPounce);
 
                 // Reset the generic timer.
                 player.genericTimer = 0f;
@@ -1383,96 +1424,7 @@ namespace FP2_Sonic_Mod.Patchers
                 }
             }
         }
-
-        /// <summary>
-        /// Logic for the beginning of the Rocket Wisp's activation.
-        /// </summary>
-        private static void State_Sonic_RocketWispStart()
-        {
-            // Set the player's invincibility timer to something absurdly high.
-            player.invincibilityTime = 9999;
-
-            // Kill the player's velocity.
-            player.velocity = Vector2.zero;
-            player.groundVel = 0;
-
-            // Reset the player's angles.
-            player.angle = 0;
-            player.groundAngle = 0;
-
-            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
-            player.oxygenLevel = 1;
-
-            // Increment our generic timer.
-            player.genericTimer += FPStage.deltaTime;
-
-            // Check if our generic timer has gone above 65.
-            if (player.genericTimer >= 65)
-            {
-                // Set the player to the Rocket Wisp animation.
-                player.SetPlayerAnimation("RocketWisp");
-
-                // Play the Rocket Wisp jingle.
-                FPAudio.PlayJingle(Plugin.sonicRocketJingle);
-
-                // Set the player to the Rocket Wisp state.
-                player.state = State_Sonic_RocketWisp;
-
-                // Make the Rocket Wisp effect visible.
-                RocketWispEffect.gameObject.SetActive(true);
-            }
-        }
-
-        /// <summary>
-        /// Logic for the Rocket Wisp.
-        /// </summary>
-        private static void State_Sonic_RocketWisp()
-        {
-            // Set the player's invincibility timer to something absurdly high.
-            player.invincibilityTime = 9999;
-
-            // Give the player upwards velocity.
-            player.velocity = new(0, 9f);
-
-            // Unset the onGround flag.
-            player.onGround = false;
-
-            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
-            player.oxygenLevel = 1;
-
-            // Reset the Wisp flag.
-            HasWisp = false;
-
-            // Check if we've run out of energy.
-            if (player.energy <= 0)
-            {
-                // Remove the player's invincibility.
-                player.invincibilityTime = 0;
-
-                // Set the player to the InAir state.
-                player.state = player.State_InAir;
-
-                // Set the player to the GuardAir animation for the flip.
-                player.SetPlayerAnimation("GuardAir");
-
-                // Stop the Rocket Wisp jingle if it's still playing.
-                FPAudio.StopJingle();
-
-                // Hide the Rocket Wisp effect.
-                RocketWispEffect.gameObject.SetActive(false);
-
-                // Don't run the rest of this function.
-                return;
-            }
-
-            // Reduce the player's energy bar.
-            player.energy -= (0.8f * FPStage.deltaTime);
-
-            // If the player is colliding with a roof, then double the drain rate.
-            if (player.colliderRoof != null)
-                player.energy -= (0.8f * FPStage.deltaTime);
-        }
-
+        
         /// <summary>
         /// State for transforming into Super Sonic.
         /// </summary>
@@ -1708,6 +1660,275 @@ namespace FP2_Sonic_Mod.Patchers
                 PurpleChaosEmerald.localPosition = new(0, 180, 0);
                 RedChaosEmerald.localPosition = new(-252, 107, 0);
                 YellowChaosEmerald.localPosition = new(-320, -54, 0);
+            }
+        }
+
+        /// <summary>
+        /// Logic for the beginning of the Rocket Wisp's activation.
+        /// </summary>
+        private static void State_Sonic_RocketWispStart()
+        {
+            // Set the player's invincibility timer to something absurdly high.
+            player.invincibilityTime = 9999;
+
+            // Kill the player's velocity.
+            player.velocity = Vector2.zero;
+            player.groundVel = 0;
+
+            // Reset the player's angles.
+            player.angle = 0;
+            player.groundAngle = 0;
+
+            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
+            player.oxygenLevel = 1;
+
+            // Increment our generic timer.
+            player.genericTimer += FPStage.deltaTime;
+
+            // Check if our generic timer has gone above 65.
+            if (player.genericTimer >= 65)
+            {
+                // Set the player to the Rocket Wisp animation.
+                player.SetPlayerAnimation("RocketWisp");
+
+                // Play the Rocket Wisp jingle.
+                FPAudio.PlayJingle(Plugin.sonicRocketJingle);
+
+                // Play the Rocket Wisp sounds.
+                player.Action_PlaySound(player.sfxMillaShieldFire);
+                player.Action_PlaySoundUninterruptable(player.sfxMillaSuperShield);
+
+                // Set the player to the Rocket Wisp state.
+                player.state = State_Sonic_RocketWisp;
+
+                // Make the Rocket Wisp effect visible.
+                RocketWispEffect.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Logic for the Rocket Wisp.
+        /// </summary>
+        private static void State_Sonic_RocketWisp()
+        {
+            // Store this in our last state value.
+            LastWispState = State_Sonic_RocketWisp;
+
+            // Set Sonic's attack stats to the Wisp one.
+            player.attackStats = AttackStats_SonicWisp;
+
+            // Zoom the camera out.
+            FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
+
+            // Set the player's invincibility timer to something absurdly high.
+            player.invincibilityTime = 9999;
+
+            // Give the player upwards velocity.
+            player.velocity = new(0, 9f);
+
+            // Unset the onGround flag.
+            player.onGround = false;
+
+            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
+            player.oxygenLevel = 1;
+
+            // Reset the Wisp flag.
+            HasWisp = WispType.NONE;
+
+            // Check if we've run out of energy.
+            if (player.energy <= 0)
+            {
+                // Remove the player's invincibility.
+                player.invincibilityTime = 0;
+
+                // Set the player to the InAir state.
+                player.state = player.State_InAir;
+
+                // Set the player to the GuardAir animation for the flip.
+                player.SetPlayerAnimation("GuardAir");
+
+                // Stop the Rocket Wisp jingle if it's still playing.
+                FPAudio.StopJingle();
+
+                // Stop the Rocket Wisp's sound.
+                player.audioChannel[2].Stop();
+
+                // Hide the Rocket Wisp effect.
+                RocketWispEffect.gameObject.SetActive(false);
+
+                // Clear our stored state.
+                LastWispState = null;
+
+                // Don't run the rest of this function.
+                return;
+            }
+
+            // Reduce the player's energy bar.
+            player.energy -= (0.8f * FPStage.deltaTime);
+
+            // If the player is colliding with a roof, then double the drain rate.
+            if (player.colliderRoof != null)
+                player.energy -= (0.8f * FPStage.deltaTime);
+        }
+
+        /// <summary>
+        /// Logic for beginning of the Drill Wisp's activation.
+        /// </summary>
+        private static void State_Sonic_DrillWispStart()
+        {
+            // Set the player's invincibility timer to something absurdly high.
+            player.invincibilityTime = 9999;
+
+            // Kill the player's velocity.
+            player.velocity = Vector2.zero;
+            player.groundVel = 0;
+
+            // Reset the player's angles.
+            player.angle = 0;
+            player.groundAngle = 0;
+
+            // Increment our generic timer.
+            player.genericTimer += FPStage.deltaTime;
+
+            // Check if our generic timer has gone above 65.
+            if (player.genericTimer >= 65)
+            {
+                // Set the player to the Drill Wisp animation.
+                player.SetPlayerAnimation("DrillWisp");
+
+                // Play the Drill Wisp jingle.
+                FPAudio.PlayJingle(Plugin.sonicDrillJingle);
+
+                // Play the Drill Wisp sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaShieldSummon);
+
+                // Set the player to the Drill Wisp state.
+                player.state = State_Sonic_DrillWisp;
+            }
+        }
+
+        /// <summary>
+        /// Logic for the Drill Wisp.
+        /// </summary>
+        private static void State_Sonic_DrillWisp()
+        {
+            // Set Sonic's attack stats to the Wisp one.
+            player.attackStats = AttackStats_SonicWisp;
+
+            // Set the animation speed to 1.
+            player.animator.SetSpeed(1f);
+
+            // Store this in our last state value.
+            LastWispState = State_Sonic_DrillWisp;
+
+            // Zoom the camera out.
+            FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
+
+            // Check if we've left the water or have run out of energy.
+            if (player.targetWaterSurface == null || player.energy <= 0)
+            {
+                // Remove the player's invincibility.
+                player.invincibilityTime = 0;
+
+                // Set our state and animation to the air and jump ones.
+                player.state = player.State_InAir;
+                player.SetPlayerAnimation("Jumping");
+
+                // If we've left water, then double our velocity.
+                if (player.targetWaterSurface == null) player.velocity *= 2;
+
+                // Stop the Drill Wisp jingle if it's still playing.
+                FPAudio.StopJingle();
+
+                // Stop the Drill Wisp's sound.
+                player.audioChannel[2].Stop();
+
+                // Clear our stored state.
+                LastWispState = null;
+
+                // Don't run the rest of this function.
+                return;
+            }
+
+            // Drain some energy.
+            player.energy -= 0.575f * FPStage.deltaTime;
+
+            // Reset the player's oxygen level, as the Drill Wisp always does this.
+            player.oxygenLevel = 1;
+
+            // Make sure we're not on the ground.
+            player.onGround = false;
+
+            // Rotate the player based on input, capping it to 360.
+            if (player.input.right) player.angle -= FPStage.deltaTime * 5;
+            if (player.input.left) player.angle += FPStage.deltaTime * 5;
+            if (player.angle <= -360 || player.angle >= 360) player.angle = 0;
+
+            // Determine our speed and whether or not we need to speed up the animation too.
+            float speedModifier = 5;
+            if (player.input.attackHold || player.input.jumpHold || player.input.specialHold)
+            {
+                speedModifier = 10;
+                player.animator.SetSpeed(2f);
+            }
+
+            // Move the player forward depending on their facing direction.
+            if (player.direction == FPDirection.FACING_RIGHT)
+                player.velocity = (Vector2)player.transform.right * FPStage.deltaTime * speedModifier;
+            else
+                player.velocity = -(Vector2)player.transform.right * FPStage.deltaTime * speedModifier;
+
+            // Check if we've hit a solid surface.
+            if (player.colliderGround != null || player.colliderWall != null || player.colliderRoof != null)
+            {
+                // Invert our velocity and direction.
+                player.velocity.x = 0f - player.prevVelocity.x;
+                player.velocity.y = 0f - player.prevVelocity.y;
+                player.direction ^= FPDirection.FACING_RIGHT;
+
+                // Play the rebound sound.
+                player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
+
+                // If we've hit a floor, shift the player up a bit so they don't stay on the ground.
+                if (player.colliderGround != null)
+                    player.position.y += 4;
+            }
+        }
+
+        /// <summary>
+        /// Handles cleaning up after a Wisp if it was ended prematurely by another state overriding it.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void WispCleanUp()
+        {
+            // Check that we have a Wisp state stored.
+            if (LastWispState != null)
+            {
+                // Stupid hack to make the Drill Wisp persist if hitting the spiral things in Nalao Lake.
+                if (player.state == player.State_InAir && player.currentAnimation == "GuardAir")
+                {
+                    player.SetPlayerAnimation("DrillWisp");
+                    player.state = State_Sonic_DrillWisp;
+                }
+
+                // Check that our current state doesn't match the stored one.
+                if (player.state != LastWispState)
+                {
+                    player.angle = 0;
+
+                    // Stop the Jingle.
+                    FPAudio.StopJingle();
+
+                    // Stop the Wisp's sound.
+                    player.audioChannel[2].Stop();
+
+                    // Remove our Invincibility.
+                    player.invincibilityTime = 0;
+
+                    // Clear the state reference.
+                    LastWispState = null;
+                }
             }
         }
 
@@ -2148,6 +2369,14 @@ namespace FP2_Sonic_Mod.Patchers
             player.attackPower = 4f;
             player.attackHitstun = 1.5f;
             player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+
+        private static void AttackStats_SonicWisp()
+        {
+            player.attackPower = 8f;
+            player.attackHitstun = 1f;
+            player.attackEnemyInvTime = 3f;
             SetConstantAttackStats();
         }
 

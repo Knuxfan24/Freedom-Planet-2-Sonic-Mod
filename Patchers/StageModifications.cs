@@ -5,7 +5,7 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class StageModifications
     {
-        private static readonly GameObject wispCapsuleBase = Plugin.sonicAssetBundle.LoadAsset<GameObject>("rocket wisp capsule");
+        private static readonly GameObject wispCapsuleBase = Plugin.sonicAssetBundle.LoadAsset<GameObject>("wisp capsule");
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPStage), "Start")]
@@ -20,7 +20,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             switch (SceneManager.GetActiveScene().name)
             {
-                // Add the Wisp Capsules to the tutorial.
+                // Add Rocket Wisp Capsules to the tutorial.
                 case "Tutorial1Sonic":
                     CreateWispCapsule(new(6768, -2562, 0));
                     CreateWispCapsule(new(19488, -2466, 0));
@@ -33,6 +33,7 @@ namespace FP2_Sonic_Mod.Patchers
                     break;
 
                 // Add a few Springs to Tidal Gate.
+                // TODO: Potentially swap these out for a Laser Wisp or something? Could be fun to implement.
                 case "TidalGate":
                     templateObject = GameObject.Find("High Spring Up");
                     GameObject extraTGSpring1 = GameObject.Instantiate(templateObject, new Vector3(42952, -3032, 0), Quaternion.identity);
@@ -40,21 +41,16 @@ namespace FP2_Sonic_Mod.Patchers
                     _ = GameObject.Instantiate(templateObject, new Vector3(46154, -2662, 0), Quaternion.identity);
                     break;
 
-                // Various adjustments to Nalao Lake.
+                // Add Drill Wisp Capsules to Nalao Lake.
                 case "NalaoLake":
-                    templateObject = GameObject.Find("NL_RisingBubble (26)");
-                    _ = GameObject.Instantiate(templateObject, new Vector3(25256, -3232, 0), Quaternion.identity);
-                    GameObject.Find("NL Thorns (26)").GetComponent<SpikeTerrain>().enabled = false;
-                    GameObject.Find("NL Thorns (26)").GetComponent<MeshRenderer>().material = Plugin.sonicAssetBundle.LoadAsset<Material>("bf1_asteroid_fill");
-                    GameObject.Find("NL Thorns (19)").GetComponent<SpikeTerrain>().enabled = false;
-                    GameObject.Find("NL Thorns (19)").GetComponent<MeshRenderer>().material = Plugin.sonicAssetBundle.LoadAsset<Material>("bf1_asteroid_fill");
-                    GameObject.Find("Crystal (276)").gameObject.SetActive(false);
-                    GameObject.Find("Crystal (277)").gameObject.SetActive(false);
-                    GameObject.Find("Crystal (278)").gameObject.SetActive(false);
-                    GameObject.Find("Crystal (279)").gameObject.SetActive(false);
+                    CreateWispCapsule(new(7328, -3216, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(21824, -3040, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(21016, -2304, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(23904, -3464, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(26072, -3136, 0), null, WispType.DRILL);
                     break;
 
-                // Add Wisp Capsules to Ancestral Forge.
+                // Add Rocket Wisp Capsules to Ancestral Forge.
                 case "AncestralForge":
                     CreateWispCapsule(new(11984, -15968, 0));
                     CreateWispCapsule(new(3784, -60256, 0), [GameObject.Find("AF Keyfish Altar (4)").GetComponent<AFKeyfishLock>()]);
@@ -68,14 +64,12 @@ namespace FP2_Sonic_Mod.Patchers
                     GameObject.Find("High Spring Up (3)").gameObject.SetActive(false);
                     CreateWispCapsule(new(20140, -6530, 0));
                     CreateWispCapsule(new(26800, -8154, 0));
-                    GameObject.Find("BoxCrystals (2)").gameObject.SetActive(false);
                     CreateWispCapsule(new(26600, -6378, 0));
                     CreateWispCapsule(new(38642, -8580, 0));
                     CreateWispCapsule(new(40040, -8028, 0));
                     CreateWispCapsule(new(40040, -6728, 0));
                     CreateWispCapsule(new(40040, -5428, 0));
                     CreateWispCapsule(new(40040, -4128, 0));
-                    GameObject.Find("BubbleWall (7)").gameObject.SetActive(false);
                     CreateWispCapsule(new(46500, -7502, 0));
                     break;
 
@@ -116,17 +110,21 @@ namespace FP2_Sonic_Mod.Patchers
         }
 
         /// <summary>
-        /// Creates a Rocket Wisp Capsule
+        /// Creates a Wisp Capsule
         /// </summary>
         /// <param name="position">The position to place the capsule.</param>
         /// <param name="activators">What AFKeyfishLock objects (if any) need a key in to make this capsule spawn.</param>
-        private static void CreateWispCapsule(Vector3 position, AFKeyfishLock[] activators = null)
+        /// <param name="type">What type of Wisp this capsule gives.</param>
+        private static void CreateWispCapsule(Vector3 position, AFKeyfishLock[] activators = null, WispType type = WispType.ROCKET)
         {
             // Create the Wisp Capsule object.
             GameObject wispCapsule = UnityEngine.Object.Instantiate(wispCapsuleBase);
 
             // Add the RocketWispCapsule script to it.
-            RocketWispCapsule wispScript = wispCapsule.AddComponent<RocketWispCapsule>();
+            WispCapsule wispScript = wispCapsule.AddComponent<WispCapsule>();
+
+            // Set the type of this Wisp Capsule.
+            wispScript.type = type;
 
             // Set the Wisp Capsule's position.
             wispCapsule.transform.position = position;
@@ -136,7 +134,7 @@ namespace FP2_Sonic_Mod.Patchers
                 wispScript.activators = activators;
 
             // Print some debug information about the capsule we just spawned.
-            Plugin.consoleLog.LogDebug($"Created Rocket Wisp Capsule at {position}");
+            Plugin.consoleLog.LogDebug($"Created Wisp Capsule of type {type} at {position}");
             if (activators != null)
             {
                 Plugin.consoleLog.LogDebug($"\tActivators:");
