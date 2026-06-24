@@ -480,6 +480,9 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset our generic timer.
                 player.genericTimer = 0f;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
             }
             #endregion
 
@@ -500,6 +503,9 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Set the player into the Drill Wisp Start state.
                 player.state = State_Sonic_DrillWispStart;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
             }
             #endregion
 
@@ -865,6 +871,9 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset our generic timer.
                 player.genericTimer = 0f;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
             }
             #endregion
 
@@ -885,6 +894,9 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Set the player into the Drill Wisp Start state.
                 player.state = State_Sonic_DrillWispStart;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
             }
             #endregion
 
