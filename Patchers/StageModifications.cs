@@ -92,6 +92,20 @@ namespace FP2_Sonic_Mod.Patchers
         }
 
         /// <summary>
+        /// Moves the spawn point in Gravity Bubble to the ground so Sonic doesn't fall down in his standing pose.
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerSpawnPoint), "Start")]
+        private static void AdjustGravityBubbleSpawn(PlayerSpawnPoint __instance)
+        {
+            if (FPSaveManager.character != Plugin.sonicCharacterID || SceneManager.GetActiveScene().name != "GravityBubble")
+                return;
+
+            __instance.transform.position = new(128, -564, 0);
+            __instance.powerupOffset = new(182, -16);
+        }
+
+        /// <summary>
         /// Changes the water level at a certain point in Sonic's tutorial.
         /// </summary>
         [HarmonyPostfix]
