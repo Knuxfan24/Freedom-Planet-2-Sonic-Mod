@@ -1735,8 +1735,23 @@ namespace FP2_Sonic_Mod.Patchers
             // Set the player's invincibility timer to something absurdly high.
             player.invincibilityTime = 9999;
 
+            // Cap the player's x velocity.
+            if (player.velocity.x > 2) player.velocity.x = 2;
+            if (player.velocity.x < -2) player.velocity.x = -2;
+            
+            // Allow the player to shift the Rocket Wisp side to side like in Sonic Generations.
+            if (player.input.right && player.velocity.x < 2) player.velocity.x += (0.25f * FPStage.deltaTime);
+            if (player.input.left && player.velocity.x > -2) player.velocity.x -= (0.25f * FPStage.deltaTime);
+            if (!player.input.right && !player.input.left)
+            {
+                if (player.velocity.x < 0) player.velocity.x += (0.1f * FPStage.deltaTime);
+                if (player.velocity.x > 0) player.velocity.x -= (0.1f * FPStage.deltaTime);
+
+                if (player.velocity.x < 0.1 && player.velocity.x > -0.1) player.velocity.x = 0;
+            }
+
             // Give the player upwards velocity.
-            player.velocity = new(0, 9f);
+            player.velocity = new(player.velocity.x, 9f);
 
             // Unset the onGround flag.
             player.onGround = false;
