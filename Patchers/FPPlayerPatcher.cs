@@ -53,7 +53,7 @@ namespace FP2_Sonic_Mod.Patchers
         // Values for the Rocket Wisp.
         public static WispType HasWisp;
         public static Transform RocketWispEffect;
-        public static bool UsedRocketWisp;
+        public static bool UsedWisp;
         public static FPObjectState LastWispState;
 
         // Value to see if the drowning jingle is apparently playing.
@@ -464,7 +464,7 @@ namespace FP2_Sonic_Mod.Patchers
             if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
             {
                 // Set the flag for the Gravity Bubble achievement.
-                UsedRocketWisp = true;
+                UsedWisp = true;
 
                 // Set the player into the Rocket Wisp Start state.
                 player.state = State_Sonic_RocketWispStart;
@@ -486,6 +486,9 @@ namespace FP2_Sonic_Mod.Patchers
             #region Drill Wisp
             if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
             {
+                // Set the flag for the Gravity Bubble achievement.
+                UsedWisp = true;
+
                 // Play the announcer call for the Drill Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
 
@@ -847,6 +850,9 @@ namespace FP2_Sonic_Mod.Patchers
             // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
             if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
             {
+                // Set the flag for the Gravity Bubble achievement.
+                UsedWisp = true;
+
                 // Set the player into the Rocket Wisp Start state.
                 player.state = State_Sonic_RocketWispStart;
 
@@ -867,6 +873,9 @@ namespace FP2_Sonic_Mod.Patchers
             #region Drill Wisp
             if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
             {
+                // Set the flag for the Gravity Bubble achievement.
+                UsedWisp = true;
+
                 // Play the announcer call for the Drill Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
 
@@ -1929,6 +1938,9 @@ namespace FP2_Sonic_Mod.Patchers
                 // Check that our current state doesn't match the stored one.
                 if (player.state != LastWispState)
                 {
+                    // Hide the Rocket Wisp effect.
+                    RocketWispEffect.gameObject.SetActive(false);
+
                     // Reset the Wisp flag.
                     HasWisp = WispType.NONE;
 

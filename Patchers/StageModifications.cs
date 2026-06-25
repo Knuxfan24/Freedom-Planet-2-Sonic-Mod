@@ -58,25 +58,22 @@ namespace FP2_Sonic_Mod.Patchers
                     CreateWispCapsule(new(39968, -40408, 0), [GameObject.Find("AF Keyfish Altar (14)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (13)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (12)").GetComponent<AFKeyfishLock>()]);
                     break;
 
-                // Various adjustments to Gravity Bubble.
+                // Add Wisp Capsules to Gravity Bubble.
                 case "GravityBubble":
-                    GameObject.Find("High Spring Up (2)").gameObject.SetActive(false);
-                    GameObject.Find("High Spring Up (3)").gameObject.SetActive(false);
-                    CreateWispCapsule(new(20140, -6530, 0));
-                    CreateWispCapsule(new(26800, -8154, 0));
+                    CreateWispCapsule(new(20140, -6498, 0));
+                    CreateWispCapsule(new(26632, -8154, 0), null, WispType.DRILL);
                     CreateWispCapsule(new(26600, -6378, 0));
                     CreateWispCapsule(new(38642, -8580, 0));
                     CreateWispCapsule(new(40040, -8028, 0));
                     CreateWispCapsule(new(40040, -6728, 0));
                     CreateWispCapsule(new(40040, -5428, 0));
                     CreateWispCapsule(new(40040, -4128, 0));
-                    CreateWispCapsule(new(46500, -7502, 0));
+                    CreateWispCapsule(new(46500, -7502, 0), null, WispType.DRILL);
                     break;
 
-                // Add a single Dash Ring to Inversion Dynamo.
+                // Add a Rocket Wisp to Inversion Dynamo.
                 case "Bakunawa3":
-                    templateObject = GameObject.Find("BoostRing (16)");
-                    _ = GameObject.Instantiate(templateObject, new Vector3(31264, -2616, 0), templateObject.transform.rotation);
+                    CreateWispCapsule(new(31584, -2552, 0));
                     break;
 
                 // Add an exit zone to the Merga fight as a failsafe for if the Homing Attack drags the player underneath the floor.

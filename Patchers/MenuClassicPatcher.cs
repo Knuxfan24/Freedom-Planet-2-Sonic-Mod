@@ -4,6 +4,6 @@
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MenuClassic), "Start")]
-        private static void ResetRocketWispCheck() => FPPlayerPatcher.UsedRocketWisp = false;
+        private static void ResetWispCheck() => FPPlayerPatcher.UsedWisp = false;
     }
 }

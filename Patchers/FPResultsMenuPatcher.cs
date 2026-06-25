@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FP2_Sonic_Mod.Patchers
+﻿namespace FP2_Sonic_Mod.Patchers
 {
     internal class FPResultsMenuPatcher
     {
@@ -8,8 +6,8 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPResultsMenu), "Update")]
         private static void GravityBubbleNoRocket()
         {
-            // Check if we're in Gravity Bubble and the Rocket Wisp hasn't been used as Sonic. If so, unlock the achievement.
-            if (FPStage.currentStage.stageID == 23 && !FPPlayerPatcher.UsedRocketWisp && FPSaveManager.character == Plugin.sonicCharacterID)
+            // Check if we're in Gravity Bubble and a Wisp hasn't been used as Sonic. If so, unlock the achievement.
+            if (FPStage.currentStage.stageID == 23 && !FPPlayerPatcher.UsedWisp && FPSaveManager.character == Plugin.sonicCharacterID)
                 FP2Lib.Badge.BadgeHandler.UnlockBadge("k24.badge_sonic_nowisp");
         }
 
