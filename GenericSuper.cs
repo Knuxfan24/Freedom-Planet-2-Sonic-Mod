@@ -9,7 +9,7 @@ namespace FP2_Sonic_Mod
         public static FPPlayer player;
 
         // Values relating to the Super form.
-        private static bool isSuper;
+        public static bool isSuper;
         private static float superTimeCounter;
 
         [HarmonyPostfix]
