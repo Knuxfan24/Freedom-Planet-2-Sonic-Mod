@@ -472,9 +472,6 @@ namespace FP2_Sonic_Mod.Patchers
                 // Play the announcer call for the Rocket Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
-                // Reset the HasWisp flag.
-                HasWisp = WispType.NONE;
-
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
 
@@ -491,9 +488,6 @@ namespace FP2_Sonic_Mod.Patchers
             {
                 // Play the announcer call for the Drill Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
-
-                // Reset the HasWisp flag.
-                HasWisp = WispType.NONE;
 
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
@@ -859,9 +853,6 @@ namespace FP2_Sonic_Mod.Patchers
                 // Play the announcer call for the Rocket Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
-                // Reset the HasWisp flag.
-                HasWisp = WispType.NONE;
-
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
 
@@ -878,9 +869,6 @@ namespace FP2_Sonic_Mod.Patchers
             {
                 // Play the announcer call for the Drill Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
-
-                // Reset the HasWisp flag.
-                HasWisp = WispType.NONE;
 
                 // Set the player animation to the UseWisp one.
                 player.SetPlayerAnimation("UseWisp");
@@ -1755,12 +1743,12 @@ namespace FP2_Sonic_Mod.Patchers
             // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
             player.oxygenLevel = 1;
 
-            // Reset the Wisp flag.
-            HasWisp = WispType.NONE;
-
             // Check if we've run out of energy.
             if (player.energy <= 0)
             {
+                // Reset the Wisp flag.
+                HasWisp = WispType.NONE;
+
                 // Remove the player's invincibility.
                 player.invincibilityTime = 0;
 
@@ -1850,6 +1838,9 @@ namespace FP2_Sonic_Mod.Patchers
             // Check if we've left the water or have run out of energy.
             if (player.targetWaterSurface == null || player.energy <= 0)
             {
+                // Reset the Wisp flag.
+                HasWisp = WispType.NONE;
+
                 // Remove the player's invincibility.
                 player.invincibilityTime = 0;
 
@@ -1938,6 +1929,10 @@ namespace FP2_Sonic_Mod.Patchers
                 // Check that our current state doesn't match the stored one.
                 if (player.state != LastWispState)
                 {
+                    // Reset the Wisp flag.
+                    HasWisp = WispType.NONE;
+
+                    // Reset the player's angle to 0.
                     player.angle = 0;
 
                     // Stop the Jingle.
