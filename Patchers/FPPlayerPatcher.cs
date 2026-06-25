@@ -541,11 +541,7 @@ namespace FP2_Sonic_Mod.Patchers
             if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_DrillWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
             {
                 // Play the Guard animation.
-                // TODO: I think this check is useless, as I believe I set the two animations to the same thing.
-                if (Mathf.Abs(player.velocity.x) > 12f)
-                    player.SetPlayerAnimation("GuardAirFast", 0f, 0f);
-                else
-                    player.SetPlayerAnimation("GuardAir", 0f, 0f);
+                player.SetPlayerAnimation("GuardAir", 0f, 0f);
 
                 // Edit the animator's speed depending on the player velocity.
                 player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
