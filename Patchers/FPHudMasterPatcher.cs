@@ -42,7 +42,7 @@ namespace FP2_Sonic_Mod.Patchers
                     case WispType.ROCKET: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[1]; break;
                 }
             }
-            else if ((!FPPlayerPatcher.isSuper && FPPlayerPatcher.player.totalCrystals >= 50) || FPPlayerPatcher.isSuper)
+            else if ((!FPPlayerPatcher.isSuper && FPPlayerPatcher.player.totalCrystals >= 50 && FPPlayerPatcher.player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID)) || FPPlayerPatcher.isSuper)
             {
                 __instance.hudBike[0].GetRenderer().enabled = true;
                 __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = chaosEmeraldSprite;
@@ -54,7 +54,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        // TODO: All of this might have been unnecessary, as I'm probably supposed to just update the player's displayMove variables... Whoops.
+        // Probably possible to refactor the stuff in FPPlayerPatcher to change the displayMove variables directly, but eh.
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPHudMaster), "GuideUpdate")]
         private static void SonicGuide(ref FPPlayer player, ref SuperTextMesh ___hudGuide)
