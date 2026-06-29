@@ -33,6 +33,8 @@
 
                         // Swap to Sonic's event animator.
                         // TODO: Super Sonic is missing some poses so he reverts to normal in that case.
+                        // TODO: Some animators don't seem to be swapped at all?
+                        // TODO: Still missing some animations, so Lilac's take over.
                         if (!FPPlayerPatcher.isSuper) animator.runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Event Sonic Animator");
                         else animator.runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Event Super Sonic Animator");
                     }
