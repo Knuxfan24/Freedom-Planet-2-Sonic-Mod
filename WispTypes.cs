@@ -4,6 +4,7 @@
     {
         NONE = 0,
         ROCKET = 1,
-        DRILL = 2
+        DRILL = 2,
+        LASER = 3
     }
 }

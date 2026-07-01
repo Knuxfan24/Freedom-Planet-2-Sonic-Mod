@@ -26,49 +26,50 @@ namespace FP2_Sonic_Mod.Patchers
                     CreateWispCapsule(new(19488, -2466, 0));
                     break;
 
-                // Add a single Spring to Globe Opera 1.
+                // Add some Wisp Capsules to Globe Opera 1.
                 case "GlobeOpera1":
-                    templateObject = GameObject.Find("High Spring Up");
-                    _ = GameObject.Instantiate(templateObject, new Vector3(36496, -1816, 0), Quaternion.identity);
+                    CreateWispCapsule(new(15344, -1400, 0));
+                    CreateWispCapsule(new(20168, -1584, 0), WispType.LASER);
+                    CreateWispCapsule(new(26128, -2496, 0), WispType.LASER);
+                    CreateWispCapsule(new(36264, -1808, 0), WispType.LASER);
                     break;
 
-                // Add a few Springs to Tidal Gate.
-                // TODO: Potentially swap these out for a Laser Wisp or something? Could be fun to implement.
+                // Add some Wisp Capsules to Tidal Gate.
                 case "TidalGate":
-                    templateObject = GameObject.Find("High Spring Up");
-                    GameObject extraTGSpring1 = GameObject.Instantiate(templateObject, new Vector3(42952, -3032, 0), Quaternion.identity);
-                    extraTGSpring1.GetComponent<Spring>().springStrength = 20f;
-                    _ = GameObject.Instantiate(templateObject, new Vector3(46154, -2662, 0), Quaternion.identity);
+                    CreateWispCapsule(new(42952, -3016, 0), WispType.LASER);
+                    CreateWispCapsule(new(46152, -2648, 0), WispType.LASER);
+                    CreateWispCapsule(new(47600, -2656, 0), WispType.DRILL);
+                    CreateWispCapsule(new(58264, -2280, 0));
                     break;
 
                 // Add Drill Wisp Capsules to Nalao Lake.
                 case "NalaoLake":
-                    CreateWispCapsule(new(7328, -3216, 0), null, WispType.DRILL);
-                    CreateWispCapsule(new(21824, -3040, 0), null, WispType.DRILL);
-                    CreateWispCapsule(new(21016, -2304, 0), null, WispType.DRILL);
-                    CreateWispCapsule(new(23904, -3464, 0), null, WispType.DRILL);
-                    CreateWispCapsule(new(26072, -3136, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(7328, -3216, 0), WispType.DRILL);
+                    CreateWispCapsule(new(21824, -3040, 0), WispType.DRILL);
+                    CreateWispCapsule(new(21016, -2304, 0), WispType.DRILL);
+                    CreateWispCapsule(new(23904, -3464, 0), WispType.DRILL);
+                    CreateWispCapsule(new(26072, -3136, 0), WispType.DRILL);
                     break;
 
                 // Add Rocket Wisp Capsules to Ancestral Forge.
                 case "AncestralForge":
                     CreateWispCapsule(new(11984, -15968, 0));
-                    CreateWispCapsule(new(3784, -60256, 0), [GameObject.Find("AF Keyfish Altar (4)").GetComponent<AFKeyfishLock>()]);
+                    CreateWispCapsule(new(3784, -60256, 0), WispType.ROCKET, [GameObject.Find("AF Keyfish Altar (4)").GetComponent<AFKeyfishLock>()]);
                     CreateWispCapsule(new(41232, -40996, 0));
-                    CreateWispCapsule(new(39968, -40408, 0), [GameObject.Find("AF Keyfish Altar (14)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (13)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (12)").GetComponent<AFKeyfishLock>()]);
+                    CreateWispCapsule(new(39968, -40408, 0), WispType.ROCKET, [GameObject.Find("AF Keyfish Altar (14)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (13)").GetComponent<AFKeyfishLock>(), GameObject.Find("AF Keyfish Altar (12)").GetComponent<AFKeyfishLock>()]);
                     break;
 
-                // Add Wisp Capsules to Gravity Bubble.
+                // Add some Wisp Capsules to Gravity Bubble.
                 case "GravityBubble":
                     CreateWispCapsule(new(20140, -6498, 0));
-                    CreateWispCapsule(new(26632, -8154, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(26632, -8154, 0), WispType.DRILL);
                     CreateWispCapsule(new(26600, -6378, 0));
                     CreateWispCapsule(new(38642, -8580, 0));
                     CreateWispCapsule(new(40040, -8028, 0));
                     CreateWispCapsule(new(40040, -6728, 0));
                     CreateWispCapsule(new(40040, -5428, 0));
                     CreateWispCapsule(new(40040, -4128, 0));
-                    CreateWispCapsule(new(46500, -7502, 0), null, WispType.DRILL);
+                    CreateWispCapsule(new(46500, -7502, 0), WispType.DRILL);
                     break;
 
                 // Add a Rocket Wisp to Inversion Dynamo.
@@ -124,9 +125,9 @@ namespace FP2_Sonic_Mod.Patchers
         /// Creates a Wisp Capsule
         /// </summary>
         /// <param name="position">The position to place the capsule.</param>
-        /// <param name="activators">What AFKeyfishLock objects (if any) need a key in to make this capsule spawn.</param>
         /// <param name="type">What type of Wisp this capsule gives.</param>
-        private static void CreateWispCapsule(Vector3 position, AFKeyfishLock[] activators = null, WispType type = WispType.ROCKET)
+        /// <param name="activators">What AFKeyfishLock objects (if any) need a key in to make this capsule spawn.</param>
+        private static void CreateWispCapsule(Vector3 position, WispType type = WispType.ROCKET, AFKeyfishLock[] activators = null)
         {
             // Create the Wisp Capsule object.
             GameObject wispCapsule = UnityEngine.Object.Instantiate(wispCapsuleBase);

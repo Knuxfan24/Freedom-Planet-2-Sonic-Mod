@@ -55,6 +55,7 @@ namespace FP2_Sonic_Mod.CustomObjectScripts
             {
                 case WispType.ROCKET: animator.Play("Rocket"); break;
                 case WispType.DRILL: animator.Play("Drill"); break;
+                case WispType.LASER: animator.Play("Laser"); break;
             }
 
             // If the scale of the Wisp Capsule isn't 1, then increase it. If it is, then set it to 1 just to be certain.

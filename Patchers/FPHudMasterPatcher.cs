@@ -39,7 +39,8 @@ namespace FP2_Sonic_Mod.Patchers
                 switch (FPPlayerPatcher.HasWisp)
                 {
                     case WispType.DRILL: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[0]; break;
-                    case WispType.ROCKET: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[1]; break;
+                    case WispType.ROCKET: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[2]; break;
+                    case WispType.LASER: __instance.hudBike[0].GetComponent<SpriteRenderer>().sprite = wispSprites[1]; break;
                 }
             }
             else if ((!FPPlayerPatcher.isSuper && FPPlayerPatcher.player.totalCrystals >= 50 && FPPlayerPatcher.player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID)) || FPPlayerPatcher.isSuper)

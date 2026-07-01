@@ -55,6 +55,7 @@ namespace FP2_Sonic_Mod.Patchers
         public static Transform RocketWispEffect;
         public static bool UsedWisp;
         public static FPObjectState LastWispState;
+        private static Transform LaserWispEffect;
 
         // Value to see if the drowning jingle is apparently playing.
         private static bool DrowningJingle;
@@ -133,6 +134,10 @@ namespace FP2_Sonic_Mod.Patchers
                 // Get references to the Rocket Wisp's effect.
                 RocketWispEffect = player.gameObject.transform.GetChild(8);
                 RocketWispEffect.gameObject.SetActive(false);
+
+                // Get references to the Laser Wisp's effect.
+                LaserWispEffect = player.gameObject.transform.GetChild(9);
+                LaserWispEffect.gameObject.SetActive(false);
 
                 // Set the voice bank depending on the config option.
                 switch (Plugin.sonicVAOption.Value)
@@ -467,7 +472,7 @@ namespace FP2_Sonic_Mod.Patchers
                 UsedWisp = true;
 
                 // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_RocketWispStart;
+                player.state = State_Sonic_WispStart;
 
                 // Play the announcer call for the Rocket Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
@@ -499,7 +504,31 @@ namespace FP2_Sonic_Mod.Patchers
                 player.genericTimer = 0f;
 
                 // Set the player into the Drill Wisp Start state.
-                player.state = State_Sonic_DrillWispStart;
+                player.state = State_Sonic_WispStart;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+            }
+            #endregion
+
+            #region Laser Wisp
+            // Check if we have a Laser Wisp, have pressed the guard button and have a full energy gauge.
+            if (HasWisp == WispType.LASER && player.input.guardPress && player.energy == 100)
+            {
+                // Set the flag for the Gravity Bubble achievement.
+                UsedWisp = true;
+
+                // Set the player into the Rocket Wisp Start state.
+                player.state = State_Sonic_WispStart;
+
+                // Play the announcer call for the Rocket Wisp.
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
+
+                // Set the player animation to the UseWisp one.
+                player.SetPlayerAnimation("UseWisp");
+
+                // Reset our generic timer.
+                player.genericTimer = 0f;
 
                 // Play the Wisp activation sound.
                 player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
@@ -535,7 +564,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_DrillWispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_WispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
             {
                 // Play the Guard animation.
                 player.SetPlayerAnimation("GuardAir", 0f, 0f);
@@ -854,7 +883,7 @@ namespace FP2_Sonic_Mod.Patchers
                 UsedWisp = true;
 
                 // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_RocketWispStart;
+                player.state = State_Sonic_WispStart;
 
                 // Play the announcer call for the Rocket Wisp.
                 player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
@@ -886,7 +915,31 @@ namespace FP2_Sonic_Mod.Patchers
                 player.genericTimer = 0f;
 
                 // Set the player into the Drill Wisp Start state.
-                player.state = State_Sonic_DrillWispStart;
+                player.state = State_Sonic_WispStart;
+
+                // Play the Wisp activation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+            }
+            #endregion
+
+            #region Laser Wisp
+            // Check if we have a Laser Wisp, have pressed the guard button and have a full energy gauge.
+            if (HasWisp == WispType.LASER && player.input.guardPress && player.energy == 100)
+            {
+                // Set the flag for the Gravity Bubble achievement.
+                UsedWisp = true;
+
+                // Set the player into the Rocket Wisp Start state.
+                player.state = State_Sonic_WispStart;
+
+                // Play the announcer call for the Rocket Wisp.
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
+
+                // Set the player animation to the UseWisp one.
+                player.SetPlayerAnimation("UseWisp");
+
+                // Reset our generic timer.
+                player.genericTimer = 0f;
 
                 // Play the Wisp activation sound.
                 player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
@@ -895,7 +948,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_RocketWispStart) && player.state != new FPObjectState(State_Sonic_DrillWispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_WispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
                 // Check if we're moving slow enough to use a standing guard.
                 if (Mathf.Abs(player.groundVel) < 3f)
@@ -1669,9 +1722,9 @@ namespace FP2_Sonic_Mod.Patchers
         }
 
         /// <summary>
-        /// Logic for the beginning of the Rocket Wisp's activation.
+        /// State for activating a Wisp power.
         /// </summary>
-        private static void State_Sonic_RocketWispStart()
+        private static void State_Sonic_WispStart()
         {
             // Set the player's invincibility timer to something absurdly high.
             player.invincibilityTime = 9999;
@@ -1684,30 +1737,64 @@ namespace FP2_Sonic_Mod.Patchers
             player.angle = 0;
             player.groundAngle = 0;
 
-            // Reset the player's oxygen level, as the Rocket Wisp in Sonic Colours does this.
-            player.oxygenLevel = 1;
-
             // Increment our generic timer.
             player.genericTimer += FPStage.deltaTime;
 
             // Check if our generic timer has gone above 65.
             if (player.genericTimer >= 65)
             {
-                // Set the player to the Rocket Wisp animation.
-                player.SetPlayerAnimation("RocketWisp");
+                switch (HasWisp)
+                {
+                    case WispType.ROCKET:
+                        // Set the player to the Rocket Wisp animation.
+                        player.SetPlayerAnimation("RocketWisp");
 
-                // Play the Rocket Wisp jingle.
-                FPAudio.PlayJingle(Plugin.sonicRocketJingle);
+                        // Play the Rocket Wisp jingle.
+                        FPAudio.PlayJingle(Plugin.sonicRocketJingle);
 
-                // Play the Rocket Wisp sounds.
-                player.Action_PlaySound(player.sfxMillaShieldFire);
-                player.Action_PlaySoundUninterruptable(player.sfxMillaSuperShield);
+                        // Play the Rocket Wisp sounds.
+                        player.Action_PlaySound(player.sfxMillaShieldFire);
+                        player.Action_PlaySoundUninterruptable(player.sfxMillaSuperShield);
 
-                // Set the player to the Rocket Wisp state.
-                player.state = State_Sonic_RocketWisp;
+                        // Set the player to the Rocket Wisp state.
+                        player.state = State_Sonic_RocketWisp;
 
-                // Make the Rocket Wisp effect visible.
-                RocketWispEffect.gameObject.SetActive(true);
+                        // Make the Rocket Wisp effect visible.
+                        RocketWispEffect.gameObject.SetActive(true);
+                        break;
+
+                    case WispType.DRILL:
+                        // Set the player to the Drill Wisp animation.
+                        player.SetPlayerAnimation("DrillWisp");
+
+                        // Play the Drill Wisp jingle.
+                        FPAudio.PlayJingle(Plugin.sonicDrillJingle);
+
+                        // Play the Drill Wisp sound.
+                        player.Action_PlaySoundUninterruptable(player.sfxMillaShieldSummon);
+
+                        // Set the player to the Drill Wisp state.
+                        player.state = State_Sonic_DrillWisp;
+                        break;
+
+                    case WispType.LASER:
+                        // Set the player to the Laser Wisp Aim animation.
+                        player.SetPlayerAnimation("LaserWispAim");
+
+                        // Play the Laser Wisp jingle.
+                        FPAudio.PlayJingle(Plugin.sonicLaserJingle);
+
+                        // Play the Laswer Wisp sound.
+                        player.Action_PlaySoundUninterruptable(player.sfxShieldBlock);
+
+                        // Set the player to the Laser Wisp Aim state.
+                        player.state = State_Sonic_LaserWispAim;
+
+                        // Make the Laser Wisp effect visible.
+                        LaserWispEffect.gameObject.SetActive(true);
+                        break;
+                }
+
             }
         }
 
@@ -1789,42 +1876,6 @@ namespace FP2_Sonic_Mod.Patchers
             // If the player is colliding with a roof, then double the drain rate.
             if (player.colliderRoof != null)
                 player.energy -= (0.8f * FPStage.deltaTime);
-        }
-
-        /// <summary>
-        /// Logic for beginning of the Drill Wisp's activation.
-        /// </summary>
-        private static void State_Sonic_DrillWispStart()
-        {
-            // Set the player's invincibility timer to something absurdly high.
-            player.invincibilityTime = 9999;
-
-            // Kill the player's velocity.
-            player.velocity = Vector2.zero;
-            player.groundVel = 0;
-
-            // Reset the player's angles.
-            player.angle = 0;
-            player.groundAngle = 0;
-
-            // Increment our generic timer.
-            player.genericTimer += FPStage.deltaTime;
-
-            // Check if our generic timer has gone above 65.
-            if (player.genericTimer >= 65)
-            {
-                // Set the player to the Drill Wisp animation.
-                player.SetPlayerAnimation("DrillWisp");
-
-                // Play the Drill Wisp jingle.
-                FPAudio.PlayJingle(Plugin.sonicDrillJingle);
-
-                // Play the Drill Wisp sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaShieldSummon);
-
-                // Set the player to the Drill Wisp state.
-                player.state = State_Sonic_DrillWisp;
-            }
         }
 
         /// <summary>
@@ -1919,6 +1970,127 @@ namespace FP2_Sonic_Mod.Patchers
         }
 
         /// <summary>
+        /// State for aiming the Laser Wisp.
+        /// </summary>
+        private static void State_Sonic_LaserWispAim()
+        {
+            // Zoom the camera out.
+            FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
+
+            // Rotate the player based on input.
+            // TODO: Allow rotating with Up and Down.
+            if (player.input.right && player.angle > -80) player.angle -= FPStage.deltaTime * 2.5f;
+            if (player.input.left && player.angle < 80) player.angle += FPStage.deltaTime * 2.5f;
+
+            // Drain the energy gauge.
+            player.energy -= 1f * FPStage.deltaTime;
+
+            // Check for any action button or the energy gauge running out.
+            if (player.input.jumpPress || player.input.attackPress || player.input.specialPress || player.input.guardPress || player.energy <= 0)
+            {
+                // Refill the energy gauge so the actual Laser Wisp state lasts a consistent amount of time.
+                player.energy = 100;
+
+                // Shift us up if we're colliding with the ground.
+                if (player.colliderGround != null)
+                    player.position.y += 32;
+
+                // Play the Laser Wisp release sound.
+                player.Action_PlaySound(player.sfxShieldHit);
+
+                // Play the Boost Breaker sound from Lilac's prefab.
+                player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
+
+                // Create the Boost Breaker explosion.
+                BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
+                boostExplosion.attackKnockback.x = player.attackKnockback.x * 0.5f;
+                boostExplosion.attackKnockback.y = player.attackKnockback.y * 0.5f;
+                boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
+                boostExplosion.parentObject = player;
+                boostExplosion.faction = player.faction;
+
+                // Hide Sonic's sprite and set us to the Laser Wisp state.
+                player.SetPlayerAnimation("Hide");
+                player.state = State_Sonic_LaserWisp;
+            }
+        }
+
+        /// <summary>
+        /// Logic for the Laser Wisp.
+        /// TODO: This is a bit naff visually.
+        /// </summary>
+        private static void State_Sonic_LaserWisp()
+        {
+            // Zoom the camera out.
+            FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
+
+            // Store this in our last state value.
+            LastWispState = State_Sonic_LaserWisp;
+
+            // Check if we've left the water or have run out of energy.
+            if (player.energy <= 0)
+            {
+                // Reset the Wisp flag.
+                HasWisp = WispType.NONE;
+
+                // Remove the player's invincibility.
+                player.invincibilityTime = 0;
+
+                // Set our state and animation to the air and jump ones.
+                player.state = player.State_InAir;
+                player.SetPlayerAnimation("Jumping");
+
+                // Stop the Laser Wisp jingle if it's still playing.
+                FPAudio.StopJingle();
+
+                // Clear our stored state.
+                LastWispState = null;
+
+                // Hide the Laser Wisp's effect.
+                LaserWispEffect.gameObject.SetActive(false);
+
+                // Don't run the rest of this function.
+                return;
+            }
+
+            // Forcibly give us velocity if we don't have any.
+            if (player.velocity.x == 0)
+            {
+                if (player.direction == FPDirection.FACING_RIGHT)
+                    player.velocity = (Vector2)player.transform.right * FPStage.deltaTime * 24;
+                else
+                    player.velocity = -(Vector2)player.transform.right * FPStage.deltaTime * 24;
+            }
+
+            // Drain the energy gauge.
+            player.energy -= 1.25f * FPStage.deltaTime;
+
+            // Forcibly remove the onGround flag.
+            player.onGround = false;
+
+            // Bounce off of surfaces.
+            if (player.colliderWall != null)
+            {
+                player.velocity.x = 0f - player.prevVelocity.x;
+                player.direction ^= FPDirection.FACING_RIGHT;
+                player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
+
+                player.angle += 180;
+            }
+            else if (player.colliderRoof != null || player.colliderGround != null)
+            {
+                player.velocity.x = player.prevVelocity.x;
+                player.velocity.y = 0f - player.prevVelocity.y;
+                player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
+
+                player.angle += 90;
+
+                if (player.colliderGround != null)
+                    player.position.y += 32;
+            }
+        }
+
+        /// <summary>
         /// Handles cleaning up after a Wisp if it was ended prematurely by another state overriding it.
         /// </summary>
         [HarmonyPrefix]
@@ -1940,6 +2112,9 @@ namespace FP2_Sonic_Mod.Patchers
                 {
                     // Hide the Rocket Wisp effect.
                     RocketWispEffect.gameObject.SetActive(false);
+
+                    // Hide the Laser Wisp's effect.
+                    LaserWispEffect.gameObject.SetActive(false);
 
                     // Reset the Wisp flag.
                     HasWisp = WispType.NONE;
@@ -1992,8 +2167,8 @@ namespace FP2_Sonic_Mod.Patchers
                 }
             }
 
-            // Don't proceed if the player isn't Super or is in the victory animation.
-            if (!isSuper || player.state == player.State_Victory || player.state == State_Sonic_SuperDetransform || player.state == State_Sonic_RocketWisp || player.state == State_Sonic_RocketWispStart)
+            // Don't proceed if the player isn't Super or is in the victory animation or a Wisp form.
+            if (!isSuper || player.state == player.State_Victory || player.state == State_Sonic_SuperDetransform || player.state == State_Sonic_WispStart || player.state == State_Sonic_RocketWisp || player.state == State_Sonic_DrillWisp || player.state == State_Sonic_LaserWispAim || player.state == State_Sonic_LaserWisp)
                 return;
 
             // Increase the player's stats.

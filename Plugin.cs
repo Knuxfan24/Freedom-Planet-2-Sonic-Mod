@@ -35,6 +35,7 @@ namespace FP2_Sonic_Mod
         public static AudioClip sonicDrowningJingle;
         public static AudioClip sonicRocketJingle;
         public static AudioClip sonicDrillJingle;
+        public static AudioClip sonicLaserJingle;
         public static AudioClip sonicGHZMapMusic;
         public static AudioClip sonicGHZMusic;
         public static AudioClip sonicGHZClearJingle;
@@ -109,6 +110,7 @@ namespace FP2_Sonic_Mod
             sonicDrowningJingle = sonicAssetBundle.LoadAsset<AudioClip>("drowning");
             sonicRocketJingle = sonicAssetBundle.LoadAsset<AudioClip>("rocket");
             sonicDrillJingle = sonicAssetBundle.LoadAsset<AudioClip>("drill");
+            sonicLaserJingle = sonicAssetBundle.LoadAsset<AudioClip>("laser");
             sonicGHZMapMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz_map");
             sonicGHZMusic = sonicAssetBundle.LoadAsset<AudioClip>("ghz");
             sonicGHZClearJingle = sonicAssetBundle.LoadAsset<AudioClip>("clear_ghz");
@@ -204,6 +206,7 @@ namespace FP2_Sonic_Mod
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_drowning", "Drowning", sonicDrowningJingle, FP2Lib.Vinyl.VAddToShop.All, 1);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_rocket", "Colour Power - Orange Rocket", sonicRocketJingle, FP2Lib.Vinyl.VAddToShop.All, 24);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_drill", "Color Power - Yellow Drill (Submarine Ver.)", sonicDrillJingle, FP2Lib.Vinyl.VAddToShop.All, 24);
+            FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_laser", "Color Power - Cyan Laser", sonicLaserJingle, FP2Lib.Vinyl.VAddToShop.All, 24);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_ghzmap", "Map - Green Hill", sonicGHZMapMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_greenhill", "Green Hill Zone", sonicGHZMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_greenhillclear", "Stage Clear - Green Hill", sonicGHZClearJingle, FP2Lib.Vinyl.VAddToShop.All, 32);
