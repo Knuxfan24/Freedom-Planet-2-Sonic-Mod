@@ -198,7 +198,7 @@ namespace FP2_Sonic_Mod
             // Get the ID that FP2Lib assigned to Sonic.
             sonicCharacterID = (FPCharacterID)FP2Lib.Player.PlayerHandler.GetPlayableCharaByUid(playerSonic.uid).id;
 
-            // Register the Vinyls for our music and jingles.
+            // Register Sonic's Vinyls.
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_speedup", "Power Sneakers", sonicSpeedUpJingle, FP2Lib.Vinyl.VAddToShop.All, 1);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_clear", "Stage Clear - Sonic", sonicClearJingle, FP2Lib.Vinyl.VAddToShop.All, 1);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_results", "Results - Sonic", sonicResultsMusic, FP2Lib.Vinyl.VAddToShop.All, 1);
@@ -213,7 +213,7 @@ namespace FP2_Sonic_Mod
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_greenhillclear", "Stage Clear - Green Hill", sonicGHZClearJingle, FP2Lib.Vinyl.VAddToShop.All, 32);
             FP2Lib.Vinyl.VinylHandler.RegisterVinyl("k24.vinyl_sonic_supergeneric", "Super Form", genericSuperMusic, FP2Lib.Vinyl.VAddToShop.All, 32);
 
-            // Register the Badges for clearing things as Sonic.
+            // Register Sonic's Badges.
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_clear", "Blue Blur", "Clear the game as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_clear"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_partime", "Greased Lightning", "Beat any stage's par time as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_partime"), FP2Lib.Badge.FPBadgeType.SILVER, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_halfpartime", "Sonic Boom", "Beat any stage as Sonic in less than half of the par time.", sonicAssetBundle.LoadAsset<Sprite>("badge_halfpartime"), FP2Lib.Badge.FPBadgeType.SILVER, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
@@ -227,6 +227,7 @@ namespace FP2_Sonic_Mod
             FP2Lib.Item.ItemHandler.RegisterItem("k24.sonic.chaosemeralds", "Chaos Emeralds", sonicAssetBundle.LoadAsset<Sprite>("chaos_emeralds"), "Mysterious gems that grant the user limitless power.", IAddToShop.None);
             chaosEmeraldID = FP2Lib.Item.ItemHandler.GetItemDataByUid("k24.sonic.chaosemeralds").itemID;
 
+            // Find and store Lilac's prefab.
             foreach (GameObject obj in UnityEngine.Resources.FindObjectsOfTypeAll<GameObject>())
                 if (obj.name is "Player Lilac") lilacPrefab = obj;
 
