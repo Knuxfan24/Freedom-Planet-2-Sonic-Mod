@@ -14,8 +14,9 @@ namespace FP2_Sonic_Mod
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter/try rewrite it in such a way that it can lock on to item boxes as well.
     TODO: Update the tutorial to reflect tweaks to Sonic's playstyle (kinda want to just make a custom Green Hill for it and have Omochao explain things).
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked.
-    TODO: Replace the enemies in Green Hill with custom recreations of the original Badniks.
-    TODO: Replace the item boxes in Green Hill with monitors.
+    TODO: Fix Green Hill's bottomless pit.
+    TODO: Replace the enemies in Green Hill with custom recreations of the original Badniks?
+    TODO: Replace the item boxes in Green Hill with monitors?
     TODO: Replace the spring sprites in Green Hill with the original Sonic 1 sprites?
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]

@@ -2021,6 +2021,23 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         private static void State_Sonic_LaserWisp()
         {
+            // Set our attack states to the roll's.
+            player.attackStats = AttackStats_SonicRoll;
+
+            // Give us an attack hitbox.
+            player.hbAttack.left = -8;
+            player.hbAttack.top = 8;
+            player.hbAttack.right = 104;
+            player.hbAttack.bottom = -8;
+            player.hbAttack.enabled = true;
+            player.hbAttack.visible = true;
+
+            // Set the player's invincibility to a high value.
+            player.invincibilityTime = 999;
+
+            // Set the player's angle.
+            player.angle = (float)((Mathf.Atan2(player.velocity.y, player.velocity.x)) * (180 / Math.PI));
+
             // Zoom the camera out.
             FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
 
@@ -2074,16 +2091,12 @@ namespace FP2_Sonic_Mod.Patchers
                 player.velocity.x = 0f - player.prevVelocity.x;
                 player.direction ^= FPDirection.FACING_RIGHT;
                 player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
-
-                player.angle += 180;
             }
             else if (player.colliderRoof != null || player.colliderGround != null)
             {
                 player.velocity.x = player.prevVelocity.x;
                 player.velocity.y = 0f - player.prevVelocity.y;
                 player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
-
-                player.angle += 90;
 
                 if (player.colliderGround != null)
                     player.position.y += 32;
