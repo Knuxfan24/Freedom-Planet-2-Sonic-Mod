@@ -2,18 +2,13 @@
 {
     internal class FallingPlatform : FPBaseObject
     {
-        public static int classID = -1;
-
-        public FPObjectState state;
-
+        private static int classID = -1;
+        private FPObjectState state;
         private bool isValidatedInObjectList;
 
         private Collider2D colliderPlatform;
-
         private SpriteRenderer spriteRenderer;
-
         private GameObject falling;
-
         private float genericTimer;
 
         private new void Start()

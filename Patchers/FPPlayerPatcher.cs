@@ -60,6 +60,9 @@ namespace FP2_Sonic_Mod.Patchers
         // Value to see if the drowning jingle is apparently playing.
         private static bool DrowningJingle;
 
+        // DEBUG: Value to make Sonic's attacks one shot everything.
+        private static bool DebugOHKO;
+
         /// <summary>
         /// Sets up various elements for the rest of the functions in here.
         /// </summary>
@@ -171,11 +174,23 @@ namespace FP2_Sonic_Mod.Patchers
                         player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
                         player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_ryan"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_ryan")];
 
-                        if (SceneManager.GetActiveScene().name == "Tutorial1Sonic") player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_ryan")];
+                        if (SceneManager.GetActiveScene().name == "GreenHillTutorial")
+                        {
+                            player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_ryan")];
+                            player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_ryan")];
+                            player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_ryan")];
+                        }
+
                         break;
 
                     case 2:
-                        if (SceneManager.GetActiveScene().name == "Tutorial1Sonic") player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone")];
+                        if (SceneManager.GetActiveScene().name == "GreenHillTutorial")
+                        {
+                            player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone")];
+                            player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone")];
+                            player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone")];
+                        }
+
                         break;
 
                     case 3:
@@ -188,11 +203,31 @@ namespace FP2_Sonic_Mod.Patchers
                         player.vaStart = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("homingattack2_roger")];
                         player.vaRevive = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("ko_recover4_roger")];
                         player.vaItemGet = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("item2_roger")];
-                        player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger")];
-                        player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger")];
-                        player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger")];
+                        player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory1_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory7_roger")];
+                        player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory7_roger")];
+                        player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory2_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory3_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory4_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory5_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory6_roger"), Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory7_roger")];
 
-                        if (SceneManager.GetActiveScene().name == "Tutorial1Sonic") player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_roger")];
+                        if (SceneManager.GetActiveScene().name == "GreenHillTutorial")
+                        {
+                            player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_roger")];
+                            player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_roger")];
+                            player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("tutorialdone_roger")];
+                        }
+
+                        // Change the arrays for Phoenix Highway and Zao Land specifically.
+                        if (SceneManager.GetActiveScene().name == "PhoenixHighway")
+                        {
+                            player.vaClear = new AudioClip[1];
+                            player.vaJackpotClear = new AudioClip[1];
+                            player.vaLowDamageClear = new AudioClip[1];
+                        }
+                        if (SceneManager.GetActiveScene().name == "ZaoLand")
+                        {
+                            player.vaClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory_roger_zaoland")];
+                            player.vaJackpotClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory_roger_zaoland")];
+                            player.vaLowDamageClear = [Plugin.sonicAssetBundle.LoadAsset<AudioClip>("victory_roger_zaoland")];
+                        }
+
                         break;
                 }
 
@@ -1978,9 +2013,20 @@ namespace FP2_Sonic_Mod.Patchers
             FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
 
             // Rotate the player based on input.
-            // TODO: Allow rotating with Up and Down.
             if (player.input.right && player.angle > -80) player.angle -= FPStage.deltaTime * 2.5f;
             if (player.input.left && player.angle < 80) player.angle += FPStage.deltaTime * 2.5f;
+            switch (player.direction)
+            {
+                case FPDirection.FACING_LEFT:
+                    if (player.input.up && player.angle > -80) player.angle -= FPStage.deltaTime * 2.5f;
+                    if (player.input.down && player.angle < 80) player.angle += FPStage.deltaTime * 2.5f;
+                    break;
+
+                case FPDirection.FACING_RIGHT:
+                    if (player.input.down && player.angle > -80) player.angle -= FPStage.deltaTime * 2.5f;
+                    if (player.input.up && player.angle < 80) player.angle += FPStage.deltaTime * 2.5f;
+                    break;
+            }
 
             // Drain the energy gauge.
             player.energy -= 1f * FPStage.deltaTime;
@@ -2080,7 +2126,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
 
             // Drain the energy gauge.
-            player.energy -= 1.25f * FPStage.deltaTime;
+            player.energy -= 1.5f * FPStage.deltaTime;
 
             // Forcibly remove the onGround flag.
             player.onGround = false;
@@ -2612,6 +2658,10 @@ namespace FP2_Sonic_Mod.Patchers
                 player.attackHitstun = 2f;
                 player.attackEnemyInvTime = 4f;
             }
+
+            // If the debug flag is set through Unity Explorer or something, then jack up the damage to an absurd value.
+            if (DebugOHKO)
+                player.attackPower = 2424f;
         }
         #endregion
 

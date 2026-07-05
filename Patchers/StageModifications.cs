@@ -15,15 +15,11 @@ namespace FP2_Sonic_Mod.Patchers
             if (FPSaveManager.character != Plugin.sonicCharacterID)
                 return;
 
-            // Value to hold whatever object we read to duplicate.
-            GameObject templateObject;
-
             switch (SceneManager.GetActiveScene().name)
             {
-                // Add Rocket Wisp Capsules to the tutorial.
-                case "Tutorial1Sonic":
-                    CreateWispCapsule(new(6768, -2562, 0));
-                    CreateWispCapsule(new(19488, -2466, 0));
+                // Add a Rocket Wisp Capsule to the tutorial.
+                case "GreenHillTutorial":
+                    CreateWispCapsule(new(16840, -1624, 0));
                     break;
 
                 // Add some Wisp Capsules to Globe Opera 1.
@@ -79,12 +75,12 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Add an exit zone to the Merga fight as a failsafe for if the Homing Attack drags the player underneath the floor.
                 case "Bakunawa4Boss":
-                    templateObject = new GameObject("Bottomless Pit Failsafe");
-                    templateObject.transform.position = new(688, -720, 0);
-                    var exitZone = templateObject.AddComponent<FPExitZone>();
+                    GameObject mergaFailsafe = new GameObject("Bottomless Pit Failsafe");
+                    mergaFailsafe.transform.position = new(688, -720, 0);
+                    var exitZone = mergaFailsafe.AddComponent<FPExitZone>();
                     exitZone.range = new(1000, 100);
                     exitZone.returnToGround = true;
-                    UnityEngine.Object.Instantiate(templateObject);
+                    UnityEngine.Object.Instantiate(mergaFailsafe);
                     break;
             }
         }
@@ -101,24 +97,6 @@ namespace FP2_Sonic_Mod.Patchers
 
             __instance.transform.position = new(128, -564, 0);
             __instance.powerupOffset = new(182, -16);
-        }
-
-        /// <summary>
-        /// Changes the water level at a certain point in Sonic's tutorial.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPWaterSurface), "Update")]
-        private static void TutorialWaterLevel(FPWaterSurface __instance)
-        {
-            // Only do this if we're in Sonic's tutorial and have a player object.
-            if (SceneManager.GetActiveScene().name != "Tutorial1Sonic" || FPPlayerPatcher.player == null)
-                return;
-
-            // Set the water's y position depending on the player's x position.
-            if (FPPlayerPatcher.player.transform.position.x > 15360)
-                __instance.transform.position = new(__instance.transform.position.x, -1472, __instance.transform.position.z);
-            else
-                __instance.transform.position = new(__instance.transform.position.x, -2864, __instance.transform.position.z);
         }
 
         /// <summary>

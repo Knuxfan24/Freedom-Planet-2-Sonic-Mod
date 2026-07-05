@@ -7,9 +7,6 @@ namespace FP2_Sonic_Mod.Patchers
 {
     internal class GreenHill
     {
-        // Dictionary of Koi Cannon State_Default methods, as all their states are private.
-        static readonly Dictionary<string, FPObjectState> koiCannonDefault = [];
-
         /// <summary>
         /// Handles giving the achievement for completing Green Hill.
         /// </summary>
@@ -145,58 +142,7 @@ namespace FP2_Sonic_Mod.Patchers
             // Play the Star Post sound.
             FPAudio.PlaySfx(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("starpost"));
         }
-
-        /// <summary>
-        /// Finds all the Koi Cannons and gets their default states.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(KoiCannon), "Start")]
-        private static void GetKoiCannonStates(KoiCannon __instance)
-        {
-            if (!koiCannonDefault.ContainsKey(__instance.name) && SceneManager.GetActiveScene().name == "GreenHill")
-                koiCannonDefault.Add(__instance.name, __instance.state);
-        }
-
-        /// <summary>
-        /// Edits the behaviour of the Koi Cannon to let them jump again without needing to land on a solid surface first.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(KoiCannon), "State_Falling")]
-        private static void EditKoiCannonBehaviour(KoiCannon __instance)
-        {
-            // Don't do this if we're not in Green Hill.
-            if (SceneManager.GetActiveScene().name != "GreenHill")
-                return;
-
-            // Get the two private values I need.
-            Vector2 start = (Vector2)typeof(KoiCannon).GetField("start", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(__instance);
-            float startAngle = (float)typeof(KoiCannon).GetField("startAngle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(__instance);
-            
-            // Check if this Koi Cannon has gone below its start position.
-            if (__instance.transform.position.y <= start.y)
-            {
-                // Kill this Koi Cannon's velocity.
-                __instance.velocity = new(0, 0);
-
-                // Reset this Koi Cannon's position and angle.
-                __instance.position = start;
-                __instance.angle = startAngle;
-
-                // Set this Koi Cannon's generic timer to 0.
-                typeof(KoiCannon).GetField("genericTimer", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(__instance, 0f);
                 
-                // Set this Koi Cannon's state back to its default one.
-                __instance.state = koiCannonDefault[__instance.name];
-            }
-        }
-
-        /// <summary>
-        /// Resets the Dictionary of Koi Cannon Default States.
-        /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(FPStage), "Start")]
-        private static void ResetDictionary() => koiCannonDefault.Clear();
-        
         /// <summary>
         /// Adds the custom Falling Platform component to the platforms in Green Hill that need it.
         /// </summary>
@@ -207,7 +153,7 @@ namespace FP2_Sonic_Mod.Patchers
             if (SceneManager.GetActiveScene().name != "GreenHill")
                 return;
 
-            GameObject[] platforms = UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("collapsing platform")).ToArray();
+            GameObject[] platforms = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("collapsing platform"))];
             
             foreach (var platform in platforms)
                 platform.AddComponent<FallingPlatform>();
@@ -220,10 +166,10 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPStage), "Start")]
         private static void ZoomTubes()
         {
-            if (SceneManager.GetActiveScene().name != "GreenHill")
+            if (SceneManager.GetActiveScene().name != "GreenHill" && SceneManager.GetActiveScene().name != "GreenHillTutorial")
                 return;
 
-            GameObject[] tubes = UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("zoom tube")).ToArray();
+            GameObject[] tubes = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("zoom tube"))];
             
             foreach (var tube in tubes)
                 tube.AddComponent<ZoomTube>();
@@ -233,11 +179,33 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(FPStage), "Start")]
         private static void SignPost()
         {
-            if (SceneManager.GetActiveScene().name != "GreenHill")
+            if (SceneManager.GetActiveScene().name != "GreenHill" && SceneManager.GetActiveScene().name != "GreenHillTutorial")
                 return;
 
             var sign = UnityEngine.GameObject.Find("ghz_signpost_0").AddComponent<SignPost>();
             sign.signSound = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("classic_signpost");
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FPStage), "Start")]
+        private static void Badniks()
+        {
+            if (SceneManager.GetActiveScene().name != "GreenHill" && SceneManager.GetActiveScene().name != "GreenHillTutorial")
+                return;
+
+            GameObject[] motobugs = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Motobug"))];
+            GameObject[] choppers = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Chopper"))];
+            GameObject[] newtronsB = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Blue Newtron"))];
+            GameObject[] newtronsG = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Green Newtron"))];
+            GameObject[] buzzBombers = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Buzz Bomber"))];
+            GameObject[] crabmeats = [.. UnityEngine.Object.FindObjectsOfType<GameObject>().Where(x => x.name.StartsWith("Crabmeat"))];
+
+            foreach (var motobug in motobugs) motobug.AddComponent<Motobug>();
+            foreach (var chopper in choppers) chopper.AddComponent<Chopper>();
+            foreach (var newtron in newtronsB) { var component = newtron.AddComponent<Newtron>(); component.type = 0; }
+            foreach (var newtron in newtronsG) { var component = newtron.AddComponent<Newtron>(); component.type = 1; }
+            foreach (var buzzBomber in buzzBombers) buzzBomber.AddComponent<BuzzBomber>();
+            foreach (var crabmeat in crabmeats) crabmeat.AddComponent<Crabmeat>();
         }
     }
 }

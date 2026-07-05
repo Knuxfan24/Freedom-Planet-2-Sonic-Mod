@@ -10,14 +10,13 @@ using System.IO;
 namespace FP2_Sonic_Mod
 {
     /* TODOs for potential updates:
-    TODO: Proper event activators so that Sonic can appear in the few Classic Mode cutscenes that exist rather than just hijacking Lilac's. I have... NO idea how that works.
-    TODO: Try and make the Homing Attack less likely to send Sonic through solid matter/try rewrite it in such a way that it can lock on to item boxes as well.
-    TODO: Update the tutorial to reflect tweaks to Sonic's playstyle (kinda want to just make a custom Green Hill for it and have Omochao explain things).
-    TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked.
-    TODO: Fix Green Hill's bottomless pit.
-    TODO: Replace the enemies in Green Hill with custom recreations of the original Badniks?
-    TODO: Replace the item boxes in Green Hill with monitors?
-    TODO: Replace the spring sprites in Green Hill with the original Sonic 1 sprites?
+    TODO: Proper event activators so that Sonic can appear in the few Classic Mode cutscenes that exist rather than just hijacking Lilac's. I have... NO idea how that works. - Low Priority
+    TODO: Try and make the Homing Attack less likely to send Sonic through solid matter/try rewrite it in such a way that it can lock on to item boxes as well. - Medium Priority
+    TODO: Finish the new tutorial. Check the wording of Omochao's text. The stomp tutorial could do with having something to bust through (a bridge?) to properly demonstrate using it as an attack. - High Priority, mandatory for 1.1's release.
+    TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked. - Medium Priority
+    TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
+    TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
+    TODO: Improve the Laser Wisp's visuals. - Low Priority
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
@@ -181,7 +180,7 @@ namespace FP2_Sonic_Mod
                 piedSprite = sonicPieNormal,
                 sagaBlock = sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Saga Sonic"),
                 sagaBlockSyntax = sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Syntax Saga Sonic"),
-                TutorialScene = "Tutorial1Sonic",
+                TutorialScene = "GreenHillTutorial",
                 useOwnCutsceneActivators = false, // See EventSequenceStart.
                 worldMapIdle = [sonicAssetBundle.LoadAsset<Sprite>("worldmap_idle")],
                 worldMapPauseSprite = sonicAssetBundle.LoadAsset<Sprite>("item"),
@@ -233,6 +232,7 @@ namespace FP2_Sonic_Mod
 
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));
+            Harmony.CreateAndPatchAll(typeof(DiscordPatcher));
             Harmony.CreateAndPatchAll(typeof(FPAudioPatcher));
             Harmony.CreateAndPatchAll(typeof(FPEventSequencePatcher));
             Harmony.CreateAndPatchAll(typeof(FPHudMasterPatcher));
@@ -248,7 +248,7 @@ namespace FP2_Sonic_Mod
             Harmony.CreateAndPatchAll(typeof(MenuPhotoPatcher));
             Harmony.CreateAndPatchAll(typeof(SagaPatcher));
             Harmony.CreateAndPatchAll(typeof(StageModifications));
-            Harmony.CreateAndPatchAll(typeof(TutorialTVPatcher));
+            Harmony.CreateAndPatchAll(typeof(ZLBallonAnchorPatcher));
             Harmony.CreateAndPatchAll(typeof(ZLBaseballFlyerPatcher));
             Harmony.CreateAndPatchAll(typeof(GenericSuper));
         }
