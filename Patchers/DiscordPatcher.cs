@@ -11,8 +11,8 @@ namespace FP2_Sonic_Mod.Patchers
         private static void ResetFlag() => playedVoice = false;
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(Discord), "Update")]
-        private static void State_Death(ref float ___genericTimer)
+        [HarmonyPatch(typeof(Discord), "State_Death")]
+        private static void VoiceLine(ref float ___genericTimer)
         {
             // Don't do this if the voice isn't set to Roger and we've already played the sound.
             if (Plugin.sonicVAOption.Value != 3 || playedVoice)
