@@ -42,7 +42,7 @@ namespace FP2_Sonic_Mod.Patchers
 
         // Values for the Homing Attack.
         public static float HomingAttackFailsafeTimer;
-        public static FPBaseEnemy HomingAttackTarget;
+        public static FPBaseObject HomingAttackTarget;
         private static Transform HomingAttackCursor;
         private static Transform HomingAttackArrows1;
         private static Transform HomingAttackArrows2;
@@ -449,7 +449,7 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Homing Attack
             // Determine what the Homing Attack should target.
-            UpdateHomingAttackTargetedEnemies();
+            UpdateHomingAttackTarget();
 
             // Check that we have a Homing Attack target, are pressing the attack button but not up and not in various animations we don't want to Homing Attack cancel.
             if (HomingAttackTarget != null && player.input.attackPress && !player.input.up && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
@@ -662,10 +662,9 @@ namespace FP2_Sonic_Mod.Patchers
             // Set our attack stats to the Homing Attack's.
             player.attackStats = AttackStats_SonicHomingAttack;
 
-            // Get the state of the target (if it has one).
-            string targetState = null;
-            if (HomingAttackTarget.state != null)
-                targetState = HomingAttackTarget.state.Method.Name;
+            // Try cast the object to an enemy
+            FPBaseEnemy? enemy = null;
+            try { enemy = (FPBaseEnemy)HomingAttackTarget; } catch {}
 
             // Increment the failsafe timer.
             HomingAttackFailsafeTimer += FPStage.deltaTime;
@@ -683,20 +682,46 @@ namespace FP2_Sonic_Mod.Patchers
                 player.SetPlayerAnimation("Jumping");
             }
 
-            // Move the player towards their Homing Attack target.
-            player.position = Vector2.MoveTowards(player.position, new(HomingAttackTarget.transform.position.x + (float)Math.Round((HomingAttackTarget.hbWeakpoint.right + HomingAttackTarget.hbWeakpoint.left) / 2), HomingAttackTarget.transform.position.y + (float)Math.Round((HomingAttackTarget.hbWeakpoint.top + HomingAttackTarget.hbWeakpoint.bottom) / 2)), 20f * FPStage.deltaTime);
-
-            // Check if the player hasn't collided with a solid surface, that their position now matches the Homing Attack target's or if the target is in its Death state.
-            if (player.position == new Vector2(HomingAttackTarget.transform.position.x + (float)Math.Round((HomingAttackTarget.hbWeakpoint.right + HomingAttackTarget.hbWeakpoint.left) / 2), HomingAttackTarget.transform.position.y + (float)Math.Round((HomingAttackTarget.hbWeakpoint.top + HomingAttackTarget.hbWeakpoint.bottom) / 2)) || targetState == "State_Death" || player.colliderWall != null || player.colliderRoof != null || player.colliderGround != null)
+            if (enemy != null)
             {
-                // Set the player to the InAir state.
-                player.state = player.State_InAir;
+                // Get the state of the target (if it has one).
+                string targetState = null;
+                if (enemy.state != null)
+                    targetState = enemy.state.Method.Name;
 
-                // Give the player some upwards velocity.
-                player.velocity = new(0, 12f);
+                // Move the player towards their Homing Attack target.
+                player.position = Vector2.MoveTowards(player.position, new(enemy.transform.position.x + (float)Math.Round((enemy.hbWeakpoint.right + enemy.hbWeakpoint.left) / 2), enemy.transform.position.y + (float)Math.Round((enemy.hbWeakpoint.top + enemy.hbWeakpoint.bottom) / 2)), 20f * FPStage.deltaTime);
 
-                // Set the player to their Guard Air animation to act as a Homing flip.
-                player.SetPlayerAnimation("GuardAir");
+                // Check if the player hasn't collided with a solid surface, that their position now matches the Homing Attack target's or if the target is in its Death state.
+                if (player.position == new Vector2(enemy.transform.position.x + (float)Math.Round((enemy.hbWeakpoint.right + enemy.hbWeakpoint.left) / 2), enemy.transform.position.y + (float)Math.Round((enemy.hbWeakpoint.top + enemy.hbWeakpoint.bottom) / 2)) || targetState == "State_Death" || player.colliderWall != null || player.colliderRoof != null || player.colliderGround != null)
+                {
+                    // Set the player to the InAir state.
+                    player.state = player.State_InAir;
+
+                    // Give the player some upwards velocity.
+                    player.velocity = new(0, 12f);
+
+                    // Set the player to their Guard Air animation to act as a Homing flip.
+                    player.SetPlayerAnimation("GuardAir");
+                }
+            }
+            else
+            {
+                // Move the player towards their Homing Attack target.
+                player.position = Vector2.MoveTowards(player.position, HomingAttackTarget.transform.position, 20f * FPStage.deltaTime);
+
+                // Check if the player hasn't collided with a solid surface or that their position now matches the Homing Attack target's.
+                if (player.position == HomingAttackTarget.position || player.colliderWall != null || player.colliderRoof != null || player.colliderGround != null)
+                {
+                    // Set the player to the InAir state.
+                    player.state = player.State_InAir;
+
+                    // Give the player some upwards velocity.
+                    player.velocity = new(0, 12f);
+
+                    // Set the player to their Guard Air animation to act as a Homing flip.
+                    player.SetPlayerAnimation("GuardAir");
+                }
             }
         }
 
@@ -2311,12 +2336,24 @@ namespace FP2_Sonic_Mod.Patchers
 
         #region Homing Attack Methods
         /// <summary>
-        /// Gets all the enemies in range of the Homing Attack.
+        /// Gets all the item boxes and enemies in range of the Homing Attack.
         /// </summary>
-        private static List<FPBaseEnemy> GetEnemyListInHomingAttackRange()
+        private static List<FPBaseObject> GetHomingAttackTargets()
         {
-            // Create a list of enemies.
-            List<FPBaseEnemy> enemyList = [];
+            // Create a list of objects.
+            List<FPBaseObject> potentialTargets = [];
+            
+            // Loop through all the item boxes in the stage.
+            foreach (ItemBox itemBox in UnityEngine.GameObject.FindObjectsOfType<ItemBox>())
+            {
+                // Check if this item box isn't already opened, isn't a bomb and is in range.
+                if (itemBox.state.Method.Name != "State_Done" && itemBox.itemType != FPItemBoxTypes.BOX_BOMB && Vector2.SqrMagnitude(player.position - itemBox.position) <= 65536)
+                {
+                    // If the item box's position is valid (depending on the player's direction), then add them to the list.
+                    if (player.direction == FPDirection.FACING_RIGHT && itemBox.position.x + 8 > player.position.x) potentialTargets.Add(itemBox);
+                    if (player.direction == FPDirection.FACING_LEFT && itemBox.position.x - 8 < player.position.x) potentialTargets.Add(itemBox);
+                }
+            }
 
             // Loop through every active enemy in the stage.
             foreach (FPBaseEnemy fpbaseEnemy in FPStage.GetActiveEnemies(false, false))
@@ -2337,32 +2374,32 @@ namespace FP2_Sonic_Mod.Patchers
                 if (fpbaseEnemy.health > 0f && fpbaseEnemy.hbWeakpoint.enabled && fpbaseEnemy.CanBeTargeted() && fpbaseEnemy.faction != player.faction && Vector2.SqrMagnitude(player.position - fpbaseEnemy.position) <= 65536)
                 {
                     // If the enemy's position is valid (depending on the player's direction), then add them to the list.
-                    if (player.direction == FPDirection.FACING_RIGHT && fpbaseEnemy.position.x + 8 > player.position.x) enemyList.Add(fpbaseEnemy);
-                    if (player.direction == FPDirection.FACING_LEFT && fpbaseEnemy.position.x - 8 < player.position.x) enemyList.Add(fpbaseEnemy);
+                    if (player.direction == FPDirection.FACING_RIGHT && fpbaseEnemy.position.x + 8 > player.position.x) potentialTargets.Add(fpbaseEnemy);
+                    if (player.direction == FPDirection.FACING_LEFT && fpbaseEnemy.position.x - 8 < player.position.x) potentialTargets.Add(fpbaseEnemy);
                 }
             }
 
-            // Return our list of enemies.
-            return enemyList;
+            // Return our list of objects.
+            return potentialTargets;
         }
 
         /// <summary>
         /// Compares two potential Homing Attack targets.
         /// TODO: This code comes from the BFF2000 missiles, how does it work?
         /// </summary>
-        private static int CompareHomingAttackTargets(FPBaseEnemy enemy1, FPBaseEnemy enemy2)
+        private static int CompareHomingAttackTargets(FPBaseObject obj1, FPBaseObject obj2)
         {
-            if (ReferenceEquals(enemy1, enemy2))
+            if (ReferenceEquals(obj1, obj2))
                 return 0;
 
-            if (enemy1 == null)
+            if (obj1 == null)
                 return 1;
 
-            if (enemy2 == null)
+            if (obj2 == null)
                 return -1;
 
-            float num = Vector2.SqrMagnitude(player.position - enemy1.position);
-            float num2 = Vector2.SqrMagnitude(player.position - enemy2.position);
+            float num = Vector2.SqrMagnitude(player.position - obj1.position);
+            float num2 = Vector2.SqrMagnitude(player.position - obj2.position);
 
             if (num < num2)
                 return -1;
@@ -2370,24 +2407,24 @@ namespace FP2_Sonic_Mod.Patchers
             if (num > num2)
                 return 1;
 
-            if (enemy1.stageListPos < enemy2.stageListPos)
+            if (obj1.stageListPos < obj2.stageListPos)
                 return -1;
 
-            if (enemy1.stageListPos > enemy2.stageListPos)
+            if (obj1.stageListPos > obj2.stageListPos)
                 return 1;
 
             return 0;
         }
 
         /// <summary>
-        /// Updates the list of Homing Attackable enemies.
+        /// Updates the list of Homing Attackable targets.
         /// TODO: This code comes from the BFF2000 missiles, how does it work?
         /// </summary>
-        private static void UpdateHomingAttackTargetedEnemies()
+        private static void UpdateHomingAttackTarget()
         {
-            List<FPBaseEnemy> enemyListInHARange = GetEnemyListInHomingAttackRange();
+            List<FPBaseObject> enemyListInHARange = GetHomingAttackTargets();
 
-            enemyListInHARange.Sort(new Comparison<FPBaseEnemy>(CompareHomingAttackTargets));
+            enemyListInHARange.Sort(new Comparison<FPBaseObject>(CompareHomingAttackTargets));
 
             int i = 0;
             while (i < enemyListInHARange.Count - 1)
@@ -2405,7 +2442,7 @@ namespace FP2_Sonic_Mod.Patchers
             }
 
             if (enemyListInHARange[0] != null)
-                HomingAttackTarget = enemyListInHARange[i];
+                HomingAttackTarget = enemyListInHARange[0];
         }
 
         /// <summary>
@@ -2453,8 +2490,15 @@ namespace FP2_Sonic_Mod.Patchers
                 // Check if we're making the cursor visible.
                 if (visible)
                 {
+                    // Try cast the object to an enemy.
+                    FPBaseEnemy? enemy = null;
+                    try { enemy = (FPBaseEnemy)HomingAttackTarget; } catch {}
+
                     // Update the cursor's position.
-                    HomingAttackCursor.transform.position = new(HomingAttackTarget.transform.position.x + (float)Math.Round((HomingAttackTarget.hbWeakpoint.right + HomingAttackTarget.hbWeakpoint.left) / 2), HomingAttackTarget.transform.position.y + (float)Math.Round((HomingAttackTarget.hbWeakpoint.top + HomingAttackTarget.hbWeakpoint.bottom) / 2), 0);
+                    if (enemy != null)
+                        HomingAttackCursor.transform.position = new(enemy.transform.position.x + (float)Math.Round((enemy.hbWeakpoint.right + enemy.hbWeakpoint.left) / 2), enemy.transform.position.y + (float)Math.Round((enemy.hbWeakpoint.top + enemy.hbWeakpoint.bottom) / 2), 0);
+                    else
+                        HomingAttackCursor.transform.position = HomingAttackTarget.transform.position;
 
                     // If we're making the cursor visible and it isn't already, then play the sound effect for it.
                     if (HomingAttackCursor.GetComponent<SpriteRenderer>().enabled == false)
