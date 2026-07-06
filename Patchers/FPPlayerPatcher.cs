@@ -1820,13 +1820,14 @@ namespace FP2_Sonic_Mod.Patchers
                         FPAudio.PlayJingle(Plugin.sonicLaserJingle);
 
                         // Play the Laswer Wisp sound.
-                        player.Action_PlaySoundUninterruptable(player.sfxShieldBlock);
+                        player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("phantom_laser_charge"));
 
                         // Set the player to the Laser Wisp Aim state.
                         player.state = State_Sonic_LaserWispAim;
 
                         // Make the Laser Wisp effect visible.
                         LaserWispEffect.gameObject.SetActive(true);
+                        LaserWispEffect.gameObject.GetComponent<Animator>().Play("Aim");
                         break;
                 }
 
@@ -2006,7 +2007,6 @@ namespace FP2_Sonic_Mod.Patchers
 
         /// <summary>
         /// State for aiming the Laser Wisp.
-        /// TODO: Should probably keep the old line here and only swap to the new sprites upon firing.
         /// </summary>
         private static void State_Sonic_LaserWispAim()
         {
@@ -2043,7 +2043,7 @@ namespace FP2_Sonic_Mod.Patchers
                     player.position.y += 32;
 
                 // Play the Laser Wisp release sound.
-                player.Action_PlaySound(player.sfxShieldHit);
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("phantom_laser_shot"));
 
                 // Play the Boost Breaker sound from Lilac's prefab.
                 player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
@@ -2059,11 +2059,14 @@ namespace FP2_Sonic_Mod.Patchers
                 // Hide Sonic's sprite and set us to the Laser Wisp state.
                 player.SetPlayerAnimation("Hide");
                 player.state = State_Sonic_LaserWisp;
+
+                LaserWispEffect.gameObject.GetComponent<Animator>().Play("Launch");
             }
         }
 
         /// <summary>
         /// Logic for the Laser Wisp.
+        /// TODO: The rebound rotation now looks wrong.
         /// </summary>
         private static void State_Sonic_LaserWisp()
         {
@@ -2318,6 +2321,11 @@ namespace FP2_Sonic_Mod.Patchers
             // Loop through every active enemy in the stage.
             foreach (FPBaseEnemy fpbaseEnemy in FPStage.GetActiveEnemies(false, false))
             {
+                // Blacklist the Stahp if its in one of its movement states, as it stays a constant distance away, so the Homing Attack can never close the gap.
+                if (fpbaseEnemy.GetType() == typeof(Stahp))
+                    if (fpbaseEnemy.state.Method.Name is "State_Track" or "State_Reposition")
+                        continue;
+
                 // Check if the enemy has health, and active weakpoint, can be targeted, is of a different faction to the player and that the squared length of the player's position minus the enemy's is less than or equal to 65536.
                 if (fpbaseEnemy.health > 0f && fpbaseEnemy.hbWeakpoint.enabled && fpbaseEnemy.CanBeTargeted() && fpbaseEnemy.faction != player.faction && Vector2.SqrMagnitude(player.position - fpbaseEnemy.position) <= 65536)
                 {
