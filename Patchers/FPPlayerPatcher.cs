@@ -2006,6 +2006,7 @@ namespace FP2_Sonic_Mod.Patchers
 
         /// <summary>
         /// State for aiming the Laser Wisp.
+        /// TODO: Should probably keep the old line here and only swap to the new sprites upon firing.
         /// </summary>
         private static void State_Sonic_LaserWispAim()
         {
@@ -2063,7 +2064,6 @@ namespace FP2_Sonic_Mod.Patchers
 
         /// <summary>
         /// Logic for the Laser Wisp.
-        /// TODO: This is a bit naff visually.
         /// </summary>
         private static void State_Sonic_LaserWisp()
         {
