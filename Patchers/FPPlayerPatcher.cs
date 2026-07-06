@@ -2326,6 +2326,13 @@ namespace FP2_Sonic_Mod.Patchers
                     if (fpbaseEnemy.state.Method.Name is "State_Track" or "State_Reposition")
                         continue;
 
+                // Blacklist some things which use FPBaseEnemy but really shouldn't be targeted.
+                if (fpbaseEnemy.GetType() == typeof(WeightedPlatform)
+                 || fpbaseEnemy.GetType() == typeof(ASBlockDoorKey)
+                 || fpbaseEnemy.GetType() == typeof(AFKeyBlock)
+                 || fpbaseEnemy.GetType() == typeof(ASBlockDoorKey))
+                    continue;
+
                 // Check if the enemy has health, and active weakpoint, can be targeted, is of a different faction to the player and that the squared length of the player's position minus the enemy's is less than or equal to 65536.
                 if (fpbaseEnemy.health > 0f && fpbaseEnemy.hbWeakpoint.enabled && fpbaseEnemy.CanBeTargeted() && fpbaseEnemy.faction != player.faction && Vector2.SqrMagnitude(player.position - fpbaseEnemy.position) <= 65536)
                 {
