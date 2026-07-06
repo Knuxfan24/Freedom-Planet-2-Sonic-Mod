@@ -1,5 +1,4 @@
 ﻿using FP2_Sonic_Mod;
-using System;
 
 public class Newtron : FPBaseEnemy
 {
@@ -23,7 +22,6 @@ public class Newtron : FPBaseEnemy
         health = 1;
 
         // Set the needed values in the FPBaseObject for collision checking.
-        // TODO: Decide on the sensor values.
         enablePhysics = true;
         terrainCollision = true;
         useScaling = true;
@@ -281,11 +279,28 @@ public class Newtron : FPBaseEnemy
 
         // If this Newtron's hit a wall, disable its collision with the terrain entirely.
         if (colliderWall != null)
+        {
+            velocity = Vector2.zero;
+            groundVel = 0;
             terrainCollision = false;
+            state = State_MissilePass;
+        }
 
         InteractWithObjects();
         ShaderUpdate();
         Process360Movement();
+    }
+
+    private void State_MissilePass()
+    {
+        thruster.SetActive(true);
+        animator.Play("Blue Missile");
+
+        if (direction == FPDirection.FACING_RIGHT) position.x += 4 * FPStage.deltaTime;
+        else position.x -= 4 * FPStage.deltaTime;
+
+        InteractWithObjects();
+        ShaderUpdate();
     }
 
     private void State_WaitToVanish()
