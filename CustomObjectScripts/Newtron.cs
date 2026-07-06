@@ -207,16 +207,15 @@ public class Newtron : FPBaseEnemy
                 animator.Play("Green Shoot");
 
                 // Create the bullet.
-                // TODO: This position is copied from Serpentine, adjust it to be closer to the Newtron's mouth.
                 ProjectileBasic projectileBasic;
                 if (direction == FPDirection.FACING_LEFT)
                 {
-                    projectileBasic = (ProjectileBasic)FPStage.CreateStageObject(ProjectileBasic.classID, position.x - Mathf.Cos((float)Math.PI / 180f * angle) * 56f + Mathf.Sin((float)Math.PI / 180f * angle) * 16, position.y + Mathf.Cos((float)Math.PI / 180f * angle) * 16 - Mathf.Sin((float)Math.PI / 180f * angle) * 56f);
+                    projectileBasic = (ProjectileBasic)FPStage.CreateStageObject(ProjectileBasic.classID, position.x - 48, position.y + 8);
                     projectileBasic.velocity.x = -4f;
                 }
                 else
                 {
-                    projectileBasic = (ProjectileBasic)FPStage.CreateStageObject(ProjectileBasic.classID, position.x + Mathf.Cos((float)Math.PI / 180f * angle) * 56f + Mathf.Sin((float)Math.PI / 180f * angle) * 16, position.y + Mathf.Cos((float)Math.PI / 180f * angle) * 16 + Mathf.Sin((float)Math.PI / 180f * angle) * 56f);
+                    projectileBasic = (ProjectileBasic)FPStage.CreateStageObject(ProjectileBasic.classID, position.x + 48, position.y + 8);
                     projectileBasic.velocity.x = 4f;
                 }
                 projectileBasic.animatorController = projectileAnimator;

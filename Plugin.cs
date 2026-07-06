@@ -12,7 +12,7 @@ namespace FP2_Sonic_Mod
     /* TODOs for potential updates:
     TODO: Proper event activators so that Sonic can appear in the few Classic Mode cutscenes that exist rather than just hijacking Lilac's. I have... NO idea how that works. - Low Priority
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter/try rewrite it in such a way that it can lock on to item boxes as well. - Medium Priority
-    TODO: Finish the new tutorial. Check the wording of Omochao's text. The stomp tutorial could do with having something to bust through (a bridge?) to properly demonstrate using it as an attack. - High Priority, mandatory for 1.1's release.
+    TODO: Finish the new tutorial. The stomp tutorial could do with having something to bust through (a bridge?) to properly demonstrate using it as an attack. - High Priority, mandatory for 1.1's release.
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked. - Medium Priority
     TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
