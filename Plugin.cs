@@ -173,6 +173,7 @@ namespace FP2_Sonic_Mod
                 airshipSprite = 0,
                 enabledInAventure = false, // While getting Adventure Mode fully working would be awesome, it feels like it'd be a nightmarish task.
                 enabledInClassic = true,
+                disableSwimming = true,
                 eventActivatorCharacter = FPCharacterID.LILAC,
                 EventSequenceStart = null, // Would really like this if only so Sonic can appear in the few Classic Mode events, but I don't understand how to make the event stuff work.
                 piedHurtSprite = sonicPieStruggle,
