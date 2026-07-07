@@ -15,7 +15,6 @@ namespace FP2_Sonic_Mod
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked. - Medium Priority
     TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
-    TODO: Redo the README. - High Priority, mandatory for 1.1's release.
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
@@ -219,7 +218,7 @@ namespace FP2_Sonic_Mod
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_allpartime", "Fastest Thing Alive", "Beat the par times in all stages as Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_allpartime"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_emeralds", "The Servers Are...", "Clear Weapon's Core and obtain the Chaos Emeralds.", sonicAssetBundle.LoadAsset<Sprite>("badge_emeralds"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_palacemerga", "Problem Solved, Story Over", "Defeat Merga in Palace Courtyard as Super Sonic.", sonicAssetBundle.LoadAsset<Sprite>("badge_palacemerga"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
-            FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_nowisp", "Oversaturated", "Beat Gravity Bubble without using any Wisps.", sonicAssetBundle.LoadAsset<Sprite>("badge_nowisp"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
+            FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_nowisp", "Oversaturated", "Beat Gravity Bubble as Sonic without using any Wisps.", sonicAssetBundle.LoadAsset<Sprite>("badge_nowisp"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.ALWAYS);
             FP2Lib.Badge.BadgeHandler.RegisterBadge("k24.badge_sonic_greenhill", "Home Sweet Home", "Unlock and complete Green Hill Zone.", sonicAssetBundle.LoadAsset<Sprite>("badge_greenhill"), FP2Lib.Badge.FPBadgeType.GOLD, FP2Lib.Badge.FPBadgeVisible.HIDDEN);
 
             // Create and register the Chaos Emeralds item.
