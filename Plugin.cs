@@ -151,7 +151,7 @@ namespace FP2_Sonic_Mod
                 skill2 = "Double Jump",
                 skill1 = "Homing Attack",
                 skill3 = "Stomp",
-                skill4 = "Rocket Wisp",
+                skill4 = "Guard/Use Wisp",
                 powerupStartDescription = "Begin the stage with a set of Power Sneakers.",
                 AirMoves = FPPlayerPatcher.Action_Sonic_AirMoves,
                 GroundMoves = FPPlayerPatcher.Action_Sonic_GroundMoves,
