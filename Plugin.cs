@@ -15,6 +15,7 @@ namespace FP2_Sonic_Mod
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked. - Medium Priority
     TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
+    TODO: Refactor the guide to be handled in FPPlayerPatcher by directly updating the displayMove vars? - Low Priority
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]

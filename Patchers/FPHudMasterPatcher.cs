@@ -55,7 +55,6 @@ namespace FP2_Sonic_Mod.Patchers
             }
         }
 
-        // Probably possible to refactor the stuff in FPPlayerPatcher to change the displayMove variables directly, but eh.
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPHudMaster), "GuideUpdate")]
         private static void SonicGuide(ref FPPlayer player, ref SuperTextMesh ___hudGuide)
@@ -88,7 +87,7 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling" && player.state == new FPObjectState(player.State_InAir))
                 text1 = "Double Jump";
 
-            if (player.state == new FPObjectState(player.State_InAir) && player.currentAnimation != "GuardAir" && FPPlayerPatcher.HomingAttackTarget != null && FPPlayerPatcher.HomingAttackFailsafeTimer != 0)
+            if (player.state == new FPObjectState(player.State_InAir) && player.currentAnimation != "GuardAir" && FPPlayerPatcher.HomingAttackTarget != null && FPPlayerPatcher.HomingAttackFailsafeTimer < 60)
                 text2 = "Homing Attack";
 
             if ((player.input.left || player.input.right) && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && player.currentAnimation == "Spring")
@@ -117,6 +116,8 @@ namespace FP2_Sonic_Mod.Patchers
                 text4 = "<c=energy>Rocket Wisp</c>";
             if (FPPlayerPatcher.HasWisp == WispType.DRILL)
                 text4 = "<c=energy>Drill Wisp</c>";
+            if (FPPlayerPatcher.HasWisp == WispType.LASER)
+                text4 = "<c=energy>Laser Wisp</c>";
 
             if (player.input.down && (player.state == new FPObjectState(player.State_Crouching) || player.state == new FPObjectState(FPPlayerPatcher.State_Sonic_SpinDash)))
                 text1 = "Spin Dash";
