@@ -2152,7 +2152,6 @@ namespace FP2_Sonic_Mod.Patchers
 
         /// <summary>
         /// Logic for the Laser Wisp.
-        /// TODO: The rebound rotation now looks wrong. This should be fixed (or at least improved) before 1.1 releases.
         /// </summary>
         private static void State_Sonic_LaserWisp()
         {
@@ -2170,8 +2169,10 @@ namespace FP2_Sonic_Mod.Patchers
             // Set the player's invincibility to a high value.
             player.invincibilityTime = 999;
 
-            // Set the player's angle.
+            // Set the player's angle, subtracting 180 from it if we're facing left.
             player.angle = (float)((Mathf.Atan2(player.velocity.y, player.velocity.x)) * (180 / Math.PI));
+            if (player.direction == FPDirection.FACING_LEFT)
+                player.angle -= 180;
 
             // Zoom the camera out.
             FPCamera.stageCamera.RequestZoom(FPCamera.stageCamera.GetStandardZoomIncrementedValue(), FPCamera.ZoomPriority_VeryHigh);
@@ -2224,7 +2225,6 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.colliderWall != null)
             {
                 player.velocity.x = 0f - player.prevVelocity.x;
-                player.direction ^= FPDirection.FACING_RIGHT;
                 player.Action_PlaySoundUninterruptable(player.sfxBoostRebound);
             }
             else if (player.colliderRoof != null || player.colliderGround != null)
