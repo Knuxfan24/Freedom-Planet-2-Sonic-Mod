@@ -12,10 +12,10 @@ namespace FP2_Sonic_Mod
     /* TODOs for potential updates:
     TODO: Proper event activators so that Sonic can appear in the few Classic Mode cutscenes that exist rather than just hijacking Lilac's. I have... NO idea how that works. - Low Priority
     TODO: Try and make the Homing Attack less likely to send Sonic through solid matter. Tried Raycast checks but they were either always coming up positive or detecting nothing. - Medium Priority
-    TODO: Finish the new tutorial. The stomp tutorial could do with having something to bust through (a bridge?) to properly demonstrate using it as an attack. - High Priority, mandatory for 1.1's release.
     TODO: The Shadow Guard is broken as it uses the animation names rather than the state names, how do we fix this cleanly? Hitbox is also borked. - Medium Priority
     TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
+    TODO: Redo the README. - High Priority, mandatory for 1.1's release.
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
