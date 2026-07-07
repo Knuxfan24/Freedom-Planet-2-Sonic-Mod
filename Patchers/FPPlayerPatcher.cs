@@ -2152,7 +2152,7 @@ namespace FP2_Sonic_Mod.Patchers
 
         /// <summary>
         /// Logic for the Laser Wisp.
-        /// TODO: The rebound rotation now looks wrong.
+        /// TODO: The rebound rotation now looks wrong. This should be fixed (or at least improved) before 1.1 releases.
         /// </summary>
         private static void State_Sonic_LaserWisp()
         {
