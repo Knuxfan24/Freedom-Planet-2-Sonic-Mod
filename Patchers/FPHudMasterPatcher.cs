@@ -80,8 +80,10 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 4f)
                 text3 = "Anti-Gravity";
 
-            if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && !player.input.up)
+            if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && !player.input.up && player.groundVel < 10 && player.groundVel > -10)
                 text2 = "Sweep Kick";
+            if (player.onGround && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_SweepKick) && !player.input.up && (player.groundVel >= 10 || player.groundVel <= -10))
+                text2 = "Windmill";
 
             if (player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling" && player.state == new FPObjectState(player.State_InAir))
                 text1 = "Double Jump";
@@ -97,6 +99,9 @@ namespace FP2_Sonic_Mod.Patchers
 
             if (player.input.up && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone" && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_UpKick))
                 text2 = "Sonic Updraft";
+
+            if (player.input.down && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone" && player.state != new FPObjectState(FPPlayerPatcher.State_Sonic_UpKick))
+                text2 = "Sonic Rocket";
 
             if (player.state == new FPObjectState(player.State_InAir))
                 text3 = "Stomp";

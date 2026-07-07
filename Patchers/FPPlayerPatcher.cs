@@ -451,8 +451,8 @@ namespace FP2_Sonic_Mod.Patchers
             // Determine what the Homing Attack should target.
             UpdateHomingAttackTarget();
 
-            // Check that we have a Homing Attack target, are pressing the attack button but not up and not in various animations we don't want to Homing Attack cancel.
-            if (HomingAttackTarget != null && player.input.attackPress && !player.input.up && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
+            // Check that we have a Homing Attack target, are pressing the attack button but not up or down and not in various animations we don't want to Homing Attack cancel.
+            if (HomingAttackTarget != null && player.input.attackPress && !player.input.up && !player.input.down && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
             {
                 // Reset the failsafe timer.
                 HomingAttackFailsafeTimer = 0f;
@@ -594,6 +594,22 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Set our state to the UpKick state.
                 player.state = State_Sonic_UpKick;
+            }
+            #endregion
+
+            #region Sonic Rocket
+            // Check that we're pressing down and attack, yet aren't in a Spring, Hop Jump or Humming Top animation.
+            if (player.input.down && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
+            {
+                // Play the standard Uppercut attack sound and a line from the Hard Attack set.
+                player.Action_PlaySound(player.sfxUppercut);
+                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+
+                // Set our animation to the Sonic Rocket's.
+                player.SetPlayerAnimation("DownKick");
+
+                // Set our state to the DownKick state.
+                player.state = State_Sonic_DownKick;
             }
             #endregion
 
@@ -883,6 +899,48 @@ namespace FP2_Sonic_Mod.Patchers
             if (player.currentAnimation == "Rolling") player.attackStats = AttackStats_SonicRoll;
             if (player.currentAnimation == "Cyclone") player.attackStats = AttackStats_SonicHummingTop;
         }
+
+        /// <summary>
+        /// Logic for the Sonic Rocket.
+        /// </summary>
+        public static void State_Sonic_DownKick()
+        {
+            // Set the player's attack stats to the Sonic Rocket's.
+            player.attackStats = AttackStats_SonicDownKick;
+
+            // Check if we're on the ground and swap out of the state if so.
+            if (player.onGround)
+            {
+                player.state = player.State_Ground;
+                player.SetPlayerAnimation("Running");
+            }
+
+            // If we're in the air, then apply basic air stuff.
+            else
+            {
+                applyAir.Invoke(player, new object[] { false });
+                applyGravity.Invoke(player, new object[] { });
+                if (!player.input.jumpHold && player.jumpReleaseFlag)
+                {
+                    player.jumpReleaseFlag = false;
+                    if (player.velocity.y > player.jumpRelease)
+                    {
+                        player.velocity.y = player.jumpRelease;
+                    }
+                }
+
+                // Cap the Y velocity to -9.
+                player.velocity.y = Mathf.Max(-9f, player.velocity.y);
+            }
+
+            // Check if we've reached the end of the updraft animation.
+            if (player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
+            {
+                player.SetPlayerAnimation("Jumping_Loop");
+                player.state = player.State_InAir;
+            }
+        }
+
         #endregion
 
         #region Ground States/Actions
@@ -1057,8 +1115,11 @@ namespace FP2_Sonic_Mod.Patchers
                 // Reset the idle timer based on the fight stance time.
                 player.idleTimer = 0f - player.fightStanceTime;
 
-                // Play the Sweep Kick animation.
-                player.SetPlayerAnimation("SweepKick");
+                // Play the Sweep Kick or Windmill animation depending on if our ground velocity.
+                if (player.groundVel >= 10 || player.groundVel <= -10)
+                    player.SetPlayerAnimation("Windmill");
+                else
+                    player.SetPlayerAnimation("SweepKick");
 
                 // Set our state to the Sweep Kick's.
                 player.state = State_Sonic_SweepKick;
@@ -2553,7 +2614,15 @@ namespace FP2_Sonic_Mod.Patchers
             player.attackEnemyInvTime = 6f;
             SetConstantAttackStats();
         }
-        
+
+        private static void AttackStats_SonicDownKick()
+        {
+            player.attackPower = 5f;
+            player.attackHitstun = 3f;
+            player.attackEnemyInvTime = 6f;
+            SetConstantAttackStats();
+        }
+
         private static void AttackStats_SonicSlide()
         {
             player.attackPower = 4f;
