@@ -1,5 +1,4 @@
-﻿// TODO: Test all the scenes to make sure Lilac gets replaced in all of them.
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace FP2_Sonic_Mod.Patchers
 {
@@ -69,7 +68,7 @@ namespace FP2_Sonic_Mod.Patchers
                 if (animator != null)
                 {
                     // DEBUG: Log the object, pose and move pose.
-                    Plugin.consoleLog.LogDebug($"Object: {e.targetObject.name}\r\n\tPose: {e.pose}\r\n\tMove Pose: {e.movePose}");
+                    //Plugin.consoleLog.LogDebug($"Object: {e.targetObject.name}\r\n\tPose: {e.pose}\r\n\tMove Pose: {e.movePose}");
 
                     // Check if this animator is Lilac's event one.
                     if (animator.runtimeAnimatorController.name == "Lilac")

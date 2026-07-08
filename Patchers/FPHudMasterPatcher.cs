@@ -130,7 +130,7 @@ namespace FP2_Sonic_Mod.Patchers
                 text4 = "-";
             }
 
-            // Debug read out of Sonic's attack stats.
+            // DEBUG: Display Sonic's attack stats.
             //text1 = $"Power: {player.attackPower}";
             //text2 = $"Hitstun: {player.attackHitstun}";
             //text3 = $"EnemyInvTime: {player.attackEnemyInvTime}";
