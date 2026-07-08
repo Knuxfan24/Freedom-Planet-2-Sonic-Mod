@@ -682,6 +682,24 @@ namespace FP2_Sonic_Mod.Patchers
             FPBaseEnemy? enemy = null;
             try { enemy = (FPBaseEnemy)HomingAttackTarget; } catch {}
 
+            // Try cast the object to an item box so we can check if its been broken.
+            try
+            {
+                ItemBox box = (ItemBox)HomingAttackTarget;
+                if (box.state.Method.Name == "State_Done")
+                {
+                    // Set the player to the InAir state.
+                    player.state = player.State_InAir;
+
+                    // Give the player some upwards velocity.
+                    player.velocity = new(0, 12f);
+
+                    // Set the player to their Guard Air animation to act as a Homing flip.
+                    player.SetPlayerAnimation("GuardAir");
+                }
+            }
+            catch { }
+
             // Increment the failsafe timer.
             HomingAttackFailsafeTimer += FPStage.deltaTime;
 
