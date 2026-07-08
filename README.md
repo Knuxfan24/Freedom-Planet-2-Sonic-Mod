@@ -147,7 +147,7 @@ Sonic transforms into Super Sonic when using the Chaos Emeralds and can detransf
 Sonic adds eight new achievements, seven of which are exclusive to him and one that can be unlocked by any character. These achievements are:
 
 - Blue Blur: Clear the game as Sonic.
-- Greased Lightning: Beat any stage's part time as Sonic.
+- Greased Lightning: Beat any stage's par time as Sonic.
 - Sonic Boom: Beat any stage as Sonic in less than half of the par time.
 - Fastest Thing Alive: Beat the par times in all stages as Sonic.
 - The Servers Are...: Clear Weapon's Core and obtain the Chaos Emeralds. (this achievement can be unlocked by any character)
