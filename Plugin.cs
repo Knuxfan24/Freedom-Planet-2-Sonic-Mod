@@ -17,7 +17,7 @@ namespace FP2_Sonic_Mod
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
     TODO: Refactor the guide to be handled in FPPlayerPatcher by directly updating the displayMove vars? - Low Priority
     */
-    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.0")]
+    [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.1")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
     public class Plugin : BaseUnityPlugin
     {
