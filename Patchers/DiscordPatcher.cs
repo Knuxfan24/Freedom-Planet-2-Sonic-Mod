@@ -15,7 +15,7 @@ namespace FP2_Sonic_Mod.Patchers
         private static void VoiceLine(ref float ___genericTimer)
         {
             // Don't do this if the voice isn't set to Roger and we've already played the sound.
-            if (Plugin.sonicVAOption.Value != 3 || playedVoice)
+            if (FPPlayerPatcher.player.characterID != Plugin.sonicCharacterID || Plugin.sonicVAOption.Value != 3 || playedVoice)
                 return;
 
             // Check if the Discord's timer has reached 70 (when the slowdown is stopped) and we're in Phoenix Highway.

@@ -962,7 +962,6 @@ namespace FP2_Sonic_Mod.Patchers
         #endregion
 
         #region Ground States/Actions
-
         /// <summary>
         /// Sonic's moves when in the ground state.
         /// </summary>
