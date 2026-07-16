@@ -62,9 +62,6 @@ namespace FP2_Sonic_Mod.Patchers
         // Value to see if we're charing the Drop Dash or not.
         private static bool DropDashCharge;
 
-        // DEBUG: Value to make Sonic's attacks one shot everything.
-        private static bool DebugOHKO;
-
         /// <summary>
         /// Sets up various elements for the rest of the functions in here.
         /// </summary>
@@ -2911,10 +2908,6 @@ namespace FP2_Sonic_Mod.Patchers
                 player.attackHitstun = 2f;
                 player.attackEnemyInvTime = 4f;
             }
-
-            // If the debug flag is set through Unity Explorer or something, then jack up the damage to an absurd value.
-            if (DebugOHKO)
-                player.attackPower = 2424f;
         }
         #endregion
 
