@@ -1089,8 +1089,16 @@ namespace FP2_Sonic_Mod.Patchers
                 DropDashCharge = false;
 
                 // Set our velocity.
-                if (player.direction == FPDirection.FACING_LEFT) player.groundVel = -16f;
-                else player.groundVel = 16f;
+                if (!isSuper)
+                {
+                    if (player.direction == FPDirection.FACING_LEFT) player.groundVel = -16f;
+                    else player.groundVel = 16f;
+                }
+                else
+                {
+                    if (player.direction == FPDirection.FACING_LEFT) player.groundVel = -24f;
+                    else player.groundVel = 24f;
+                }
                 player.velocity = new Vector2(player.groundVel, 0);
 
                 // Reset the generic timer.
@@ -1358,6 +1366,9 @@ namespace FP2_Sonic_Mod.Patchers
             #endregion
         }
 
+        /// <summary>
+        /// Logic for Sonic's Drop Dash release state.
+        /// </summary>
         public static void State_Sonic_DropDash()
         {
             player.SetPlayerAnimation("Rolling");
