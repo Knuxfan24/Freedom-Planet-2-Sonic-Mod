@@ -273,6 +273,14 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         public static void Action_Sonic_AirMoves()
         {
+            if (DropDashCharge)
+                player.displayMoveJump = "Drop Dash";
+            else
+                player.displayMoveJump = "-";
+            player.displayMoveAttack = "-";
+            player.displayMoveSpecial = "Stomp";
+            player.displayMoveGuard = "-";
+
             Action_Sonic_WaterfallJump();
 
             #region Drop Dash
@@ -291,77 +299,100 @@ namespace FP2_Sonic_Mod.Patchers
                 DropDashCharge = true;
             }
 
+            if (player.input.down)
+                player.displayMoveJump = "Drop Dash";
+
             // Start charging the Drop Dash if we've pressed Jump after a double jump or are holding down.
-            if ((player.jumpAbilityFlag || player.input.down) && player.input.jumpPress)
+            if (player.jumpAbilityFlag || player.input.down)
             {
-                player.jumpAbilityFlag = true;
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("drop_dash_prepare"));
-                player.SetPlayerAnimation("DropDash");
+                player.displayMoveJump = "Drop Dash";
+
+                if (player.input.jumpPress)
+                {
+                    player.jumpAbilityFlag = true;
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("drop_dash_prepare"));
+                    player.SetPlayerAnimation("DropDash");
+                }
             }
             #endregion
 
             #region Double Jump
             // Check that the player presses jump, has a lower y velocity than their jump strength, hasn't already used the double jump and in the rolling animation.
-            if (player.input.jumpPress && player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling")
+            if (player.velocity.y < player.jumpStrength && !player.jumpAbilityFlag && player.currentAnimation == "Rolling" && !player.input.down)
             {
-                // Set the jump ability flag.
-                player.jumpAbilityFlag = true;
+                player.displayMoveJump = "Double Jump";
 
-                // Set the player's y velocity.
-                player.velocity.y = Mathf.Max(player.jumpStrength * (float)typeof(FPPlayer).GetField("jumpMultiplier", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(player), player.velocity.y);
+                if (player.input.jumpPress)
+                {
+                    // Set the jump ability flag.
+                    player.jumpAbilityFlag = true;
 
-                // Set the player to the Jumping animation to make Sonic uncurl.
-                player.SetPlayerAnimation("Jumping");
+                    // Set the player's y velocity.
+                    player.velocity.y = Mathf.Max(player.jumpStrength * (float)typeof(FPPlayer).GetField("jumpMultiplier", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(player), player.velocity.y);
 
-                // Play the double jump sound.
-                player.Action_PlaySoundUninterruptable(player.sfxDoubleJump);
+                    // Set the player to the Jumping animation to make Sonic uncurl.
+                    player.SetPlayerAnimation("Jumping");
+
+                    // Play the double jump sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxDoubleJump);
+                }
             }
             #endregion
 
             #region Humming Top
             // Check that the player presses attack, is pressing left or right and is in the spring animation.
-            if (player.input.attackPress && (player.input.left || player.input.right) && player.currentAnimation == "Spring")
+            if ((player.input.left || player.input.right) && player.currentAnimation == "Spring")
             {
-                // Set the player to the Cyclone animation.
-                player.SetPlayerAnimation("Cyclone");
+                player.displayMoveAttack = "Humming Top";
 
-                // Reset the player's velocity, as the start up lag of this move in Advance 2 (which I'm not replicating), does reset Sonic's movement.
-                player.velocity = Vector2.zero;
-
-                // Set the player's x velocity depending on direction.
-                if (player.input.left) player.velocity.x = -20f;
-                if (player.input.right) player.velocity.x = 20f;
-
-                // Play the cyclone sound.
-                player.Action_PlaySound(player.sfxCyclone);
-
-                // Check if the player's voice timer is less than or equal to 0.
-                if (player.voiceTimer <= 0f)
+                if (player.input.attackPress)
                 {
-                    // Set the player's voice timer up to 900.
-                    player.voiceTimer = 900f;
+                    // Set the player to the Cyclone animation.
+                    player.SetPlayerAnimation("Cyclone");
 
-                    // Play a sound from the SpecialA voice array.
-                    player.Action_PlayVoiceArray("SpecialA");
+                    // Reset the player's velocity, as the start up lag of this move in Advance 2 (which I'm not replicating), does reset Sonic's movement.
+                    player.velocity = Vector2.zero;
+
+                    // Set the player's x velocity depending on direction.
+                    if (player.input.left) player.velocity.x = -20f;
+                    if (player.input.right) player.velocity.x = 20f;
+
+                    // Play the cyclone sound.
+                    player.Action_PlaySound(player.sfxCyclone);
+
+                    // Check if the player's voice timer is less than or equal to 0.
+                    if (player.voiceTimer <= 0f)
+                    {
+                        // Set the player's voice timer up to 900.
+                        player.voiceTimer = 900f;
+
+                        // Play a sound from the SpecialA voice array.
+                        player.Action_PlayVoiceArray("SpecialA");
+                    }
                 }
             }
             #endregion
 
             #region Hop Jump
             // Check that the player presses attack, is pressing up and is in the spring animation.
-            if (player.input.attackPress && player.input.up && player.currentAnimation == "Spring")
+            if (player.input.up && player.currentAnimation == "Spring")
             {
-                // Set the player to the HopStart animation.
-                player.SetPlayerAnimation("HopStart");
+                player.displayMoveAttack = "Hop Jump";
 
-                // Reset the player's velocity, as the start up lag of this move in Advance 2 (which I'm not replicating), does reset Sonic's movement.
-                player.velocity = Vector2.zero;
+                if (player.input.attackPress)
+                {
+                    // Set the player to the HopStart animation.
+                    player.SetPlayerAnimation("HopStart");
 
-                // Set the player's y velocity to 12.
-                player.velocity.y = 12f;
+                    // Reset the player's velocity, as the start up lag of this move in Advance 2 (which I'm not replicating), does reset Sonic's movement.
+                    player.velocity = Vector2.zero;
 
-                // Play the double jump sound.
-                player.Action_PlaySound(player.sfxDoubleJump);
+                    // Set the player's y velocity to 12.
+                    player.velocity.y = 12f;
+
+                    // Play the double jump sound.
+                    player.Action_PlaySound(player.sfxDoubleJump);
+                }
             }
             #endregion
 
@@ -439,38 +470,48 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Super Sonic
             // Check that the player has the Chaos Emeralds equipped, has at least 50 crystal shards, has pressed the special button, isn't rolling but is in the rolling animation and isn't already super.
-            if (HasWisp == WispType.NONE && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
+            if (HasWisp == WispType.NONE && player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && !isSuper)
             {
-                // Set the player to the Super Transformation state.
-                player.state = State_Sonic_SuperTransform;
+                player.displayMoveGuard = "<w><c=energy>Super Sonic</c></w>";
 
-                // Kill the player's velocity.
-                player.velocity = Vector2.zero;
+                if (player.input.guardPress)
+                {
+                    // Set the player to the Super Transformation state.
+                    player.state = State_Sonic_SuperTransform;
 
-                // Set the player to the SuperStart animation.
-                player.SetPlayerAnimation("SuperStart");
+                    // Kill the player's velocity.
+                    player.velocity = Vector2.zero;
 
-                // Set the player's invincibility time high so that Sonic can't be knocked out of the Super Transformation state.
-                player.invincibilityTime = 9999;
+                    // Set the player to the SuperStart animation.
+                    player.SetPlayerAnimation("SuperStart");
+
+                    // Set the player's invincibility time high so that Sonic can't be knocked out of the Super Transformation state.
+                    player.invincibilityTime = 9999;
+                }
             }
 
-            if (HasWisp == WispType.NONE && player.input.guardPress && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && isSuper)
+            if (HasWisp == WispType.NONE && player.state != new FPObjectState(State_Sonic_Roll) && player.currentAnimation == "Rolling" && isSuper)
             {
-                // Reset the player's animator to normal Sonic's.
-                player.animator.runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Sonic Animator");
+                player.displayMoveGuard = "<c=energy>Detransform</c>";
 
-                // Reset the player's jump strength.
-                player.jumpStrength = player.GetPlayerStat_Default_JumpStrength();
+                if (player.input.guardPress)
+                {
+                    // Reset the player's animator to normal Sonic's.
+                    player.animator.runtimeAnimatorController = Plugin.sonicAssetBundle.LoadAsset<RuntimeAnimatorController>("Sonic Animator");
 
-                // If the super music is playing, then play the last used audio we stored.
-                if (FPAudio.GetCurrentMusic() == Plugin.sonicSuperMusic)
-                    FPAudio.PlayMusic(Plugin.lastUsedAudio);
+                    // Reset the player's jump strength.
+                    player.jumpStrength = player.GetPlayerStat_Default_JumpStrength();
 
-                // Reset the player's velocity.
-                player.velocity = Vector2.zero;
+                    // If the super music is playing, then play the last used audio we stored.
+                    if (FPAudio.GetCurrentMusic() == Plugin.sonicSuperMusic)
+                        FPAudio.PlayMusic(Plugin.lastUsedAudio);
 
-                // Set the player's state to the Super Detransformation one.
-                player.state = State_Sonic_SuperDetransform;
+                    // Reset the player's velocity.
+                    player.velocity = Vector2.zero;
+
+                    // Set the player's state to the Super Detransformation one.
+                    player.state = State_Sonic_SuperDetransform;
+                }
             }
             #endregion
 
@@ -479,25 +520,30 @@ namespace FP2_Sonic_Mod.Patchers
             UpdateHomingAttackTarget();
 
             // Check that we have a Homing Attack target, are pressing the attack button but not up or down and not in various animations we don't want to Homing Attack cancel.
-            if (HomingAttackTarget != null && player.input.attackPress && !player.input.up && !player.input.down && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
+            if (HomingAttackTarget != null && !player.input.up && !player.input.down && player.currentAnimation != "GuardAir" && player.currentAnimation != "Cyclone" && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "HopLoop" && player.currentAnimation != "Airdash")
             {
-                // Reset the failsafe timer.
-                HomingAttackFailsafeTimer = 0f;
+                player.displayMoveAttack = "Homing Attack";
 
-                // Kill our velocity.
-                player.velocity = Vector2.zero;
+                if (player.input.attackPress)
+                {
+                    // Reset the failsafe timer.
+                    HomingAttackFailsafeTimer = 0f;
 
-                // Set our state to the Homing Attack's.
-                player.state = State_Sonic_HomingAttack;
+                    // Kill our velocity.
+                    player.velocity = Vector2.zero;
 
-                // Set our animation to the rolling one.
-                player.SetPlayerAnimation("Rolling");
+                    // Set our state to the Homing Attack's.
+                    player.state = State_Sonic_HomingAttack;
 
-                // Play the big boost sound.
-                player.Action_PlaySoundUninterruptable(player.sfxBigBoostLaunch);
+                    // Set our animation to the rolling one.
+                    player.SetPlayerAnimation("Rolling");
 
-                // Play a line from the attack array.
-                player.audioChannel[0].PlayOneShot(player.vaAttack[UnityEngine.Random.Range(0, player.vaAttack.Length)]);
+                    // Play the big boost sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxBigBoostLaunch);
+
+                    // Play a line from the attack array.
+                    player.audioChannel[0].PlayOneShot(player.vaAttack[UnityEngine.Random.Range(0, player.vaAttack.Length)]);
+                }
             }
             #endregion
 
@@ -528,141 +574,174 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Rocket Wisp
             // Check if we have a Rocket Wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
+            if (HasWisp == WispType.ROCKET && player.energy == 100)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Rocket Wisp</c>";
 
-                // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Play the announcer call for the Rocket Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
+                    // Set the player into the Rocket Wisp Start state.
+                    player.state = State_Sonic_WispStart;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Rocket Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Drill Wisp
-            if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
+            if (HasWisp == WispType.DRILL && player.energy == 100 && player.targetWaterSurface != null)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Drill Wisp</c>";
 
-                // Play the announcer call for the Drill Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Drill Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Set the player into the Drill Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Set the player into the Drill Wisp Start state.
+                    player.state = State_Sonic_WispStart;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Laser Wisp
             // Check if we have a Laser Wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp == WispType.LASER && player.input.guardPress && player.energy == 100)
+            if (HasWisp == WispType.LASER && player.energy == 100)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Laser Wisp</c>";
 
-                // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Play the announcer call for the Rocket Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
+                    // Set the player into the Rocket Wisp Start state.
+                    player.state = State_Sonic_WispStart;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Rocket Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Sonic Updraft
             // Check that we're pressing up and attack, yet aren't in a Spring, Hop Jump or Humming Top animation.
-            if (player.input.up && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
+            if (player.input.up && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
             {
-                // Play the standard Uppercut attack sound and a line from the Hard Attack set.
-                player.Action_PlaySound(player.sfxUppercut);
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+                player.displayMoveAttack = "Sonic Updraft";
 
-                // If we haven't already used the Sonic Updraft or the Double Jump, then give Sonic a bit of upwards push and set the jump ability flag so we don't Sonic Boom Knuckles this shit.
-                if (!player.jumpAbilityFlag)
+                if (player.input.attackPress)
                 {
-                    if (player.velocity.y > 0)
-                        player.velocity.y += 6f;
-                    else
-                        player.velocity.y = 6f;
+                    // Play the standard Uppercut attack sound and a line from the Hard Attack set.
+                    player.Action_PlaySound(player.sfxUppercut);
+                    player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
 
-                    player.jumpAbilityFlag = true;
+                    // If we haven't already used the Sonic Updraft or the Double Jump, then give Sonic a bit of upwards push and set the jump ability flag so we don't Sonic Boom Knuckles this shit.
+                    if (!player.jumpAbilityFlag)
+                    {
+                        if (player.velocity.y > 0)
+                            player.velocity.y += 6f;
+                        else
+                            player.velocity.y = 6f;
+
+                        player.jumpAbilityFlag = true;
+                    }
+
+                    // Set our animation to the Air version of the Updraft (cuts a few frames for better flow into the air animations).
+                    player.SetPlayerAnimation("UpKick_Air");
+
+                    // Set our state to the UpKick state.
+                    player.state = State_Sonic_UpKick;
                 }
-
-                // Set our animation to the Air version of the Updraft (cuts a few frames for better flow into the air animations).
-                player.SetPlayerAnimation("UpKick_Air");
-
-                // Set our state to the UpKick state.
-                player.state = State_Sonic_UpKick;
             }
             #endregion
 
             #region Sonic Rocket
             // Check that we're pressing down and attack, yet aren't in a Spring, Hop Jump or Humming Top animation.
-            if (player.input.down && player.input.attackPress && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
+            if (player.input.down && player.currentAnimation != "Spring" && player.currentAnimation != "HopStart" && player.currentAnimation != "Cyclone")
             {
-                // Play the standard Uppercut attack sound and a line from the Hard Attack set.
-                player.Action_PlaySound(player.sfxUppercut);
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+                player.displayMoveAttack = "Sonic Rocket";
 
-                // Set our animation to the Sonic Rocket's.
-                player.SetPlayerAnimation("DownKick");
+                if (player.input.attackPress)
+                {
+                    // Play the standard Uppercut attack sound and a line from the Hard Attack set.
+                    player.Action_PlaySound(player.sfxUppercut);
+                    player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
 
-                // Set our state to the DownKick state.
-                player.state = State_Sonic_DownKick;
+                    // Set our animation to the Sonic Rocket's.
+                    player.SetPlayerAnimation("DownKick");
+
+                    // Set our state to the DownKick state.
+                    player.state = State_Sonic_DownKick;
+                }
             }
             #endregion
 
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_WispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && (player.input.guardPress) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && HasWisp == WispType.NONE && player.state != new FPObjectState(State_Sonic_WispStart) && player.state != new FPObjectState(State_Sonic_SuperTransform) && !isSuper)
             {
-                // Play the Guard animation.
-                player.SetPlayerAnimation("GuardAir", 0f, 0f);
+                if (!player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID))
+                    player.displayMoveGuard = "Guard";
+                else if (player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals < 50)
+                    player.displayMoveGuard = "Guard";
 
-                // Edit the animator's speed depending on the player velocity.
-                player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
+                if (player.input.guardPress)
+                {
+                    // Play the Guard animation.
+                    player.SetPlayerAnimation("GuardAir", 0f, 0f);
 
-                // Run the guard actions.
-                player.Action_Guard();
-                player.Action_ShadowGuard();
+                    // Edit the animator's speed depending on the player velocity.
+                    player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
 
-                // Create the guard flash and parent it to Sonic.
-                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
-                guardFlash.parentObject = player;
+                    // Run the guard actions.
+                    player.Action_Guard();
+                    player.Action_ShadowGuard();
 
-                // Stop playing sounds (this is just what the base game does so we're copying it).
-                player.Action_StopSound();
+                    // Create the guard flash and parent it to Sonic.
+                    GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
+                    guardFlash.parentObject = player;
 
-                // Play the guard sound.
-                FPAudio.PlaySfx(15);
+                    // Stop playing sounds (this is just what the base game does so we're copying it).
+                    player.Action_StopSound();
+
+                    // Play the guard sound.
+                    FPAudio.PlaySfx(15);
+                }
             }
             #endregion
         }
@@ -994,6 +1073,11 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         public static void Action_Sonic_GroundMoves()
         {
+            player.displayMoveJump = "Jump";
+            player.displayMoveAttack = "-";
+            player.displayMoveSpecial = "-";
+            player.displayMoveGuard = "-";
+
             #region Drop Dash
             if (DropDashCharge)
             {
@@ -1022,29 +1106,34 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Spin Dash
             // Check that the player is holding down, has pressed jump and are in the crouching state.
-            if (player.input.down && player.input.jumpPress && player.state == new FPObjectState(player.State_Crouching))
+            if (player.input.down && player.state == new FPObjectState(player.State_Crouching))
             {
-                // Set the player to the SpindashCharge animation.
-                player.SetPlayerAnimation("SpindashCharge");
+                player.displayMoveJump = "Spin Dash";
 
-                // Reset the generic timer.
-                player.genericTimer = 0f;
+                if (player.input.jumpPress)
+                {
+                    // Set the player to the SpindashCharge animation.
+                    player.SetPlayerAnimation("SpindashCharge");
 
-                // Set the player's state to Sonic's Spin Dash state.
-                player.state = State_Sonic_SpinDash;
+                    // Reset the generic timer.
+                    player.genericTimer = 0f;
 
-                // Play the Spin Dash charge sound.
-                player.Action_PlaySound(player.sfxBoostCharge);
+                    // Set the player's state to Sonic's Spin Dash state.
+                    player.state = State_Sonic_SpinDash;
 
-                // Create the smoke particles.
-                CreateSpinDashSmoke(24, 1);
-                CreateSpinDashSmoke(32, 1.25f);
-                CreateSpinDashSmoke(48, 1.5f);
-                CreateSpinDashSmoke(64, 1.75f);
+                    // Play the Spin Dash charge sound.
+                    player.Action_PlaySound(player.sfxBoostCharge);
 
-                // If the player is Super, then set the multiplier straight up to 2.
-                if (isSuper)
-                    SpinDashMultiplier = 2f;
+                    // Create the smoke particles.
+                    CreateSpinDashSmoke(24, 1);
+                    CreateSpinDashSmoke(32, 1.25f);
+                    CreateSpinDashSmoke(48, 1.5f);
+                    CreateSpinDashSmoke(64, 1.75f);
+
+                    // If the player is Super, then set the multiplier straight up to 2.
+                    if (isSuper)
+                        SpinDashMultiplier = 2f;
+                }
             }
             #endregion
 
@@ -1065,171 +1154,206 @@ namespace FP2_Sonic_Mod.Patchers
 
             #region Rocket Wisp
             // Check if we have a wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp == WispType.ROCKET && player.input.guardPress && player.energy == 100)
+            if (HasWisp == WispType.ROCKET && player.energy == 100)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Rocket Wisp</c>";
 
-                // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Play the announcer call for the Rocket Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
+                    // Set the player into the Rocket Wisp Start state.
+                    player.state = State_Sonic_WispStart;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Rocket Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_rocket_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Drill Wisp
-            if (HasWisp == WispType.DRILL && player.input.guardPress && player.energy == 100 && player.targetWaterSurface != null)
+            if (HasWisp == WispType.DRILL && player.energy == 100 && player.targetWaterSurface != null)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Drill Wisp</c>";
 
-                // Play the announcer call for the Drill Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Drill Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_drill_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Set the player into the Drill Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Set the player into the Drill Wisp Start state.
+                    player.state = State_Sonic_WispStart;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Laser Wisp
             // Check if we have a Laser Wisp, have pressed the guard button and have a full energy gauge.
-            if (HasWisp == WispType.LASER && player.input.guardPress && player.energy == 100)
+            if (HasWisp == WispType.LASER && player.energy == 100)
             {
-                // Set the flag for the Gravity Bubble achievement.
-                UsedWisp = true;
+                player.displayMoveGuard = "<c=energy>Laser Wisp</c>";
 
-                // Set the player into the Rocket Wisp Start state.
-                player.state = State_Sonic_WispStart;
+                if (player.input.guardPress)
+                {
+                    // Set the flag for the Gravity Bubble achievement.
+                    UsedWisp = true;
 
-                // Play the announcer call for the Rocket Wisp.
-                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
+                    // Set the player into the Rocket Wisp Start state.
+                    player.state = State_Sonic_WispStart;
 
-                // Set the player animation to the UseWisp one.
-                player.SetPlayerAnimation("UseWisp");
+                    // Play the announcer call for the Rocket Wisp.
+                    player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("vo_laser_wisp"));
 
-                // Reset our generic timer.
-                player.genericTimer = 0f;
+                    // Set the player animation to the UseWisp one.
+                    player.SetPlayerAnimation("UseWisp");
 
-                // Play the Wisp activation sound.
-                player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                    // Reset our generic timer.
+                    player.genericTimer = 0f;
+
+                    // Play the Wisp activation sound.
+                    player.Action_PlaySoundUninterruptable(player.sfxMillaCubeSpawn);
+                }
             }
             #endregion
 
             #region Guard
             // Check that we can guard and aren't in any state that we shouldn't be able to guard cancel out of (and that we aren't Super).
-            if ((player.guardTime <= 0f || player.cancellableGuard) && player.state != new FPObjectState(State_Sonic_WispStart) && (player.input.guardPress) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
+            if ((player.guardTime <= 0f || player.cancellableGuard) && HasWisp == WispType.NONE && player.state != new FPObjectState(State_Sonic_WispStart) && player.state != new FPObjectState(State_Sonic_SpinDash) && !isSuper)
             {
-                // Check if we're moving slow enough to use a standing guard.
-                if (Mathf.Abs(player.groundVel) < 3f)
+                player.displayMoveGuard = "Guard";
+
+                if (player.input.guardPress)
                 {
-                    // Play the standing guard animation.
-                    player.SetPlayerAnimation("Guard");
+                    // Check if we're moving slow enough to use a standing guard.
+                    if (Mathf.Abs(player.groundVel) < 3f)
+                    {
+                        // Play the standing guard animation.
+                        player.SetPlayerAnimation("Guard");
 
-                    // Reset the idle timer.
-                    player.idleTimer = Mathf.Min(player.idleTimer, 0f);
+                        // Reset the idle timer.
+                        player.idleTimer = Mathf.Min(player.idleTimer, 0f);
 
-                    // Kill our ground velocity so we stop in place.
-                    player.groundVel = 0f;
+                        // Kill our ground velocity so we stop in place.
+                        player.groundVel = 0f;
+                    }
+                    else
+                    {
+                        // Play the running guard animation.
+                        player.SetPlayerAnimation("GuardRun");
+
+                        // Edit the animator's speed depending on the player velocity.
+                        player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
+                    }
+
+                    // Run the guard actions.
+                    player.Action_Guard();
+                    player.Action_ShadowGuard();
+
+                    // Create the guard flash and parent it to Sonic.
+                    GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
+                    guardFlash.parentObject = player;
+
+                    // Stop playing sounds (this is just what the base game does so we're copying it).
+                    player.Action_StopSound();
+
+                    // Play the guard sound.
+                    FPAudio.PlaySfx(15);
                 }
-                else
-                {
-                    // Play the running guard animation.
-                    player.SetPlayerAnimation("GuardRun");
-
-                    // Edit the animator's speed depending on the player velocity.
-                    player.animator.SetSpeed(Mathf.Max(1f, 0.7f + Mathf.Abs(player.velocity.x * 0.05f)));
-                }
-
-                // Run the guard actions.
-                player.Action_Guard();
-                player.Action_ShadowGuard();
-
-                // Create the guard flash and parent it to Sonic.
-                GuardFlash guardFlash = (GuardFlash)FPStage.CreateStageObject(GuardFlash.classID, player.position.x, player.position.y);
-                guardFlash.parentObject = player;
-
-                // Stop playing sounds (this is just what the base game does so we're copying it).
-                player.Action_StopSound();
-
-                // Play the guard sound.
-                FPAudio.PlaySfx(15);
             }
             #endregion
 
             #region Sweep Kick
             // Check that we're not already in the Sweep Kick state, but are pressing attack and not up.
-            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.input.attackPress && !player.input.up)
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && !player.input.up)
             {
-                // Play the uppercut sound.
-                player.Action_PlaySound(player.sfxUppercut);
+                player.displayMoveAttack = "Sweep Kick";
 
-                // Reset the idle timer based on the fight stance time.
-                player.idleTimer = 0f - player.fightStanceTime;
+                if (player.input.attackPress)
+                {
+                    // Play the uppercut sound.
+                    player.Action_PlaySound(player.sfxUppercut);
 
-                // Play the Sweep Kick or Windmill animation depending on if our ground velocity.
-                if (player.groundVel >= 10 || player.groundVel <= -10)
-                    player.SetPlayerAnimation("Windmill");
-                else
-                    player.SetPlayerAnimation("SweepKick");
+                    // Reset the idle timer based on the fight stance time.
+                    player.idleTimer = 0f - player.fightStanceTime;
 
-                // Set our state to the Sweep Kick's.
-                player.state = State_Sonic_SweepKick;
+                    // Play the Sweep Kick or Windmill animation depending on if our ground velocity.
+                    if (player.groundVel >= 10 || player.groundVel <= -10)
+                        player.SetPlayerAnimation("Windmill");
+                    else
+                        player.SetPlayerAnimation("SweepKick");
 
-                // Play a sound from the hard attack array.
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+                    // Set our state to the Sweep Kick's.
+                    player.state = State_Sonic_SweepKick;
+
+                    // Play a sound from the hard attack array.
+                    player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+                }
             }
             #endregion
 
             #region Slide
             // Check that we're not sweep kicking or rolling, are moving and have pressed the special key.
-            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 3f && player.input.specialPress)
+            if (player.state != new FPObjectState(State_Sonic_SweepKick) && player.state != new FPObjectState(State_Sonic_Roll) && Mathf.Abs(player.groundVel) >= 3f)
             {
-                // Play Carol's pounce sound (which is replaced with the slide one in the prefab).
-                player.Action_PlaySound(player.sfxPounce);
+                player.displayMoveSpecial = "Anti-Gravity";
 
-                // Reset the generic timer.
-                player.genericTimer = 0f;
+                if (player.input.specialPress)
+                {
+                    // Play Carol's pounce sound (which is replaced with the slide one in the prefab).
+                    player.Action_PlaySound(player.sfxPounce);
 
-                // Set our state to the slide's.
-                player.state = State_Sonic_Slide;
+                    // Reset the generic timer.
+                    player.genericTimer = 0f;
 
-                // Play a sound from the start array.
-                player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
+                    // Set our state to the slide's.
+                    player.state = State_Sonic_Slide;
+
+                    // Play a sound from the start array.
+                    player.audioChannel[0].PlayOneShot(player.vaStart[UnityEngine.Random.Range(0, player.vaStart.Length)]);
+                }
             }
             #endregion
 
             #region Sonic Updraft
             // Check that we're pressing up and attack.
-            if (player.input.up && player.input.attackPress)
+            if (player.input.up)
             {
-                // Play the standard Uppercut attack sound and a line from the Hard Attack set.
-                player.Action_PlaySound(player.sfxUppercut);
-                player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
+                player.displayMoveSpecial = "Sonic Updraft";
 
-                // Set our animation to the Updraft's.
-                player.SetPlayerAnimation("UpKick");
+                if (player.input.attackPress)
+                {
+                    // Play the standard Uppercut attack sound and a line from the Hard Attack set.
+                    player.Action_PlaySound(player.sfxUppercut);
+                    player.audioChannel[0].PlayOneShot(player.vaHardAttack[UnityEngine.Random.Range(0, player.vaHardAttack.Length)]);
 
-                // Set our state to the UpKick state.
-                player.state = State_Sonic_UpKick;
+                    // Set our animation to the Updraft's.
+                    player.SetPlayerAnimation("UpKick");
+
+                    // Set our state to the UpKick state.
+                    player.state = State_Sonic_UpKick;
+                }
             }
             #endregion
         }
