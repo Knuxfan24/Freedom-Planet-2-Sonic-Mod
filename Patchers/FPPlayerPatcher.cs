@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine.SceneManagement;
 
 namespace FP2_Sonic_Mod.Patchers
@@ -59,6 +58,9 @@ namespace FP2_Sonic_Mod.Patchers
 
         // Value to see if the drowning jingle is apparently playing.
         private static bool DrowningJingle;
+
+        // Value to see if we're charing the Drop Dash or not.
+        private static bool DropDashCharge;
 
         // DEBUG: Value to make Sonic's attacks one shot everything.
         private static bool DebugOHKO;
@@ -272,6 +274,31 @@ namespace FP2_Sonic_Mod.Patchers
         public static void Action_Sonic_AirMoves()
         {
             Action_Sonic_WaterfallJump();
+
+            #region Drop Dash
+            // If we're charging the Drop Dash but let go of the Jump button, then stop charging it.
+            if (!player.input.jumpHold && DropDashCharge)
+            {
+                DropDashCharge = false;
+                player.SetPlayerAnimation("Jumping_Loop");
+                player.audioChannel[1].Stop();
+            }
+
+            // Swap to the rolling animation if we're still holding the jump button and have finished the Drop Dash charge one.
+            if (player.input.jumpHold && player.currentAnimation == "DropDash" && player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
+            {
+                player.SetPlayerAnimation("Rolling");
+                DropDashCharge = true;
+            }
+
+            // Start charging the Drop Dash if we've pressed Jump after a double jump or are holding down.
+            if ((player.jumpAbilityFlag || player.input.down) && player.input.jumpPress)
+            {
+                player.jumpAbilityFlag = true;
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("drop_dash_prepare"));
+                player.SetPlayerAnimation("DropDash");
+            }
+            #endregion
 
             #region Double Jump
             // Check that the player presses jump, has a lower y velocity than their jump strength, hasn't already used the double jump and in the rolling animation.
@@ -967,6 +994,32 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         public static void Action_Sonic_GroundMoves()
         {
+            #region Drop Dash
+            if (DropDashCharge)
+            {
+                // Stop the charge sound and play the release one.
+                player.audioChannel[1].Stop();
+                player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("drop_dash_release"));
+
+                // Reset the Drop Dash Flag.
+                DropDashCharge = false;
+
+                // Set our velocity.
+                if (player.direction == FPDirection.FACING_LEFT) player.groundVel = -16f;
+                else player.groundVel = 16f;
+                player.velocity = new Vector2(player.groundVel, 0);
+
+                // Reset the generic timer.
+                player.genericTimer = 0;
+
+                // Set the player to the Drop Dash state.
+                player.state = State_Sonic_DropDash;
+
+                // Don't run any more of the ground moves.
+                return;
+            }
+            #endregion
+
             #region Spin Dash
             // Check that the player is holding down, has pressed jump and are in the crouching state.
             if (player.input.down && player.input.jumpPress && player.state == new FPObjectState(player.State_Crouching))
@@ -1179,6 +1232,59 @@ namespace FP2_Sonic_Mod.Patchers
                 player.state = State_Sonic_UpKick;
             }
             #endregion
+        }
+
+        public static void State_Sonic_DropDash()
+        {
+            player.SetPlayerAnimation("Rolling");
+            player.attackStats = AttackStats_SonicRoll;
+            player.genericTimer += FPStage.deltaTime;
+
+            if (player.direction == FPDirection.FACING_LEFT) player.groundVel = -16f;
+            else player.groundVel = 16f;
+
+            if (player.genericTimer >= 15)
+                player.state = State_Sonic_Roll;
+
+            if (player.onGround)
+            {
+                // Set the animator's speed based on the player's ground velocity.
+                player.animator.SetSpeed(Mathf.Abs(player.groundVel) * 0.15f);
+
+                // Check if the player presses jump.
+                if (player.input.jumpPress)
+                {
+                    // Perform the soft jump action.
+                    player.Action_SoftJump();
+
+                    // Set the animator speed to 2.
+                    player.animator.SetSpeed(2f);
+                }
+
+                // Check if the player hasn't pressed jump.
+                else
+                {
+                    // Set the player's angle to their ground angle.
+                    player.angle = player.groundAngle;
+                }
+            }
+            else
+            {
+                // Apply the air and gravity forces onto the player.
+                applyAir.Invoke(player, new object[] { false });
+                applyGravity.Invoke(player, new object[] { });
+
+                // Check if the player isn't holding jump and has just released it.
+                if (!player.input.jumpHold && player.jumpReleaseFlag)
+                {
+                    // Reset the jump release flag.
+                    player.jumpReleaseFlag = false;
+
+                    // Cap the player's y velocity.
+                    if (player.velocity.y > player.jumpRelease)
+                        player.velocity.y = player.jumpRelease;
+                }
+            }
         }
 
         /// <summary>
@@ -1922,7 +2028,7 @@ namespace FP2_Sonic_Mod.Patchers
                         // Play the Laser Wisp jingle.
                         FPAudio.PlayJingle(Plugin.sonicLaserJingle);
 
-                        // Play the Laswer Wisp sound.
+                        // Play the Laser Wisp sound.
                         player.Action_PlaySound(Plugin.sonicAssetBundle.LoadAsset<AudioClip>("phantom_laser_charge"));
 
                         // Set the player to the Laser Wisp Aim state.
