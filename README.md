@@ -32,6 +32,12 @@ Hold down while running to roll.
 
 While on the ground, hold down and press the jump button to begin charging a Spin Dash. Repeatedly tap the button to increase the power of the Spin Dash, then release down to blast off at high speed.
 
+#### Drop Dash
+
+![](./readme_imgs/drop_dash.png)
+
+Press and hold the jump button after a Double Jump to charge a Drop Dash. Upon landing, Sonic will dash forward in a roll. Alternatively, hold down then press and hold the jump button to charge the Drop Dash without the need for a Double Jump.
+
 #### Homing Attack
 
 ![](./readme_imgs/homing_attack.png)
