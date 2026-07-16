@@ -59,7 +59,7 @@ namespace FP2_Sonic_Mod.Patchers
         // Value to see if the drowning jingle is apparently playing.
         private static bool DrowningJingle;
 
-        // Value to see if we're charing the Drop Dash or not.
+        // Value to see if we're charging the Drop Dash or not.
         private static bool DropDashCharge;
 
         /// <summary>
