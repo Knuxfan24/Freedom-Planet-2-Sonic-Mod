@@ -86,6 +86,9 @@ namespace FP2_Sonic_Mod.Patchers
             HomingAttackFailsafeTimer = 0f;
             HomingAttackTarget = null;
 
+            // Reset the Drop Dash.
+            DropDashCharge = false;
+
             // Reset the Wisp flag.
             HasWisp = WispType.NONE;
 
