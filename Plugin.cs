@@ -5,6 +5,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using FP2_Sonic_Mod.Patchers;
 using FP2Lib.Item;
+using FP2Lib.Stage;
 using System.IO;
 
 namespace FP2_Sonic_Mod
@@ -16,6 +17,7 @@ namespace FP2_Sonic_Mod
     TODO: Fix Green Hill's bottomless pit in a way that isn't just "Add chunks there so the camera doesn't show the background". - Low Priority
     TODO: Replace the item boxes in Green Hill with monitors? - Low Priority
     TODO: Backport the trail effect from Tails' Jet Anklet onto the Power Sneakers and Super Forms? - Low Priority
+    TODO: Make the displays in the Guard Trial show Sonic. - Low Priority
     */
     [BepInPlugin("K24_FP2_Sonic", "Sonic The Hedgehog", "1.1.1")]
     [BepInDependency("000.kuborro.libraries.fp2.fp2lib")]
@@ -229,6 +231,21 @@ namespace FP2_Sonic_Mod
             // Find and store Lilac's prefab.
             foreach (GameObject obj in UnityEngine.Resources.FindObjectsOfTypeAll<GameObject>())
                 if (obj.name is "Player Lilac") lilacPrefab = obj;
+
+            // Define and register Green Hill.
+            CustomStage greenHill = new()
+            {
+                uid = "K24_Sonic_GreenHill",
+                name = "Green Hill Zone",
+                description = "A recreation of Green Hill Zone Act 1 from Sonic 1, created as an Easter Egg unlockable akin to Green Hill in Sonic Adventure 2. This description shouldn't be viewable in game, if it is, then I've fucked something up again or a loader isn't respecting the option to hide it.",
+                author = "Knuxfan24",
+                version = "1.1.1",
+                parTime = 3000,
+                sceneName = "GreenHill",
+                preview = sonicAssetBundle.LoadAsset<Sprite>("ghz_icon"),
+                showInCustomStageLoaders = false
+            };
+            FP2Lib.Stage.StageHandler.RegisterStage(greenHill);
 
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));
