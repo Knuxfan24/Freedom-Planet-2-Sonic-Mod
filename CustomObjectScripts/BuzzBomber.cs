@@ -54,7 +54,7 @@ public class BuzzBomber : FPBaseEnemy
         // Set this Buzz Bomber to the default state.
         state = State_Default;
 
-        // Get this Chopper's animator and renderer.
+        // Get this Buzz Bomber's animator and renderer.
         animator = GetComponent<Animator>();
         render = GetComponentInParent<Renderer>();
 
