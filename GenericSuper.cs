@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FP2_Sonic_Mod.CustomObjectScripts;
+using System;
 using System.Linq;
 
 namespace FP2_Sonic_Mod
@@ -11,6 +12,9 @@ namespace FP2_Sonic_Mod
         // Values relating to the Super form.
         public static bool isSuper;
         private static float superTimeCounter;
+
+        // The GameObject for the Emeralds that orbit into the player.
+        private static GameObject TransformEmeralds;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPPlayer), "Start")]
@@ -27,12 +31,69 @@ namespace FP2_Sonic_Mod
                 player.totalCrystals = 0;
         }
 
+        // State to kill the player's velocity while they're transforming.
+        private static void State_WaitToTransform() => player.velocity = Vector2.zero;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FPPlayer), "Update")]
+        private static void ActivateSuperForm()
+        {
+            // Check if we're Super, but the music isn't playing.
+            if (isSuper && FPAudio.GetCurrentMusic() != Plugin.genericSuperMusic)
+            {
+                // Swap to the waiting state.
+                player.state = State_WaitToTransform;
+
+                // Check that the Emeralds have done the full orbit.
+                if (TransformEmeralds == null)
+                {
+                    // Go back to the guard state so we end the animation normally.
+                    player.state = player.State_Guard;
+
+                    // Shake the camera a bit.
+                    FPCamera.stageCamera.screenShake = Mathf.Max(FPCamera.stageCamera.screenShake, 10f);
+
+                    // Loop through four times.
+                    for (int sparkIndex = 0; sparkIndex < 4; sparkIndex++)
+                    {
+                        // Create a spark.
+                        Spark spark = (Spark)FPStage.CreateStageObject(Spark.classID, player.position.x, player.position.y);
+                        spark.velocity.x = Mathf.Cos((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
+                        spark.velocity.y = Mathf.Sin((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
+                        spark.SetAngle();
+                    }
+
+                    // Play the Boost Breaker sound from Lilac's prefab.
+                    player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
+
+                    // Create the Boost Breaker explosion.
+                    BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
+                    boostExplosion.attackKnockback.x = player.attackKnockback.x * 0.5f;
+                    boostExplosion.attackKnockback.y = player.attackKnockback.y * 0.5f;
+                    boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
+                    boostExplosion.parentObject = player;
+                    boostExplosion.faction = player.faction;
+
+                    // Create the Invincibility stars.
+                    InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                    invincibilityStar.parentObject = player;
+                    InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                    invincibilityStar2.parentObject = player;
+                    invincibilityStar2.rotation = 180f;
+
+                    // Play the Superstars super music.
+                    if (FPAudio.GetCurrentMusic() != Plugin.genericSuperMusic)
+                        FPAudio.PlayMusic(Plugin.genericSuperMusic);
+                }
+            }
+        }
+
         /// <summary>
-        /// Activates the Super Form when in the guard action.
+        /// Spawns the Chaos Emeralds and activates the Super flag when in the Guard Action.
         /// </summary>
         [HarmonyPrefix]
         [HarmonyPatch(typeof(FPPlayer), "Action_Guard")]
-        private static void ActivateSuperForm()
+        private static void SpawnEmeralds()
         {
             // Check if we have the Chaos Emeralds equipped, have enough crystals and are NOT Sonic.
             if (player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && !isSuper && player.characterID != Plugin.sonicCharacterID)
@@ -40,40 +101,11 @@ namespace FP2_Sonic_Mod
                 // Set the Super flag.
                 isSuper = true;
 
-                // Shake the camera a bit.
-                FPCamera.stageCamera.screenShake = Mathf.Max(FPCamera.stageCamera.screenShake, 10f);
-
-                // Loop through four times.
-                for (int sparkIndex = 0; sparkIndex < 4; sparkIndex++)
-                {
-                    // Create a spark.
-                    Spark spark = (Spark)FPStage.CreateStageObject(Spark.classID, player.position.x, player.position.y);
-                    spark.velocity.x = Mathf.Cos((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
-                    spark.velocity.y = Mathf.Sin((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
-                    spark.SetAngle();
-                }
-
-                // Play the Boost Breaker sound from Lilac's prefab.
-                player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
-
-                // Create the Boost Breaker explosion.
-                BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
-                boostExplosion.attackKnockback.x = player.attackKnockback.x * 0.5f;
-                boostExplosion.attackKnockback.y = player.attackKnockback.y * 0.5f;
-                boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
-                boostExplosion.parentObject = player;
-                boostExplosion.faction = player.faction;
-
-                // Create the Invincibility stars.
-                InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
-                invincibilityStar.parentObject = player;
-                InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
-                invincibilityStar2.parentObject = player;
-                invincibilityStar2.rotation = 180f;
-
-                // Play the Superstars super music.
-                if (FPAudio.GetCurrentMusic() != Plugin.genericSuperMusic)
-                    FPAudio.PlayMusic(Plugin.genericSuperMusic);
+                // Spawn the orbiting Chaos Emeralds.
+                TransformEmeralds = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("Chaos Emerald Orbit"));
+                TransformEmeralds.transform.position = new(player.transform.position.x, player.transform.position.y, player.transform.position.z);
+                TransformEmeralds.transform.parent = player.transform;
+                TransformEmeralds.AddComponent<OrbitingEmeralds>();
             }
         }
 

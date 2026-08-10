@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FP2_Sonic_Mod.CustomObjectScripts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +32,7 @@ namespace FP2_Sonic_Mod.Patchers
         private static float DashTimer;
 
         // Chaos Emerald GameObjects for the Super Transformation animation.
+        private static GameObject TransformEmeralds;
         private static Transform BlueChaosEmerald;
         private static Transform CyanChaosEmerald;
         private static Transform GreenChaosEmerald;
@@ -483,7 +485,12 @@ namespace FP2_Sonic_Mod.Patchers
                     player.velocity = Vector2.zero;
 
                     // Set the player to the SuperStart animation.
-                    player.SetPlayerAnimation("SuperStart");
+                    player.SetPlayerAnimation("NewSuperStart");
+
+                    // Spawn the orbiting Chaos Emeralds.
+                    TransformEmeralds = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("Chaos Emerald Orbit"));
+                    TransformEmeralds.transform.position = new(player.transform.position.x, player.transform.position.y + 12, player.transform.position.z);
+                    TransformEmeralds.AddComponent<OrbitingEmeralds>();
 
                     // Set the player's invincibility time high so that Sonic can't be knocked out of the Super Transformation state.
                     player.invincibilityTime = 9999;
@@ -1867,104 +1874,69 @@ namespace FP2_Sonic_Mod.Patchers
         /// </summary>
         private static void State_Sonic_SuperTransform()
         {
-            // Increment our super timer by the stage's delta time.
-            SuperStartTimer += FPStage.deltaTime;
+            if (TransformEmeralds != null)
+                return;
 
-            // Check if the timer has gone above 17.
-            if (SuperStartTimer >= 17)
+            if (!createdSparks)
             {
-                // Hide the Chaos Emeralds.
-                BlueChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                CyanChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                GreenChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                GreyChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                PurpleChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                RedChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                YellowChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-
-                // Reset the Chaos Emerald's positions.
-                BlueChaosEmerald.localPosition = new(-144, -180, 0);
-                CyanChaosEmerald.localPosition = new(144, -180, 0);
-                GreenChaosEmerald.localPosition = new(320, -54, 0);
-                GreyChaosEmerald.localPosition = new(252, 107, 0);
-                PurpleChaosEmerald.localPosition = new(0, 180, 0);
-                RedChaosEmerald.localPosition = new(-252, 107, 0);
-                YellowChaosEmerald.localPosition = new(-320, -54, 0);
-
                 // If the super music isn't playing, then play it.
                 if (FPAudio.GetCurrentMusic() != Plugin.sonicSuperMusic)
                     FPAudio.PlayMusic(Plugin.sonicSuperMusic);
 
-                // Check if we haven't already created the things from Lilac's Boost Breaker.
-                if (!createdSparks)
+                // Swap the Super Form version of the flashing animation.
+                player.SetPlayerAnimation("NewSuperFlash");
+
+                // Play the Super Transformation sound.
+                player.Action_PlaySoundUninterruptable(player.sfxCarolAttack2);
+
+                // Play a sound from the SpecialB voice array.
+                player.Action_PlayVoiceArray("SpecialB");
+
+                // Set the created sparks flag.
+                createdSparks = true;
+
+                // Shake the camera a bit.
+                FPCamera.stageCamera.screenShake = Mathf.Max(FPCamera.stageCamera.screenShake, 10f);
+
+                // Loop through four times.
+                for (int sparkIndex = 0; sparkIndex < 4; sparkIndex++)
                 {
-                    // Play the Super Transformation sound.
-                    player.Action_PlaySoundUninterruptable(player.sfxCarolAttack2);
-
-                    // Play a sound from the SpecialB voice array.
-                    player.Action_PlayVoiceArray("SpecialB");
-
-                    // Set the created sparks flag.
-                    createdSparks = true;
-
-                    // Shake the camera a bit.
-                    FPCamera.stageCamera.screenShake = Mathf.Max(FPCamera.stageCamera.screenShake, 10f);
-
-                    // Loop through four times.
-                    for (int sparkIndex = 0; sparkIndex < 4; sparkIndex++)
-                    {
-                        // Create a spark.
-                        Spark spark = (Spark)FPStage.CreateStageObject(Spark.classID, player.position.x, player.position.y);
-                        spark.velocity.x = Mathf.Cos((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
-                        spark.velocity.y = Mathf.Sin((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
-                        spark.SetAngle();
-                    }
-
-                    // Play the Boost Breaker sound from Lilac's prefab.
-                    player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
-
-                    // Create the Boost Breaker explosion.
-                    BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y);
-                    boostExplosion.attackKnockback.x = player.attackKnockback.x * 0.5f;
-                    boostExplosion.attackKnockback.y = player.attackKnockback.y * 0.5f;
-                    boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
-                    boostExplosion.parentObject = player;
-                    boostExplosion.faction = player.faction;
-
-                    // Create the Invincibility stars and set the flash timer.
-                    InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
-                    invincibilityStar.parentObject = player;
-                    InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
-                    invincibilityStar2.parentObject = player;
-                    invincibilityStar2.rotation = 180f;
-                    player.flashTime = 1200f;
+                    // Create a spark.
+                    Spark spark = (Spark)FPStage.CreateStageObject(Spark.classID, player.position.x, player.position.y + 12);
+                    spark.velocity.x = Mathf.Cos((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
+                    spark.velocity.y = Mathf.Sin((float)Math.PI / 180f * ((float)sparkIndex * 90f + 45f)) * 20f;
+                    spark.SetAngle();
                 }
+
+                // Play the Boost Breaker sound from Lilac's prefab.
+                player.Action_PlaySoundUninterruptable(Plugin.lilacPrefab.GetComponent<FPPlayer>().sfxBoostExplosion);
+
+                // Create the Boost Breaker explosion.
+                BoostExplosion boostExplosion = (BoostExplosion)FPStage.CreateStageObject(BoostExplosion.classID, player.position.x, player.position.y + 12);
+                boostExplosion.attackKnockback.x = player.attackKnockback.x * 0.5f;
+                boostExplosion.attackKnockback.y = player.attackKnockback.y * 0.5f;
+                boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
+                boostExplosion.parentObject = player;
+                boostExplosion.faction = player.faction;
+
+                // Create the Invincibility stars and set the flash timer.
+                InvincibilityStar invincibilityStar = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                invincibilityStar.parentObject = player;
+                InvincibilityStar invincibilityStar2 = (InvincibilityStar)FPStage.CreateStageObject(InvincibilityStar.classID, -100f, -100f);
+                invincibilityStar2.parentObject = player;
+                invincibilityStar2.rotation = 180f;
+                player.flashTime = 1200f;
             }
 
-            // If the timer hasn't yet hit 17.
-            else
-            {
-                // Make the Chaos Emeralds visible.
-                BlueChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                CyanChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                GreenChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                GreyChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                PurpleChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                RedChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                YellowChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
+            // Increment our super timer by the stage's delta time.
+            SuperStartTimer += FPStage.deltaTime;
 
-                // Move the Chaos Emeralds towards Sonic's position.
-                BlueChaosEmerald.transform.position = Vector2.MoveTowards(BlueChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                CyanChaosEmerald.transform.position = Vector2.MoveTowards(CyanChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                GreenChaosEmerald.transform.position = Vector2.MoveTowards(GreenChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                GreyChaosEmerald.transform.position = Vector2.MoveTowards(GreyChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                PurpleChaosEmerald.transform.position = Vector2.MoveTowards(PurpleChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                RedChaosEmerald.transform.position = Vector2.MoveTowards(RedChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-                YellowChaosEmerald.transform.position = Vector2.MoveTowards(YellowChaosEmerald.transform.position, player.transform.position, 20f * FPStage.deltaTime);
-            }
+            // Check if the start timer has gone above 48 and swap to the descending animation.
+            if (SuperStartTimer >= 48)
+                player.SetPlayerAnimation("NewSuperDescend", 0);
 
-            // Check if the start timer has gone above 65.
-            if (SuperStartTimer >= 65)
+            // Check that we're in the descending animation and its completed.
+            if (player.currentAnimation == "NewSuperDescend" && player.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.95f)
             {
                 // Set the isSuper flag.
                 isSuper = true;
