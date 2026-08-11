@@ -249,7 +249,7 @@ namespace FP2_Sonic_Mod
 
             // Patch our classes.
             Harmony.CreateAndPatchAll(typeof(AcrabellePieTrapPatcher));
-            Harmony.CreateAndPatchAll(typeof(DiscordPatcher));
+            Harmony.CreateAndPatchAll(typeof(BossTaunts));
             Harmony.CreateAndPatchAll(typeof(FPAudioPatcher));
             Harmony.CreateAndPatchAll(typeof(FPEventSequencePatcher));
             Harmony.CreateAndPatchAll(typeof(FPHudMasterPatcher));
