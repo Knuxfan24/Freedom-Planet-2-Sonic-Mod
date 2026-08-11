@@ -11,6 +11,7 @@ namespace FP2_Sonic_Mod.Patchers
         [HarmonyPatch(typeof(Discord), "Start")]
         [HarmonyPatch(typeof(BFF2000), "Start")]
         [HarmonyPatch(typeof(TitanArmor), "Start")]
+        [HarmonyPatch(typeof(GnawsaLock), "Start")]
         private static void ResetFlag()
         {
             playedVoice = false;
@@ -74,6 +75,26 @@ namespace FP2_Sonic_Mod.Patchers
             dialogBox.queue[0].portrait = Plugin.sonicAssetBundle.LoadAsset<Sprite>("file_icon");
             dialogBox.queue[0].active = true;
             playedVoice = true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GnawsaLock), "State_RetreatB")]
+        private static void GnawsaLockVoiceLine(ref float ___genericTimer)
+        {
+            // Don't do this if the voice isn't set to Ryan and we've already played the sound or aren't in Ancestral Forge.
+            if (FPPlayerPatcher.player.characterID != Plugin.sonicCharacterID || Plugin.sonicVAOption.Value != 1 || playedVoice || SceneManager.GetActiveScene().name != "AncestralForge")
+                return;
+
+            // Play the voice line and set the flag.
+            if (___genericTimer >= 35)
+            {
+                dialogBox.queue[0].name = "Sonic";
+                dialogBox.queue[0].text = "Come on ya big drip!\r\nWhere ya goin'?";
+                dialogBox.queue[0].audio = Plugin.sonicAssetBundle.LoadAsset<AudioClip>("e0002_01_01_sn");
+                dialogBox.queue[0].portrait = Plugin.sonicAssetBundle.LoadAsset<Sprite>("file_icon");
+                dialogBox.queue[0].active = true;
+                playedVoice = true;
+            }
         }
     }
 }
