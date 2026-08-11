@@ -31,15 +31,8 @@ namespace FP2_Sonic_Mod.Patchers
         private static int RTap;
         private static float DashTimer;
 
-        // Chaos Emerald GameObjects for the Super Transformation animation.
+        // Chaos Emerald GameObject for the Super Transformation animation.
         private static GameObject TransformEmeralds;
-        private static Transform BlueChaosEmerald;
-        private static Transform CyanChaosEmerald;
-        private static Transform GreenChaosEmerald;
-        private static Transform GreyChaosEmerald;
-        private static Transform PurpleChaosEmerald;
-        private static Transform RedChaosEmerald;
-        private static Transform YellowChaosEmerald;
 
         // Values for the Homing Attack.
         public static float HomingAttackFailsafeTimer;
@@ -120,30 +113,21 @@ namespace FP2_Sonic_Mod.Patchers
                     UnityEngine.Object.FindObjectOfType<FPAudio>().jingleStageComplete = Plugin.sonicClearJingle;
                 player.bgmResults = Plugin.sonicResultsMusic;
 
-                // Get references to the Chaos Emerald objects.
-                BlueChaosEmerald = player.gameObject.transform.GetChild(0);
-                CyanChaosEmerald = player.gameObject.transform.GetChild(1);
-                GreenChaosEmerald = player.gameObject.transform.GetChild(2);
-                GreyChaosEmerald = player.gameObject.transform.GetChild(3);
-                PurpleChaosEmerald = player.gameObject.transform.GetChild(4);
-                RedChaosEmerald = player.gameObject.transform.GetChild(5);
-                YellowChaosEmerald = player.gameObject.transform.GetChild(6);
-
                 // Get references to the Homing Attack cursor objects.
                 HomingAttackCursor = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("homing attack cursor")).transform;
                 HomingAttackArrows1 = HomingAttackCursor.gameObject.transform.GetChild(0);
                 HomingAttackArrows2 = HomingAttackCursor.gameObject.transform.GetChild(1);
 
                 // Get references to the Stomp's effect.
-                StompEffect = player.gameObject.transform.GetChild(7);
+                StompEffect = player.gameObject.transform.GetChild(0);
                 StompEffect.gameObject.SetActive(false);
 
                 // Get references to the Rocket Wisp's effect.
-                RocketWispEffect = player.gameObject.transform.GetChild(8);
+                RocketWispEffect = player.gameObject.transform.GetChild(1);
                 RocketWispEffect.gameObject.SetActive(false);
 
                 // Get references to the Laser Wisp's effect.
-                LaserWispEffect = player.gameObject.transform.GetChild(9);
+                LaserWispEffect = player.gameObject.transform.GetChild(2);
                 LaserWispEffect.gameObject.SetActive(false);
 
                 // Set the voice bank depending on the config option.
@@ -515,6 +499,12 @@ namespace FP2_Sonic_Mod.Patchers
 
                     // Reset the player's velocity.
                     player.velocity = Vector2.zero;
+
+                    // Spawn the expelling Emeralds.
+                    GameObject detransformEmeralds = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("Chaos Emerald Orbit"));
+                    detransformEmeralds.transform.position = new(player.transform.position.x, player.transform.position.y, player.transform.position.z);
+                    var emeraldScript = detransformEmeralds.AddComponent<OrbitingEmeralds>();
+                    emeraldScript.expel = true;
 
                     // Set the player's state to the Super Detransformation one.
                     player.state = State_Sonic_SuperDetransform;
@@ -2000,37 +1990,10 @@ namespace FP2_Sonic_Mod.Patchers
                 boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
                 boostExplosion.parentObject = player;
                 boostExplosion.faction = player.faction;
-
-                // Show the Chaos Emeralds.
-                BlueChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                CyanChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                GreenChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                GreyChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                PurpleChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                RedChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-                YellowChaosEmerald.GetComponent<SpriteRenderer>().enabled = true;
-
-                // Set the Chaos Emerald's positions to the player's position.
-                BlueChaosEmerald.transform.position = player.position;
-                CyanChaosEmerald.transform.position = player.position;
-                GreenChaosEmerald.transform.position = player.position;
-                GreyChaosEmerald.transform.position = player.position;
-                PurpleChaosEmerald.transform.position = player.position;
-                RedChaosEmerald.transform.position = player.position;
-                YellowChaosEmerald.transform.position = player.position;
             }
 
             // Increment our super timer by the stage's delta time.
             SuperStartTimer += FPStage.deltaTime;
-
-            // Move the Chaos Emeralds.
-            BlueChaosEmerald.transform.position = new(BlueChaosEmerald.transform.position.x - (15f * FPStage.deltaTime), BlueChaosEmerald.transform.position.y - (22.5f * FPStage.deltaTime));
-            CyanChaosEmerald.transform.position = new(CyanChaosEmerald.transform.position.x + (15f * FPStage.deltaTime), CyanChaosEmerald.transform.position.y - (22.5f * FPStage.deltaTime));
-            GreenChaosEmerald.transform.position = new(GreenChaosEmerald.transform.position.x + (30f * FPStage.deltaTime), GreenChaosEmerald.transform.position.y - (7.5f * FPStage.deltaTime));
-            GreyChaosEmerald.transform.position = new(GreyChaosEmerald.transform.position.x + (27.5f * FPStage.deltaTime), GreyChaosEmerald.transform.position.y + (12.5f * FPStage.deltaTime));
-            PurpleChaosEmerald.transform.position = new(PurpleChaosEmerald.transform.position.x, PurpleChaosEmerald.transform.position.y + (20f * FPStage.deltaTime));
-            RedChaosEmerald.transform.position = new(RedChaosEmerald.transform.position.x - (27.5f * FPStage.deltaTime), RedChaosEmerald.transform.position.y + (12.5f * FPStage.deltaTime));
-            YellowChaosEmerald.transform.position = new(YellowChaosEmerald.transform.position.x - (30f * FPStage.deltaTime), YellowChaosEmerald.transform.position.y - (7.5f * FPStage.deltaTime));
 
             // Check if the timer has reached 60.
             if (SuperStartTimer >= 60)
@@ -2051,24 +2014,6 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset the super start timer.
                 SuperStartTimer = 0;
-
-                // Hide the Chaos Emeralds.
-                BlueChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                CyanChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                GreenChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                GreyChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                PurpleChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                RedChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-                YellowChaosEmerald.GetComponent<SpriteRenderer>().enabled = false;
-
-                // Reset the Chaos Emerald's positions.
-                BlueChaosEmerald.localPosition = new(-144, -180, 0);
-                CyanChaosEmerald.localPosition = new(144, -180, 0);
-                GreenChaosEmerald.localPosition = new(320, -54, 0);
-                GreyChaosEmerald.localPosition = new(252, 107, 0);
-                PurpleChaosEmerald.localPosition = new(0, 180, 0);
-                RedChaosEmerald.localPosition = new(-252, 107, 0);
-                YellowChaosEmerald.localPosition = new(-320, -54, 0);
             }
         }
 
@@ -2593,6 +2538,12 @@ namespace FP2_Sonic_Mod.Patchers
 
                 // Reset the player's velocity.
                 player.velocity = Vector2.zero;
+
+                // Spawn the expelling Emeralds.
+                GameObject detransformEmeralds = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("Chaos Emerald Orbit"));
+                detransformEmeralds.transform.position = new(player.transform.position.x, player.transform.position.y, player.transform.position.z);
+                var emeraldScript = detransformEmeralds.AddComponent<OrbitingEmeralds>();
+                emeraldScript.expel = true;
 
                 // Set the player's state to the Super Detransformation one.
                 player.state = State_Sonic_SuperDetransform;

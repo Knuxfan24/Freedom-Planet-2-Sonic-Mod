@@ -142,6 +142,7 @@ namespace FP2_Sonic_Mod
             player.heatLevel = 0f;
             player.oxygenLevel = 1f;
 
+            // Force an attack hitbox to be active.
             player.hbAttack.enabled = true;
             player.hbAttack.visible = true;
             player.hbAttack.left = -32;
@@ -205,6 +206,12 @@ namespace FP2_Sonic_Mod
                 boostExplosion.attackEnemyInvTime = player.attackEnemyInvTime;
                 boostExplosion.parentObject = player;
                 boostExplosion.faction = player.faction;
+
+                // Spawn the expelling Emeralds.
+                GameObject detransformEmeralds = GameObject.Instantiate(Plugin.sonicAssetBundle.LoadAsset<GameObject>("Chaos Emerald Orbit"));
+                detransformEmeralds.transform.position = new(player.transform.position.x, player.transform.position.y, player.transform.position.z);
+                var emeraldScript = detransformEmeralds.AddComponent<OrbitingEmeralds>();
+                emeraldScript.expel = true;
             }
         }
     }
