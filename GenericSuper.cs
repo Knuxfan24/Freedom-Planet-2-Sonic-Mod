@@ -16,10 +16,16 @@ namespace FP2_Sonic_Mod
         // The GameObject for the Emeralds that orbit into the player.
         private static GameObject TransformEmeralds;
 
+        // The character ID for Tails, as he handles the Super stuff in his code.
+        private static FPCharacterID? tailsID;
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FPPlayer), "Start")]
         private static void Setup(FPPlayer __instance)
         {
+            // Get Tails' ID from FP2Lib if he's installed.
+            if (tailsID == null && FP2Lib.Player.PlayerHandler.PlayableChars.ContainsKey("k24.tails")) tailsID = (FPCharacterID)FP2Lib.Player.PlayerHandler.GetPlayableCharaByUid("k24.tails").id;
+
             // Reset the Super flag.
             isSuper = false;
 
@@ -98,6 +104,11 @@ namespace FP2_Sonic_Mod
             // Check if we have the Chaos Emeralds equipped, have enough crystals and are NOT Sonic.
             if (player.powerups.Contains((FPPowerup)Plugin.chaosEmeraldID) && player.totalCrystals >= 50 && !isSuper && player.characterID != Plugin.sonicCharacterID)
             {
+                // Check for Tails and bail out if we're him.
+                if (tailsID != null)
+                    if (player.characterID == tailsID)
+                        return;
+
                 // Set the Super flag.
                 isSuper = true;
 
@@ -119,6 +130,11 @@ namespace FP2_Sonic_Mod
             // If the player is Sonic, then don't do any of this.
             if (player.characterID == Plugin.sonicCharacterID)
                 return;
+
+            // Check for Tails and don't do any of this if we're him.
+            if (tailsID != null)
+                if (player.characterID == tailsID)
+                    return;
 
             // Don't proceed if the player isn't Super or is in the victory animation.
             if (!isSuper || player.state == player.State_Victory)
