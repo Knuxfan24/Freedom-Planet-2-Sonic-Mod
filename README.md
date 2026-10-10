@@ -193,6 +193,8 @@ You should now be able to right click the solution and choose `Rebuild` to build
 
 Navigate to `BepInEx/plugins` and create a new folder with whatever name you want. Then copy the `FP2_Sonic_Mod.dll` file from the build (`bin/Debug/net35` or `bin/Release/net35`) into it. If using Freedom Manager, you may also want to copy the included `modinfo.json` file to give the mod a proper entry in the manager, although this is not strictly required.
 
+In addition, copy the `sonic.assets` and `sonic.scene` files from the resources folder of this repo into `mod_overrides` folder in Freedom Planet 2's root (create that directory if its not present).
+
 ## Customisation
 
 ![](./readme_imgs/config.png)
