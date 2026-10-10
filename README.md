@@ -209,7 +209,7 @@ Custom Super Sonic Sprites - Ripped by Kevin Huff, edited by [Moe](https://www.s
 
 Character Select Portrait - Sonic Advance 3, ripped by [HXC](https://www.spriters-resource.com/game_boy_advance/sonicadv3/sheet/7151/).
 
-File Icon - Sonic Advance 3, ripped by [EternalLight](https://www.spriters-resource.com/game_boy_advance/sonicadv3/sheet/7156/).
+File Icon - Sonic Jump, ripped by [Xyroneriz](https://www.spriters-resource.com/mobile/sonicjumpjava/asset/192392/).
 
 Life Icon - Sonic Advance, ripped by [EternalLight](https://www.spriters-resource.com/game_boy_advance/sonicadv/sheet/6600/).
 
